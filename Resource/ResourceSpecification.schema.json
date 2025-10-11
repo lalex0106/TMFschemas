@@ -70,7 +70,7 @@
           "type": "array",
           "description": "A list of related party references (RelatedParty [*]). A related party defines party or party role linked to a specific entity.",
           "items": {
-            "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+            "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
           }
         },
         "resourceSpecRelationship": {

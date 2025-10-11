@@ -26,7 +26,7 @@
         },
         "partyAccount": {
           "description": "A reference to the account that owns the bucket impacted by the balance related operation",
-          "$ref": "../EngagedParty/PartyAccountRef.schema.json#PartyAccountRef"
+          "$ref": "../BusinessPartner/PartyAccountRef.schema.json#PartyAccountRef"
         },
         "product": {
           "description": "A reference to the product related to the bucket that is impacted by the balance related operation",
@@ -35,7 +35,7 @@
         "relatedParty": {
           "type": "array",
           "items": {
-            "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+            "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
           },
           "description": "Used to provide information about any other entity with relation to the operation"
         },
@@ -46,7 +46,7 @@
         },
         "requestor": {
           "description": "Identifier for the user/customer/entity that performs the top-up action. This can be used to indicate the identifier of an agent that performs the operation on behalf of a user via a customer service channel. Structure including at least attributes �role� and �name�.",
-          "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+          "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
         },
         "bucket": {
           "description": "A reference to the bucket impacted by the request. This is used in scenarios where the requestor knows beforehand the bucket that is going to be impacted instead of just referring to the commercial identifier of the impacted product and the type of bucket created under that product",

@@ -42,7 +42,7 @@
           }
         },
         "relatedParty": {
-          "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty",
+          "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty",
           "description": "RelatedParty reference. A related party defines party or party role linked to a specific entity."
         },
         "relatedEntity": {

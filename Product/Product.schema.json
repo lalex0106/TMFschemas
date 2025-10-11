@@ -14,7 +14,7 @@
         "agreement": {
           "type": "array",
           "items": {
-            "$ref": "../EngagedParty/AgreementItemRef.schema.json#AgreementItemRef"
+            "$ref": "../BusinessPartner/AgreementItemRef.schema.json#AgreementItemRef"
           }
         },
         "billingAccount": {
@@ -110,7 +110,7 @@
         "relatedParty": {
           "type": "array",
           "items": {
-            "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+            "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
           }
         },
         "place": {
