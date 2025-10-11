@@ -218,6 +218,7 @@ PROTOCOL_PRIORITY: Mapping[str, int] = {
 
 TRANSLATABLE_FIELDS = {"title", "description", "summary"}
 ARRAY_TRANSLATABLE_KEYS = {"allOf", "anyOf", "oneOf"}
+GLOBAL_PROPERTY_TRANSLATION_KEY = "__GLOBAL_PROPERTIES__"
 
 
 def _merge_translation_payload(
@@ -324,20 +325,29 @@ def _load_property_level_csv(path: Path) -> Mapping[str, Mapping[str, object]]:
             ["新描述", "中文描述", "描述", "说明", "description zh", "desc zh"],
         )
 
-        if not schema_column or (not property_column and not description_column and not title_column):
+        if not property_column and not description_column and not title_column:
             return {}
 
         translations: Dict[str, Dict[str, object]] = {}
         for raw_row in reader:
             row = {(_sanitize_header(k)): (str(v).strip() if v is not None else "") for k, v in raw_row.items() if k}
-            schema_raw = row.get(schema_column, "").strip()
-            if not schema_raw:
-                continue
+            schema_raw = row.get(schema_column, "").strip() if schema_column else ""
+            property_raw = row.get(property_column, "").strip() if property_column else ""
 
             schema_name = schema_raw
-            property_name = row.get(property_column, "").strip() if property_column else ""
-            if not property_name and "." in schema_raw:
+            property_name = property_raw
+
+            if not schema_name:
+                schema_name = GLOBAL_PROPERTY_TRANSLATION_KEY
+
+            if not property_name and schema_column and "." in schema_raw:
                 schema_name, _, prop = schema_raw.partition(".")
+                schema_name = schema_name.strip() or GLOBAL_PROPERTY_TRANSLATION_KEY
+                property_name = prop.strip()
+
+            if not property_name and not schema_column and "." in property_raw:
+                schema_name, _, prop = property_raw.partition(".")
+                schema_name = schema_name.strip() or GLOBAL_PROPERTY_TRANSLATION_KEY
                 property_name = prop.strip()
 
             if not property_name:
@@ -608,11 +618,20 @@ def apply_locale_translations(
 ) -> Tuple[str, ...]:
     applied: list[str] = []
     for locale, translations in locale_translations:
+        applied_this_locale = False
+
+        global_payload = translations.get(GLOBAL_PROPERTY_TRANSLATION_KEY)
+        if global_payload:
+            _apply_translation_recursive(schema, global_payload, locale, config)
+            applied_this_locale = True
+
         translation_payload = translations.get(model_name)
-        if not translation_payload:
-            continue
-        _apply_translation_recursive(schema, translation_payload, locale, config)
-        applied.append(locale.output_code)
+        if translation_payload:
+            _apply_translation_recursive(schema, translation_payload, locale, config)
+            applied_this_locale = True
+
+        if applied_this_locale:
+            applied.append(locale.output_code)
     return tuple(applied)
 
 

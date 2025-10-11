@@ -33,7 +33,8 @@
 
 1. 按照 `sources/tmf-official/README.md` 指引同步官方 API 规范文件。
 2. 根据需要更新 `config/domain_mapping.yaml` 与 `config/name_mapping.json`，统一域归属与命名映射。
-3. （可选）在 `overrides/i18n/<locale>/` 下补充翻译文件。推荐使用 Excel 维护并导出 `Schemas_ZH.csv`、`Properties_ZH.csv` 等 CSV，流水线会自动合并并在输出的 Schema 中附加中英文对照信息。
+3. （可选）在 `overrides/i18n/<locale>/` 下补充翻译文件。推荐使用 Excel 维护并导出 `Schemas_ZH.csv`、`Properties_ZH.csv` 等 CSV。
+   其中 `Properties_ZH.csv` 可仅保留 `Property,Descriptions,中文名称,新描述` 四列，脚本会自动应用到所有同名属性；如需覆盖特定模型，可增加 `Schema` 列或在 `Property` 中使用 `模型.属性` 的写法。流水线会在输出的 Schema 中附加中英文对照信息。
 4. 执行流水线原型：
 
    ```bash
@@ -41,5 +42,6 @@
    ```
 
 5. 在 `dist/` 目录查看生成的企业级 Schema 结果，并结合测试与文档进行迭代。
+6. （可选）使用 `.circleci/validate.js` 对输出进行 TMF 约定校验：`node .circleci/validate.js dist/json .circleci`。
 
 如需贡献改进，请在提交前确保文档与代码同步更新，并遵循本仓库的中文编写约定。
