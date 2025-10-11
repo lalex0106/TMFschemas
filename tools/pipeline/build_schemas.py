@@ -258,6 +258,26 @@ PROTOCOL_PRIORITY: Mapping[str, int] = {
 }
 
 
+def canonical_model_name(schema_name: str) -> str:
+    """返回模型的规范名称（去除下划线后的后缀）。"""
+
+    if "_" not in schema_name:
+        return schema_name
+    base, _, _ = schema_name.partition("_")
+    return base or schema_name
+
+
+def iter_model_aliases(schema_name: str) -> Iterable[str]:
+    """针对翻译与域推断返回模型名的等价写法。"""
+
+    canonical = canonical_model_name(schema_name)
+    if canonical == schema_name:
+        yield schema_name
+    else:
+        yield schema_name
+        yield canonical
+
+
 TRANSLATABLE_FIELDS = {"title", "description", "summary"}
 ARRAY_TRANSLATABLE_KEYS = {"allOf", "anyOf", "oneOf"}
 GLOBAL_PROPERTY_TRANSLATION_KEY = "__GLOBAL_PROPERTIES__"
@@ -779,9 +799,19 @@ def sanitize_for_validation(
     return payload
 
 
+def _pick_translation_payload(
+    translations: Mapping[str, Mapping[str, object]], schema_name: str
+) -> Optional[Mapping[str, object]]:
+    for alias in iter_model_aliases(schema_name):
+        payload = translations.get(alias)
+        if payload:
+            return payload
+    return None
+
+
 def apply_locale_translations(
     schema: MutableMapping[str, object],
-    model_name: str,
+    schema_name: str,
     locale_translations: Tuple[Tuple[LocaleConfig, Mapping[str, Mapping[str, object]]], ...],
     config: PipelineConfig,
 ) -> Tuple[str, ...]:
@@ -801,7 +831,7 @@ def apply_locale_translations(
                 _apply_translation_recursive(schema, residual, locale, config)
                 applied_this_locale = True
 
-        translation_payload = translations.get(model_name)
+        translation_payload = _pick_translation_payload(translations, schema_name)
         if translation_payload:
             residual, property_payload = _split_property_translations(translation_payload)
             if property_payload:
@@ -847,7 +877,7 @@ def analyze_spec_files(spec_files: Iterable[Path], pattern: re.Pattern[str]) -> 
 
         documents.append(document)
 
-        unique_names = {name.split("_")[0] for name in schemas.keys()}
+        unique_names = {canonical_model_name(name) for name in schemas.keys()}
         schema_counts.update(unique_names)
 
     return documents, schema_counts
@@ -875,8 +905,12 @@ def resolve_refs(obj: object, current_domain: str, model_domain_map: Mapping[str
         new_obj = {}
         for key, value in obj.items():
             if key == "$ref" and isinstance(value, str) and value.startswith("#/components/schemas/"):
-                ref_name = value.split("/")[-1].split("_")[0]
-                ref_domain = model_domain_map.get(ref_name, current_domain)
+                ref_name = value.split("/")[-1]
+                ref_domain = model_domain_map.get(ref_name)
+                if ref_domain is None:
+                    ref_domain = model_domain_map.get(
+                        canonical_model_name(ref_name), current_domain
+                    )
                 prefix = "" if ref_domain == current_domain else f"../{ref_domain}/"
                 new_obj[key] = f"{prefix}{ref_name}.schema.json#{ref_name}"
             else:
@@ -970,51 +1004,54 @@ def run_pipeline(config: PipelineConfig, clean: bool = False) -> None:
 
     for document in sorted(documents, key=document_sort_key):
         for schema_name, schema_def in document.schemas.items():
-            model_name = schema_name.split("_")[0]
+            canonical_name = canonical_model_name(schema_name)
             domain = infer_domain(
-                model_name,
+                canonical_name,
                 ground_truth_map,
                 schema_counts,
                 domain_mapping,
                 document.api_code,
                 config,
             )
-            previous = written_models.get(model_name)
+            previous = written_models.get(schema_name)
             if previous is not None:
                 current_priority = PROTOCOL_PRIORITY.get(document.protocol, 9)
                 previous_priority = PROTOCOL_PRIORITY.get(previous.protocol, 9)
                 if current_priority > previous_priority:
                     continue
 
-            model_domain_map[model_name] = domain
+            model_domain_map[schema_name] = domain
+            if canonical_name not in model_domain_map:
+                model_domain_map[canonical_name] = domain
+
             resolved = resolve_refs(deepcopy(schema_def), domain, model_domain_map)
             applied_locales: Tuple[str, ...] = ()
             if isinstance(resolved, MutableMapping):
                 applied_locales = apply_locale_translations(
                     resolved,
-                    model_name,
+                    schema_name,
                     locale_translations,
                     config,
                 )
             document_payload = build_schema_document(
-                model_name,
+                schema_name,
                 domain,
                 resolved,
                 config,
                 document,
-                schema_counts.get(model_name, 0),
+                schema_counts.get(canonical_name, 0),
                 repo_root,
                 applied_locales,
             )
-            write_schema_file(config.output_root, domain, model_name, document_payload)
+            write_schema_file(config.output_root, domain, schema_name, document_payload)
             if config.validation_root:
                 sanitized_payload = sanitize_for_validation(
                     document_payload, config.validation_strip_keys
                 )
                 write_schema_file(
-                    config.validation_root, domain, model_name, sanitized_payload
+                    config.validation_root, domain, schema_name, sanitized_payload
                 )
-            written_models[model_name] = document
+            written_models[schema_name] = document
 
     print(f"✅ 已输出 {len(written_models)} 个模型定义到 {config.output_root}")
 
