@@ -37,7 +37,7 @@
         },
         "partyAccount": {
           "description": "A reference to the account that owns the bucket impacted by the balance related operation",
-          "$ref": "../EngagedParty/PartyAccountRef.schema.json#PartyAccountRef"
+          "$ref": "../BusinessPartner/PartyAccountRef.schema.json#PartyAccountRef"
         },
         "paymentMethod": {
           "description": "Payment method used for the recharge operation (e.g.: cash, credit card, �). Structure including at least attribute �name�. Notice that the use of a voucher can be managed as a specific methodtype, where he voucher code can be passed as value.",
@@ -50,7 +50,7 @@
         "relatedParty": {
           "type": "array",
           "items": {
-            "$ref": "../EngagedParty/RelatedPartyRef.schema.json#RelatedPartyRef"
+            "$ref": "../BusinessPartner/RelatedPartyRef.schema.json#RelatedPartyRef"
           },
           "description": "Used to provide information about any other entity with relation to the operation"
         },
@@ -60,7 +60,7 @@
         },
         "requestor": {
           "description": "Identifier for the user/customer/entity that performs the top-up action. This can be used to indicate the identifier of an agent that performs the operation on behalf of a user via a customer service channel. Structure including at least attributes �role� and �name�.",
-          "$ref": "../EngagedParty/RelatedPartyRef.schema.json#RelatedPartyRef"
+          "$ref": "../BusinessPartner/RelatedPartyRef.schema.json#RelatedPartyRef"
         },
         "status": {
           "type": "string",

@@ -1,0 +1,4 @@
+Schema,Property,中文名称,新描述
+Account,name,账户名称,账户在界面上展示的名称。
+Account,creditLimit,,账户可以被透支或消费的最高额度。
+Account,description,,客户账户的补充说明，便于业务人员理解账户用途。
