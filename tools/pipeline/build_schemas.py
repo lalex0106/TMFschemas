@@ -75,6 +75,8 @@ class PipelineConfig:
     i18n_locales: Tuple[LocaleConfig, ...] = ()
     i18n_default_locale: str = "en"
     i18n_output_key: str = "x-i18n"
+    validation_root: Optional[Path] = None
+    validation_strip_keys: Tuple[str, ...] = ("x-metadata", "x-i18n")
 
     @classmethod
     def load(cls, config_path: Path) -> "PipelineConfig":
@@ -86,6 +88,7 @@ class PipelineConfig:
         sources = raw.get("sources", {})
         processing = raw.get("processing", {})
         output = raw.get("output", {})
+        validation = output.get("validation", {}) if isinstance(output, Mapping) else {}
         metadata = raw.get("metadata", {})
         i18n = raw.get("i18n", {})
 
@@ -111,6 +114,19 @@ class PipelineConfig:
         )
         output_key = str(i18n.get("output_key", "x-i18n") or "x-i18n")
 
+        strip_keys = tuple(
+            str(key)
+            for key in validation.get("strip_extensions", ["x-metadata", "x-i18n"])
+            if str(key)
+        ) or ("x-metadata", "x-i18n")
+
+        validation_root_value = validation.get("root") if isinstance(validation, Mapping) else None
+        validation_root = (
+            Path(validation_root_value)
+            if isinstance(validation_root_value, (str, Path)) and validation_root_value
+            else None
+        )
+
         return cls(
             tmf_official=Path(sources.get("tmf_official", "sources/tmf-official")),
             external=Path(sources.get("external", "sources/external")),
@@ -128,6 +144,8 @@ class PipelineConfig:
             i18n_locales=tuple(locales),
             i18n_default_locale=i18n_default_locale,
             i18n_output_key=output_key,
+            validation_root=validation_root,
+            validation_strip_keys=strip_keys,
         )
 
 
@@ -610,6 +628,122 @@ def _apply_translation_recursive(
                 _apply_translation_recursive(nested_target, value, locale, config)
 
 
+def _split_property_translations(
+    payload: Mapping[str, object]
+) -> Tuple[Mapping[str, object], Mapping[str, Mapping[str, object]]]:
+    if not isinstance(payload, Mapping):
+        return payload, {}
+
+    residual: Dict[str, object] = {}
+    properties_payload: Dict[str, Mapping[str, object]] = {}
+
+    for key, value in payload.items():
+        if key == "properties" and isinstance(value, Mapping):
+            for prop_name, prop_translation in value.items():
+                if isinstance(prop_translation, Mapping):
+                    properties_payload[prop_name] = prop_translation
+        else:
+            residual[key] = value
+
+    return residual, properties_payload
+
+
+def _ensure_mutable_mapping(value: object) -> Optional[MutableMapping[str, object]]:
+    if isinstance(value, MutableMapping):
+        return value
+    if isinstance(value, Mapping):
+        return dict(value)
+    return None
+
+
+def apply_property_translations_to_schema(
+    schema: MutableMapping[str, object],
+    properties_payload: Mapping[str, Mapping[str, object]],
+    locale: LocaleConfig,
+    config: PipelineConfig,
+) -> None:
+    if not properties_payload:
+        return
+
+    stack: list[MutableMapping[str, object]] = [schema]
+    while stack:
+        node = stack.pop()
+        properties_raw = node.get("properties")
+        properties_map = _ensure_mutable_mapping(properties_raw)
+        if properties_map is not None:
+            node["properties"] = properties_map
+            for prop_name, prop_value in list(properties_map.items()):
+                translation = properties_payload.get(prop_name)
+                if translation:
+                    target_mapping = _ensure_mutable_mapping(prop_value)
+                    if target_mapping is None:
+                        continue
+                    properties_map[prop_name] = target_mapping
+                    _apply_translation_recursive(
+                        target_mapping, translation, locale, config
+                    )
+                    stack.append(target_mapping)
+                else:
+                    target_mapping = _ensure_mutable_mapping(prop_value)
+                    if target_mapping is not None:
+                        properties_map[prop_name] = target_mapping
+                        stack.append(target_mapping)
+
+        items_raw = node.get("items")
+        items_map = _ensure_mutable_mapping(items_raw)
+        if items_map is not None:
+            node["items"] = items_map
+            stack.append(items_map)
+
+        additional_raw = node.get("additionalProperties")
+        additional_map = _ensure_mutable_mapping(additional_raw)
+        if additional_map is not None:
+            node["additionalProperties"] = additional_map
+            stack.append(additional_map)
+
+        for array_key in ARRAY_TRANSLATABLE_KEYS:
+            array_value = node.get(array_key)
+            if isinstance(array_value, list):
+                new_array: list[object] = []
+                changed = False
+                for element in array_value:
+                    element_map = _ensure_mutable_mapping(element)
+                    if element_map is not None:
+                        new_array.append(element_map)
+                        stack.append(element_map)
+                        if element_map is not element:
+                            changed = True
+                    else:
+                        new_array.append(element)
+                if changed:
+                    node[array_key] = new_array
+
+        definitions_raw = node.get("definitions")
+        definitions_map = _ensure_mutable_mapping(definitions_raw)
+        if definitions_map is not None:
+            node["definitions"] = definitions_map
+            for def_name, def_value in list(definitions_map.items()):
+                def_map = _ensure_mutable_mapping(def_value)
+                if def_map is not None:
+                    definitions_map[def_name] = def_map
+                    stack.append(def_map)
+
+
+def sanitize_for_validation(
+    payload: object, strip_keys: Tuple[str, ...]
+) -> object:
+    if isinstance(payload, dict):
+        sanitized: Dict[str, object] = {}
+        for key, value in payload.items():
+            if key in strip_keys:
+                continue
+            sanitized[key] = sanitize_for_validation(value, strip_keys)
+        return sanitized
+    if isinstance(payload, list):
+        return [sanitize_for_validation(item, strip_keys) for item in payload]
+    return payload
+
+
 def apply_locale_translations(
     schema: MutableMapping[str, object],
     model_name: str,
@@ -622,13 +756,27 @@ def apply_locale_translations(
 
         global_payload = translations.get(GLOBAL_PROPERTY_TRANSLATION_KEY)
         if global_payload:
-            _apply_translation_recursive(schema, global_payload, locale, config)
-            applied_this_locale = True
+            residual, property_payload = _split_property_translations(global_payload)
+            if property_payload:
+                apply_property_translations_to_schema(
+                    schema, property_payload, locale, config
+                )
+                applied_this_locale = True
+            if residual:
+                _apply_translation_recursive(schema, residual, locale, config)
+                applied_this_locale = True
 
         translation_payload = translations.get(model_name)
         if translation_payload:
-            _apply_translation_recursive(schema, translation_payload, locale, config)
-            applied_this_locale = True
+            residual, property_payload = _split_property_translations(translation_payload)
+            if property_payload:
+                apply_property_translations_to_schema(
+                    schema, property_payload, locale, config
+                )
+                applied_this_locale = True
+            if residual:
+                _apply_translation_recursive(schema, residual, locale, config)
+                applied_this_locale = True
 
         if applied_this_locale:
             applied.append(locale.output_code)
@@ -773,6 +921,8 @@ def run_pipeline(config: PipelineConfig, clean: bool = False) -> None:
 
     if clean and config.output_root.exists():
         shutil.rmtree(config.output_root)
+    if clean and config.validation_root and config.validation_root.exists():
+        shutil.rmtree(config.validation_root)
 
     model_domain_map: Dict[str, str] = dict(ground_truth_map)
     repo_root = Path.cwd()
@@ -822,6 +972,13 @@ def run_pipeline(config: PipelineConfig, clean: bool = False) -> None:
                 applied_locales,
             )
             write_schema_file(config.output_root, domain, model_name, document_payload)
+            if config.validation_root:
+                sanitized_payload = sanitize_for_validation(
+                    document_payload, config.validation_strip_keys
+                )
+                write_schema_file(
+                    config.validation_root, domain, model_name, sanitized_payload
+                )
             written_models[model_name] = document
 
     print(f"✅ 已输出 {len(written_models)} 个模型定义到 {config.output_root}")
