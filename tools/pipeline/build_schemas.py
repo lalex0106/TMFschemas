@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import re
 import shutil
@@ -219,34 +220,221 @@ TRANSLATABLE_FIELDS = {"title", "description", "summary"}
 ARRAY_TRANSLATABLE_KEYS = {"allOf", "anyOf", "oneOf"}
 
 
+def _merge_translation_payload(
+    target: MutableMapping[str, object], updates: Mapping[str, object]
+) -> None:
+    for key, value in updates.items():
+        if isinstance(value, Mapping):
+            existing = target.get(key)
+            if isinstance(existing, MutableMapping):
+                _merge_translation_payload(existing, value)
+            elif isinstance(existing, Mapping):
+                nested: MutableMapping[str, object] = dict(existing)
+                target[key] = nested
+                _merge_translation_payload(nested, value)
+            else:
+                target[key] = dict(value)
+        else:
+            target[key] = value
+
+
+def _sanitize_header(header: Optional[str]) -> str:
+    if not header:
+        return ""
+    return header.strip().lstrip("\ufeff")
+
+
+def _select_column(fieldnames: Iterable[str], candidates: Iterable[str]) -> Optional[str]:
+    processed = [(_sanitize_header(name), _sanitize_header(name).lower()) for name in fieldnames]
+    for candidate in candidates:
+        candidate_clean = candidate.strip()
+        if not candidate_clean:
+            continue
+        candidate_lower = candidate_clean.lower()
+        contains_non_ascii = any(ord(ch) > 127 for ch in candidate_clean)
+        for original, lowered in processed:
+            collapsed = lowered.replace(" ", "")
+            original_collapsed = original.replace(" ", "")
+            if contains_non_ascii:
+                if candidate_clean.replace(" ", "") in original_collapsed:
+                    return original
+            else:
+                if candidate_lower in lowered or candidate_lower in collapsed:
+                    return original
+    return None
+
+
+def _load_schema_level_csv(path: Path) -> Mapping[str, Mapping[str, object]]:
+    with path.open("r", encoding="utf-8-sig", newline="") as fh:
+        reader = csv.DictReader(fh)
+        if not reader.fieldnames:
+            return {}
+        reader.fieldnames = [_sanitize_header(name) for name in reader.fieldnames]
+
+        schema_column = _select_column(reader.fieldnames, ["schema", "model", "name"])
+        title_column = _select_column(
+            reader.fieldnames,
+            ["中文名称", "中文名", "名称", "title", "title zh"],
+        )
+        description_column = _select_column(
+            reader.fieldnames,
+            ["新描述", "中文描述", "描述", "说明", "description zh", "desc zh"],
+        )
+
+        if not schema_column or (not title_column and not description_column):
+            return {}
+
+        translations: Dict[str, Dict[str, object]] = {}
+        for raw_row in reader:
+            row = {(_sanitize_header(k)): (str(v).strip() if v is not None else "") for k, v in raw_row.items() if k}
+            schema_name = row.get(schema_column, "").strip()
+            if not schema_name:
+                continue
+
+            payload: Dict[str, object] = translations.setdefault(schema_name, {})
+            title_value = row.get(title_column, "").strip() if title_column else ""
+            description_value = row.get(description_column, "").strip() if description_column else ""
+
+            if title_value:
+                payload["title"] = title_value
+            if description_value:
+                payload["description"] = description_value
+
+        return translations
+
+
+def _load_property_level_csv(path: Path) -> Mapping[str, Mapping[str, object]]:
+    with path.open("r", encoding="utf-8-sig", newline="") as fh:
+        reader = csv.DictReader(fh)
+        if not reader.fieldnames:
+            return {}
+        reader.fieldnames = [_sanitize_header(name) for name in reader.fieldnames]
+
+        schema_column = _select_column(reader.fieldnames, ["schema", "model", "name"])
+        base_property_candidates = ["property", "field", "attribute", "属性", "字段"]
+        property_column = _select_column(reader.fieldnames, base_property_candidates)
+        if not property_column and "property" in path.stem.lower():
+            property_column = _select_column(reader.fieldnames, ["descriptions", "属性描述"])
+        title_column = _select_column(
+            reader.fieldnames,
+            ["中文名称", "中文名", "名称", "title", "title zh"],
+        )
+        description_column = _select_column(
+            reader.fieldnames,
+            ["新描述", "中文描述", "描述", "说明", "description zh", "desc zh"],
+        )
+
+        if not schema_column or (not property_column and not description_column and not title_column):
+            return {}
+
+        translations: Dict[str, Dict[str, object]] = {}
+        for raw_row in reader:
+            row = {(_sanitize_header(k)): (str(v).strip() if v is not None else "") for k, v in raw_row.items() if k}
+            schema_raw = row.get(schema_column, "").strip()
+            if not schema_raw:
+                continue
+
+            schema_name = schema_raw
+            property_name = row.get(property_column, "").strip() if property_column else ""
+            if not property_name and "." in schema_raw:
+                schema_name, _, prop = schema_raw.partition(".")
+                property_name = prop.strip()
+
+            if not property_name:
+                continue
+
+            title_value = row.get(title_column, "").strip() if title_column else ""
+            description_value = row.get(description_column, "").strip() if description_column else ""
+
+            if not title_value and not description_value:
+                continue
+
+            schema_payload: Dict[str, object] = translations.setdefault(schema_name, {})
+            existing_properties = schema_payload.setdefault("properties", {})
+            if isinstance(existing_properties, MutableMapping):
+                properties_container: MutableMapping[str, object] = existing_properties
+            elif isinstance(existing_properties, Mapping):
+                properties_container = dict(existing_properties)
+                schema_payload["properties"] = properties_container
+            else:
+                properties_container = {}
+                schema_payload["properties"] = properties_container
+
+            prop_payload_raw = properties_container.get(property_name)
+            if isinstance(prop_payload_raw, MutableMapping):
+                prop_payload = prop_payload_raw
+            elif isinstance(prop_payload_raw, Mapping):
+                prop_payload = dict(prop_payload_raw)
+                properties_container[property_name] = prop_payload
+            else:
+                prop_payload = {}
+                properties_container[property_name] = prop_payload
+
+            if title_value:
+                prop_payload["title"] = title_value
+            if description_value:
+                prop_payload["description"] = description_value
+
+        return translations
+
+
 def load_locale_translations(locale: LocaleConfig) -> Mapping[str, Mapping[str, object]]:
     if not locale.directory.exists():
         return {}
 
-    translations: Dict[str, Mapping[str, object]] = {}
+    translations: Dict[str, Dict[str, object]] = {}
     for file in locale.directory.rglob("*"):
-        if not file.is_file() or file.suffix.lower() not in {".yaml", ".yml", ".json"}:
-            continue
-        payload = load_translation_file(file)
-        if not payload:
+        if not file.is_file():
             continue
 
-        schema_name = payload.get("schema") or payload.get("model") or payload.get("name")
-        if isinstance(schema_name, str) and schema_name.strip():
-            key = schema_name.strip()
-        else:
-            key = file.stem
+        suffix = file.suffix.lower()
+        payloads: Mapping[str, Mapping[str, object]] = {}
+        if suffix in {".yaml", ".yml", ".json"}:
+            payload = load_translation_file(file)
+            if not payload:
+                continue
 
-        if "translations" in payload and isinstance(payload["translations"], Mapping):
-            translations[key] = payload["translations"]  # type: ignore[assignment]
+            schema_name = payload.get("schema") or payload.get("model") or payload.get("name")
+            if isinstance(schema_name, str) and schema_name.strip():
+                key = schema_name.strip()
+            else:
+                key = file.stem
+
+            if "translations" in payload and isinstance(payload["translations"], Mapping):
+                payloads = {key: payload["translations"]}  # type: ignore[assignment]
+            else:
+                filtered = {
+                    k: v
+                    for k, v in payload.items()
+                    if k not in {"schema", "model", "name"}
+                }
+                if filtered:
+                    payloads = {key: filtered}
+                else:
+                    payloads = {}
+        elif suffix == ".csv":
+            loader = (
+                _load_property_level_csv
+                if "property" in file.stem.lower()
+                else _load_schema_level_csv
+            )
+            payloads = loader(file)
         else:
-            filtered = {
-                k: v
-                for k, v in payload.items()
-                if k not in {"schema", "model", "name"}
-            }
-            if filtered:
-                translations[key] = filtered
+            continue
+
+        for schema_key, schema_payload in payloads.items():
+            if not schema_payload:
+                continue
+            existing = translations.get(schema_key)
+            if isinstance(existing, MutableMapping):
+                _merge_translation_payload(existing, schema_payload)
+            elif isinstance(existing, Mapping):
+                merged: MutableMapping[str, object] = dict(existing)
+                _merge_translation_payload(merged, schema_payload)
+                translations[schema_key] = merged
+            else:
+                translations[schema_key] = dict(schema_payload)
+
     return translations
 
 

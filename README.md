@@ -33,7 +33,7 @@
 
 1. 按照 `sources/tmf-official/README.md` 指引同步官方 API 规范文件。
 2. 根据需要更新 `config/domain_mapping.yaml` 与 `config/name_mapping.json`，统一域归属与命名映射。
-3. （可选）在 `overrides/i18n/<locale>/` 下补充中文等翻译内容，流水线会在输出的 Schema 中附加多语言信息。
+3. （可选）在 `overrides/i18n/<locale>/` 下补充翻译文件。推荐使用 Excel 维护并导出 `Schemas_ZH.csv`、`Properties_ZH.csv` 等 CSV，流水线会自动合并并在输出的 Schema 中附加中英文对照信息。
 4. 执行流水线原型：
 
    ```bash

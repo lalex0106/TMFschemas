@@ -18,7 +18,7 @@
    - `asyncapi/` 子目录放置 `*.asyncapi.json`/`*.asyncapi.yaml` 等事件接口。
 2. 如有额外参考源，可放入 `sources/external/`。
 3. 根据需要编辑 `config/domain_mapping.yaml` 与 `config/name_mapping.json`，统一域映射与命名规范。
-4. 可选：在 `overrides/i18n/<locale>/` 目录补充翻译文件（详见 `overrides/i18n/README.md`），流水线会在生成 schema 时写入对应语种的 `x-i18n` 内容。
+4. 可选：在 `overrides/i18n/<locale>/` 目录补充翻译文件（详见 `overrides/i18n/README.md`），推荐通过 Excel 维护 `Schemas_ZH.csv`、`Properties_ZH.csv` 并导出为 CSV，流水线会在生成 schema 时写入对应语种的 `x-i18n` 内容。
 5. （首次执行前）在 Python 环境中安装依赖：
 
    ```bash
