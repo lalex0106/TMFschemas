@@ -75,7 +75,7 @@
         "agreement": {
           "type": "array",
           "items": {
-            "$ref": "../EngagedParty/AgreementRef.schema.json#AgreementRef"
+            "$ref": "../BusinessPartner/AgreementRef.schema.json#AgreementRef"
           }
         },
         "characteristic": {
@@ -99,7 +99,7 @@
         "relatedParty": {
           "type": "array",
           "items": {
-            "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+            "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
           }
         },
         "productPrice": {

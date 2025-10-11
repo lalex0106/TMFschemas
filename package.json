@@ -5,7 +5,7 @@
   "main": "validate.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "validate": "node .circleci/validate.js . .circleci > validation_results.txt"
+    "validate": "python tools/pipeline/run_validation.py"
   },
   "author": "",
   "license": "ISC",
