@@ -35,7 +35,7 @@
           "type": "array",
           "description": "References of the users of the network product",
           "items": {
-            "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+            "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
           }
         }
       },
