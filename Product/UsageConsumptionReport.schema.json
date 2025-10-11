@@ -37,7 +37,7 @@
           "description": "Usage consumption report name"
         },
         "relatedParty": {
-          "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+          "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
         }
       },
       "allOf": [

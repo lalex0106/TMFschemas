@@ -9,7 +9,7 @@
       "properties": {
         "details": {
           "description": "The list of parameters depends on the type of payment method",
-          "$ref": "../EngagedParty/RelatedPartyRef.schema.json#RelatedPartyRef"
+          "$ref": "../BusinessPartner/RelatedPartyRef.schema.json#RelatedPartyRef"
         },
         "href": {
           "type": "string",
