@@ -10,7 +10,9 @@
 
 ## 使用步骤
 
-1. 将官方 YAML 文件复制或同步至 `sources/tmf-official/`，支持多级目录。
+1. 将官方规范复制或同步至 `sources/tmf-official/API-v*/` 对应版本目录：
+   - `openapi/` 子目录放置 `*.oas.yaml` 等 REST 定义。
+   - `asyncapi/` 子目录放置 `*.asyncapi.json`/`*.asyncapi.yaml` 等事件接口。
 2. 如有额外参考源，可放入 `sources/external/`。
 3. 根据需要编辑 `config/domain_mapping.yaml` 与 `config/name_mapping.json`，统一域映射与命名规范。
 4. 执行：

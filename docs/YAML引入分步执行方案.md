@@ -6,7 +6,7 @@ YAML 并扩展为企业 schema 的具体步骤。所有章节均以中文撰写�
 ## 1. 准备阶段
 
 1. **目录落位**：
-   - `sources/tmf-official/`：存放官方 Open API YAML。已在仓库创建并通过 `.gitkeep` 占位。
+   - `sources/tmf-official/`：按 `API-v*`/`openapi|asyncapi` 分层存放官方规范文件，仓库已通过 `.gitkeep` 占位。
    - `sources/external/`：用于补充外部标准或企业内契约。亦已准备占位。
    - `overrides/enterprise/`：未来承载企业自定义覆盖文件。
 2. **配置基线**：

@@ -15,7 +15,7 @@
           "type": "array",
           "description": "A reference to an agreement defining the context of the quote",
           "items": {
-            "$ref": "../EngagedParty/AgreementRef.schema.json#AgreementRef"
+            "$ref": "../BusinessPartner/AgreementRef.schema.json#AgreementRef"
           }
         },
         "billingAccount": {
@@ -109,7 +109,7 @@
           "type": "array",
           "description": "A reference to a party playing a role in this quote (customer, seller, requester, etc.)",
           "items": {
-            "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+            "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
           }
         },
         "productOfferingQualification": {
