@@ -9,10 +9,11 @@
 - **容错日志**：解析失败时输出告警，不阻塞整体流程，便于后续排查质量问题。
 - **多协议优先级**：同一模型若在 OpenAPI 与 AsyncAPI 中同时出现，将自动优先采用 REST 定义，保持输出一致性。
 - **元数据沉淀**：生成的 Schema 将携带来源 API、版本、协议与使用频次等元数据，便于后续治理。
-- **多语言融合**：读取 `overrides/i18n/` 中的翻译文件，自动生成中英文对照的 `x-i18n` 字段，兼顾国际化与本地化需求。
+- **多语言融合**：读取 `overrides/i18n/` 中的翻译文件，自动生成中英文对照的 `x-i18n` 字段，兼顾国际化与本地化需求；并提供 Excel 工具脚本，
+  支持一键汇总/回写翻译内容。
 - **保留模型原名**：输出文件沿用官方组件完整名称（如 `PermissionSet_Update`），同时对域推断与翻译支持“原名/规范名”双重匹配，避免 `_Update` 等后缀覆盖主模型。
 - **版本筛选**：通过 `processing.allowed_major_versions` 控制参与构建的主版本，默认聚焦 v4/v5 以降低旧版本差异导致的噪声，需扩展时可在配置中增减。
-- **TMF 校验友好**：构建过程中会把 `discriminator` 统一转为字符串、补齐缺失的 `type`，并在校验副本里去除 `nullable`、`oneOf` 等 Meta-Schema 不允许的键，便于快速通过官方校验。
+- **TMF 校验友好**：构建过程中会把 `discriminator` 统一转为字符串、补齐缺失的 `type`，并在校验副本里去除 `nullable`、`oneOf` 等 Meta-Schema 不允许的键，便于快速通过官方校验；同时在缺失描述时自动写入占位文本，避免因官方模型未给出描述而触发校验错误。
 
 ## 使用步骤
 
@@ -28,7 +29,7 @@
 5. （首次执行前）在 Python 环境中安装依赖：
 
    ```bash
-   pip install pyyaml
+   pip install pyyaml openpyxl
    ```
 
 6. 执行：
@@ -52,6 +53,51 @@
   - 或者在 `overrides/i18n/<locale>/` 下补充同名 YAML/JSON 覆盖文件，脚本会自动合并并以文件内的内容为准。
 - **翻译文件没有填写后缀（如 `_Update`）还能生效吗？**
   - 可以。流水线会优先匹配完整组件名，若未命中会自动回退到规范名（去除下划线后缀），因此只维护 `PermissionSet` 等主模型名称即可覆盖 `PermissionSet_Update` 等变体。
+
+## 翻译工作簿辅助脚本
+
+若团队更习惯在 Excel 中维护翻译，可使用 `tools/pipeline/i18n_workbook.py` 脚本实现“Schema -> Excel -> YAML”完整闭环：
+
+1. **导出翻译模板**：
+
+   ```bash
+   python tools/pipeline/i18n_workbook.py extract \
+     --schema-dir dist/json \
+     --workbook overrides/i18n/workbooks/translations.xlsx
+   ```
+
+   - `dist/json` 为 `build_schemas.py` 生成的主目录，脚本会读取所有 `*.schema.json`，提炼模型标题、描述及属性说明。
+   - 输出 Excel 默认包含 `Schemas` 与 `Properties` 两个工作表，分别列出模型级与属性级的英文原文及当前中文翻译（若已写入 `x-i18n` 会自动回填）。
+
+2. **翻译与校对**：翻译团队可直接在 `中文名称`、`中文描述` 两列填入机器翻译或人工校对后的文本，其他列保持不变即可。
+
+3. **生成 YAML 翻译文件**：
+
+   ```bash
+   python tools/pipeline/i18n_workbook.py render \
+     --workbook overrides/i18n/workbooks/translations.xlsx \
+     --output-dir overrides/i18n/zh-CN/yaml
+   ```
+
+   - 默认会在 `overrides/i18n/zh-CN/yaml/` 下为每个模型生成一份 YAML，结构示例：
+
+     ```yaml
+     schema: Account
+     translations:
+       title: "账户"
+       description: "通用账户结构，用于描述客户账户与金融账户之间的公共特性。"
+       properties:
+         name:
+           description: "账户在界面上展示的名称。"
+         creditLimit:
+           description: "账户可以被透支或消费的最高额度。"
+     ```
+
+   - 若 `Properties` 表的某行未填写 `Schema`，脚本会将其写入 `__GLOBAL_PROPERTIES__.yaml`，供流水线当作全局属性翻译使用。
+
+4. **再次构建**：确认 YAML 已生成后，重新运行 `build_schemas.py`，即会自动融合最新翻译。
+
+如需变更工作表名称或输出目录，可通过 `--schema-sheet`、`--property-sheet`、`--output-dir` 参数灵活指定。
 
 ## 校验生成结果是否符合 TMF 规范
 

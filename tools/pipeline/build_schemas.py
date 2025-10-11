@@ -794,6 +794,7 @@ def _should_strip_key(key: str, strip_keys: Tuple[str, ...]) -> bool:
 
 ALLOWED_DEFINITION_KEYS = {
     "$id",
+    "$ref",
     "type",
     "description",
     "allOf",
@@ -803,6 +804,59 @@ ALLOWED_DEFINITION_KEYS = {
     "dependencies",
     "discriminator",
 }
+
+
+PROPERTY_DESCRIPTION_TEMPLATE = (
+    "{name} description is missing in the official specification."
+)
+
+
+def ensure_property_descriptions(schema: MutableMapping[str, object]) -> None:
+    stack: list[MutableMapping[str, object]] = [schema]
+    while stack:
+        node = stack.pop()
+
+        properties = node.get("properties")
+        if isinstance(properties, Mapping):
+            if not isinstance(properties, MutableMapping):
+                mutable_props: MutableMapping[str, object] = dict(properties)
+                node["properties"] = mutable_props
+                properties = mutable_props
+            for prop_name, prop_value in list(properties.items()):
+                if not isinstance(prop_value, Mapping):
+                    continue
+                if not isinstance(prop_value, MutableMapping):
+                    mutable_prop: MutableMapping[str, object] = dict(prop_value)
+                    properties[prop_name] = mutable_prop
+                    prop_map = mutable_prop
+                else:
+                    prop_map = prop_value
+
+                description = prop_map.get("description")
+                if not isinstance(description, str) or not description.strip():
+                    prop_map["description"] = PROPERTY_DESCRIPTION_TEMPLATE.format(
+                        name=prop_name
+                    )
+                stack.append(prop_map)
+
+        for key in ("items", "additionalProperties", "allOf", "anyOf", "oneOf"):
+            child = node.get(key)
+            if isinstance(child, Mapping):
+                if not isinstance(child, MutableMapping):
+                    mutable_child: MutableMapping[str, object] = dict(child)
+                    node[key] = mutable_child
+                    stack.append(mutable_child)
+                else:
+                    stack.append(child)
+            elif isinstance(child, list):
+                for index, item in enumerate(child):
+                    if isinstance(item, Mapping):
+                        if not isinstance(item, MutableMapping):
+                            mutable_item: MutableMapping[str, object] = dict(item)
+                            child[index] = mutable_item
+                            stack.append(mutable_item)
+                        else:
+                            stack.append(item)
 
 
 def sanitize_for_validation(
@@ -836,6 +890,16 @@ def sanitize_for_validation(
                 continue
 
             sanitized[key] = sanitize_for_validation(value, strip_keys, context="generic")
+
+        if context == "definition":
+            if "type" not in sanitized:
+                if "enum" in sanitized and "$ref" not in sanitized:
+                    sanitized["type"] = "string"
+                elif any(
+                    key in sanitized
+                    for key in ("properties", "allOf", "anyOf", "oneOf", "dependencies", "$ref")
+                ):
+                    sanitized["type"] = "object"
         return sanitized
     if isinstance(payload, list):
         return [sanitize_for_validation(item, strip_keys, context="generic") for item in payload]
@@ -1156,6 +1220,7 @@ def run_pipeline(config: PipelineConfig, clean: bool = False) -> None:
                     config,
                 )
                 normalize_schema_structure(mutable_schema)
+                ensure_property_descriptions(mutable_schema)
                 prepared_schema = mutable_schema
 
             document_payload = build_schema_document(

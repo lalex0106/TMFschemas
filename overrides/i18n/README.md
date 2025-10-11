@@ -7,9 +7,13 @@
 ```
 overrides/
   i18n/
+    workbooks/
+      translations.xlsx      # 可选，通过脚本导出的汇总模板
     zh-CN/
-      Schemas_ZH.csv
+      Schemas_ZH.csv         # 传统 CSV 维护方式
       Properties_ZH.csv
+      yaml/
+        Account.yaml         # 由脚本生成的 YAML 翻译文件
 ```
 
 - `Schemas_ZH.csv`：面向模型本身的翻译，列建议包含 `Schema`、`Descriptions`（可选，仅作原文备注）、`中文名称`、`新描述`。
@@ -35,5 +39,30 @@ Account.description,,账户描述,仅对 Account 模型生效的补充说明。
 流水线会自动在所有出现该属性的节点上附加对应的 `x-i18n`，包括嵌套对象或引用属性。如发现全局配置影响了某个特定模型，可通过上文所述的 `Schema` 列进行局部覆盖。
 
 > 如需更复杂的结构（例如覆盖 `items`、`definitions` 等），仍可提供 YAML/JSON 文件，流水线会自动合并 CSV 与 YAML/JSON 的内容。
+
+## 使用 Excel 工作簿批量维护翻译
+
+若希望在单一 Excel 中集中维护所有翻译，可配合 `tools/pipeline/i18n_workbook.py` 使用：
+
+1. 执行 `python tools/pipeline/i18n_workbook.py extract` 导出模板，默认写入 `overrides/i18n/workbooks/translations.xlsx`。
+2. 在 `Schemas`、`Properties` 工作表中填写 `中文名称`、`中文描述` 列（英文列仅做参考）。
+3. 执行 `python tools/pipeline/i18n_workbook.py render`，脚本会自动在 `overrides/i18n/zh-CN/yaml/` 下生成分模型 YAML，示例结构：
+
+   ```yaml
+   schema: Account
+   translations:
+     title: "账户"
+     description: "通用账户结构，用于描述客户账户与金融账户之间的公共特性。"
+     properties:
+       name:
+         title: "账户名称"
+         description: "账户在界面上展示的名称。"
+       creditLimit:
+         description: "账户可以被透支或消费的最高额度。"
+   ```
+
+4. 重新运行构建流水线，最新翻译即会写入 `x-i18n`。
+
+如果某些属性需要全局共享翻译，可在 `Properties` 工作表保留空的 `Schema` 列，生成的 YAML 会写入 `__GLOBAL_PROPERTIES__.yaml`，供流水线在所有模型中复用。
 
 流水线会保留英文原文，并在 `x-i18n` 中写入对应语种的内容，方便团队按需渲染。
