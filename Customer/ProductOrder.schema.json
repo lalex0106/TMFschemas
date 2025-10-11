@@ -15,7 +15,7 @@
           "type": "array",
           "description": "A reference to an agreement defined in the context of the product order",
           "items": {
-            "$ref": "../EngagedParty/AgreementRef.schema.json#AgreementRef"
+            "$ref": "../BusinessPartner/AgreementRef.schema.json#AgreementRef"
           }
         },
         "billingAccount": {
@@ -119,7 +119,7 @@
         "relatedParty": {
           "type": "array",
           "items": {
-            "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+            "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
           }
         },
         "requestedCompletionDate": {

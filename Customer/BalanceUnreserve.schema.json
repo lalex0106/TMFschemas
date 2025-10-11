@@ -28,10 +28,10 @@
           "$ref": "../Customer/BucketBalanceRef.schema.json#BucketBalanceRef"
         },
         "relatedParty": {
-          "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+          "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
         },
         "requestor": {
-          "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+          "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
         },
         "product": {
           "$ref": "../Product/ProductRef.schema.json#ProductRef"
