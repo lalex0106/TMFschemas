@@ -10,7 +10,7 @@
         "rule": {
           "type": "array",
           "items": {
-            "$ref": "../EngagedParty/Rule.schema.json#Rule"
+            "$ref": "../BusinessPartner/Rule.schema.json#Rule"
           }
         },
         "deviceType": {
