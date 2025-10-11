@@ -19,6 +19,7 @@
 
 - `sources/`：存放官方 YAML/JSON 原始文件及外部参考源。
 - `overrides/`：企业自定义扩展与覆盖层的占位目录。
+- `overrides/i18n/`：存放多语言翻译文件，支持在生成的 Schema 中写入 `x-i18n`。
 - `tools/pipeline/`：YAML 转换与引用重写流水线原型代码。
 - `dist/`：构建输出目录，后续用于发布 JSON Schema、YAML 及文档。
 
@@ -32,12 +33,13 @@
 
 1. 按照 `sources/tmf-official/README.md` 指引同步官方 API 规范文件。
 2. 根据需要更新 `config/domain_mapping.yaml` 与 `config/name_mapping.json`，统一域归属与命名映射。
-3. 执行流水线原型：
+3. （可选）在 `overrides/i18n/<locale>/` 下补充中文等翻译内容，流水线会在输出的 Schema 中附加多语言信息。
+4. 执行流水线原型：
 
    ```bash
    python tools/pipeline/build_schemas.py --clean
    ```
 
-4. 在 `dist/` 目录查看生成的企业级 Schema 结果，并结合测试与文档进行迭代。
+5. 在 `dist/` 目录查看生成的企业级 Schema 结果，并结合测试与文档进行迭代。
 
 如需贡献改进，请在提交前确保文档与代码同步更新，并遵循本仓库的中文编写约定。

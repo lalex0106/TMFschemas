@@ -16,3 +16,9 @@ output:
 metadata:
   domain_mapping_file: config/domain_mapping.yaml
   schema_draft: 'http://json-schema.org/draft-07/schema#'
+i18n:
+  default_locale: en
+  output_key: x-i18n
+  locales:
+    - code: zh-CN
+      path: overrides/i18n/zh-CN

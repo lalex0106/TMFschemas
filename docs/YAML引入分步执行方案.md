@@ -9,6 +9,7 @@ YAML 并扩展为企业 schema 的具体步骤。所有章节均以中文撰写�
    - `sources/tmf-official/`：按 `API-v*`/`openapi|asyncapi` 分层存放官方规范文件，仓库已通过 `.gitkeep` 占位。
    - `sources/external/`：用于补充外部标准或企业内契约。亦已准备占位。
    - `overrides/enterprise/`：未来承载企业自定义覆盖文件。
+   - `overrides/i18n/`：管理中文等多语言翻译，流水线会将内容写入 `x-i18n` 字段。
 2. **配置基线**：
    - `pipeline.config.yaml` 定义数据源、阈值和输出目录，可根据环境进行覆盖。
    - `config/domain_mapping.yaml` 记录 API -> 数据域映射，继承本地脚本的分类经验。
@@ -30,6 +31,7 @@ YAML 并扩展为企业 schema 的具体步骤。所有章节均以中文撰写�
 2. 脚本会对每个模型执行：
    - 深拷贝 schema，调用 `resolve_refs` 递归重写 `$ref`，保持跨域引用的相对路径；
    - 为模型生成包含 `$schema`、`$id`、`x-metadata.domain` 的 JSON Schema 文档；
+   - 若存在翻译文件，则把多语言描述写入 `x-i18n`，并在 `x-metadata.i18n` 标记可用语种；
    - 保存至 `dist/json/<Domain>/<Model>.schema.json`。
 3. 后续计划将在此基础上扩展：
    - 生成 YAML/Markdown 文档 (`dist/yaml/`、`dist/docs/`)；

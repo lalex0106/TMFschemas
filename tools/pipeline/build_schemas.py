@@ -20,7 +20,7 @@ from collections import Counter
 from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, Mapping, MutableMapping, Optional
+from typing import Dict, Iterable, Mapping, MutableMapping, Optional, Tuple
 
 try:
     import yaml
@@ -41,6 +41,19 @@ class SpecDocument:
     schemas: Mapping[str, object]
 
 
+@dataclass(frozen=True)
+class LocaleConfig:
+    """多语言翻译的配置项。"""
+
+    code: str
+    directory: Path
+    use_as_default: bool = False
+
+    @property
+    def output_code(self) -> str:
+        return self.code
+
+
 @dataclass
 class PipelineConfig:
     """结构化后的配置对象。"""
@@ -58,6 +71,9 @@ class PipelineConfig:
     output_yaml: Path
     domain_mapping_file: Path
     schema_draft: str
+    i18n_locales: Tuple[LocaleConfig, ...] = ()
+    i18n_default_locale: str = "en"
+    i18n_output_key: str = "x-i18n"
 
     @classmethod
     def load(cls, config_path: Path) -> "PipelineConfig":
@@ -70,6 +86,29 @@ class PipelineConfig:
         processing = raw.get("processing", {})
         output = raw.get("output", {})
         metadata = raw.get("metadata", {})
+        i18n = raw.get("i18n", {})
+
+        locales: list[LocaleConfig] = []
+        for entry in i18n.get("locales", []) or []:
+            if not isinstance(entry, Mapping):
+                continue
+            code = str(entry.get("code") or "").strip()
+            path_value = entry.get("path") or entry.get("directory")
+            if not code or not path_value:
+                continue
+            locales.append(
+                LocaleConfig(
+                    code=code,
+                    directory=Path(path_value),
+                    use_as_default=bool(entry.get("use_as_default", False)),
+                )
+            )
+
+        default_locale = i18n.get("default_locale")
+        i18n_default_locale = (
+            str(default_locale).strip() if default_locale is not None else "en"
+        )
+        output_key = str(i18n.get("output_key", "x-i18n") or "x-i18n")
 
         return cls(
             tmf_official=Path(sources.get("tmf_official", "sources/tmf-official")),
@@ -85,6 +124,9 @@ class PipelineConfig:
             output_yaml=Path(output.get("yaml", "dist/yaml")),
             domain_mapping_file=Path(metadata.get("domain_mapping_file", "config/domain_mapping.yaml")),
             schema_draft=str(metadata.get("schema_draft", "http://json-schema.org/draft-07/schema#")),
+            i18n_locales=tuple(locales),
+            i18n_default_locale=i18n_default_locale,
+            i18n_output_key=output_key,
         )
 
 
@@ -142,6 +184,17 @@ def load_spec_file(path: Path) -> Optional[Mapping[str, object]]:
     return data if isinstance(data, Mapping) else None
 
 
+def load_translation_file(path: Path) -> Optional[Mapping[str, object]]:
+    loader = json.load if path.suffix.lower() == ".json" else yaml.safe_load
+    try:
+        with path.open("r", encoding="utf-8") as fh:
+            data = loader(fh) or {}
+    except (yaml.YAMLError, json.JSONDecodeError) as exc:
+        print(f"⚠️  翻译文件解析失败 {path}: {exc}")
+        return None
+    return data if isinstance(data, Mapping) else None
+
+
 def detect_protocol(path: Path) -> str:
     name = path.name.lower()
     if "asyncapi" in name:
@@ -160,6 +213,219 @@ PROTOCOL_PRIORITY: Mapping[str, int] = {
     "asyncapi": 1,
     "unknown": 5,
 }
+
+
+TRANSLATABLE_FIELDS = {"title", "description", "summary"}
+ARRAY_TRANSLATABLE_KEYS = {"allOf", "anyOf", "oneOf"}
+
+
+def load_locale_translations(locale: LocaleConfig) -> Mapping[str, Mapping[str, object]]:
+    if not locale.directory.exists():
+        return {}
+
+    translations: Dict[str, Mapping[str, object]] = {}
+    for file in locale.directory.rglob("*"):
+        if not file.is_file() or file.suffix.lower() not in {".yaml", ".yml", ".json"}:
+            continue
+        payload = load_translation_file(file)
+        if not payload:
+            continue
+
+        schema_name = payload.get("schema") or payload.get("model") or payload.get("name")
+        if isinstance(schema_name, str) and schema_name.strip():
+            key = schema_name.strip()
+        else:
+            key = file.stem
+
+        if "translations" in payload and isinstance(payload["translations"], Mapping):
+            translations[key] = payload["translations"]  # type: ignore[assignment]
+        else:
+            filtered = {
+                k: v
+                for k, v in payload.items()
+                if k not in {"schema", "model", "name"}
+            }
+            if filtered:
+                translations[key] = filtered
+    return translations
+
+
+def load_all_translations(
+    locales: Tuple[LocaleConfig, ...]
+) -> Tuple[Tuple[LocaleConfig, Mapping[str, Mapping[str, object]]], ...]:
+    return tuple((locale, load_locale_translations(locale)) for locale in locales)
+
+
+def _ensure_i18n_container(target: MutableMapping[str, object], output_key: str) -> MutableMapping[str, object]:
+    existing = target.get(output_key)
+    if isinstance(existing, MutableMapping):
+        return existing
+    if isinstance(existing, Mapping):
+        container_map: MutableMapping[str, object] = dict(existing)
+        target[output_key] = container_map
+        return container_map
+    container_map = {}
+    target[output_key] = container_map
+    return container_map
+
+
+def _normalize_translation_value(
+    value: object, locale: LocaleConfig
+) -> Mapping[str, str]:
+    if isinstance(value, str):
+        return {locale.output_code: value}
+    if isinstance(value, Mapping):
+        normalized: Dict[str, str] = {}
+        for key, text in value.items():
+            if isinstance(key, str) and isinstance(text, str):
+                normalized[key] = text
+        return normalized
+    return {}
+
+
+def _apply_field_translation(
+    target: MutableMapping[str, object],
+    field: str,
+    values: Mapping[str, str],
+    locale: LocaleConfig,
+    config: PipelineConfig,
+) -> None:
+    if not values:
+        return
+    i18n_container = _ensure_i18n_container(target, config.i18n_output_key)
+    field_container_raw = i18n_container.get(field)
+    if isinstance(field_container_raw, MutableMapping):
+        field_container = field_container_raw
+    elif isinstance(field_container_raw, Mapping):
+        field_container = dict(field_container_raw)
+        i18n_container[field] = field_container
+    else:
+        field_container = {}
+        i18n_container[field] = field_container
+
+    default_locale = config.i18n_default_locale
+    default_value = target.get(field)
+    if (
+        default_locale
+        and isinstance(default_value, str)
+        and default_locale not in field_container
+    ):
+        field_container[default_locale] = default_value
+
+    for lang_code, text in values.items():
+        if isinstance(text, str):
+            field_container[lang_code] = text
+
+    if locale.use_as_default:
+        preferred = values.get(locale.output_code)
+        if preferred:
+            target[field] = preferred
+
+
+def _apply_translation_recursive(
+    target: MutableMapping[str, object],
+    translation: Mapping[str, object],
+    locale: LocaleConfig,
+    config: PipelineConfig,
+) -> None:
+    for key, value in translation.items():
+        if key in TRANSLATABLE_FIELDS:
+            normalized = _normalize_translation_value(value, locale)
+            if key not in target and locale.use_as_default:
+                target[key] = normalized.get(locale.output_code, target.get(key, ""))
+            if key in target or normalized:
+                _apply_field_translation(target, key, normalized, locale, config)
+            continue
+
+        if key == "properties" and isinstance(value, Mapping):
+            properties = target.get("properties")
+            if isinstance(properties, MutableMapping):
+                for prop_name, prop_translation in value.items():
+                    if not isinstance(prop_translation, Mapping):
+                        continue
+                    prop_target_raw = properties.get(prop_name)
+                    if isinstance(prop_target_raw, MutableMapping):
+                        _apply_translation_recursive(
+                            prop_target_raw, prop_translation, locale, config
+                        )
+                    elif isinstance(prop_target_raw, Mapping):
+                        nested = dict(prop_target_raw)
+                        properties[prop_name] = nested
+                        _apply_translation_recursive(
+                            nested, prop_translation, locale, config
+                        )
+            continue
+
+        if key == "definitions" and isinstance(value, Mapping):
+            definitions = target.get("definitions")
+            if isinstance(definitions, MutableMapping):
+                for def_name, def_translation in value.items():
+                    if not isinstance(def_translation, Mapping):
+                        continue
+                    def_target_raw = definitions.get(def_name)
+                    if isinstance(def_target_raw, MutableMapping):
+                        _apply_translation_recursive(
+                            def_target_raw, def_translation, locale, config
+                        )
+            continue
+
+        if key == "items" and isinstance(value, Mapping):
+            items_target = target.get("items")
+            if isinstance(items_target, MutableMapping):
+                _apply_translation_recursive(items_target, value, locale, config)
+            elif isinstance(items_target, Mapping):
+                nested_items = dict(items_target)
+                target["items"] = nested_items
+                _apply_translation_recursive(nested_items, value, locale, config)
+            continue
+
+        if key in ARRAY_TRANSLATABLE_KEYS and isinstance(value, list):
+            target_array = target.get(key)
+            if isinstance(target_array, list):
+                for idx, sub_translation in enumerate(value):
+                    if not isinstance(sub_translation, Mapping):
+                        continue
+                    if idx >= len(target_array):
+                        break
+                    array_target_raw = target_array[idx]
+                    if isinstance(array_target_raw, MutableMapping):
+                        _apply_translation_recursive(
+                            array_target_raw, sub_translation, locale, config
+                        )
+                    elif isinstance(array_target_raw, Mapping):
+                        nested = dict(array_target_raw)
+                        target_array[idx] = nested
+                        _apply_translation_recursive(
+                            nested, sub_translation, locale, config
+                        )
+            continue
+
+        if isinstance(value, Mapping):
+            nested_target_raw = target.get(key)
+            if isinstance(nested_target_raw, MutableMapping):
+                _apply_translation_recursive(
+                    nested_target_raw, value, locale, config
+                )
+            elif isinstance(nested_target_raw, Mapping):
+                nested_target = dict(nested_target_raw)
+                target[key] = nested_target
+                _apply_translation_recursive(nested_target, value, locale, config)
+
+
+def apply_locale_translations(
+    schema: MutableMapping[str, object],
+    model_name: str,
+    locale_translations: Tuple[Tuple[LocaleConfig, Mapping[str, Mapping[str, object]]], ...],
+    config: PipelineConfig,
+) -> Tuple[str, ...]:
+    applied: list[str] = []
+    for locale, translations in locale_translations:
+        translation_payload = translations.get(model_name)
+        if not translation_payload:
+            continue
+        _apply_translation_recursive(schema, translation_payload, locale, config)
+        applied.append(locale.output_code)
+    return tuple(applied)
 
 
 def analyze_spec_files(spec_files: Iterable[Path], pattern: re.Pattern[str]) -> tuple[list[SpecDocument], Counter]:
@@ -239,13 +505,14 @@ def build_schema_document(
     source: SpecDocument,
     usage_count: int,
     repo_root: Path,
+    locales: Optional[Iterable[str]] = None,
 ) -> dict:
     try:
         relative_path = source.file.resolve().relative_to(repo_root)
     except ValueError:
         relative_path = source.file.resolve()
 
-    metadata = {
+    metadata: Dict[str, object] = {
         "domain": domain,
         "usage": {"occurrences": usage_count},
         "source": {
@@ -256,6 +523,15 @@ def build_schema_document(
             "path": str(relative_path),
         },
     }
+
+    if locales:
+        unique_locales = sorted({code for code in locales if code})
+        if unique_locales:
+            metadata["i18n"] = {
+                "locales": unique_locales,
+            }
+            if config.i18n_default_locale:
+                metadata["i18n"]["defaultLocale"] = config.i18n_default_locale
 
     return {
         "$schema": config.schema_draft,
@@ -286,6 +562,7 @@ def run_pipeline(config: PipelineConfig, clean: bool = False) -> None:
 
     spec_sources = list(collect_spec_sources([config.tmf_official, config.external]))
     documents, schema_counts = analyze_spec_files(spec_sources, config.filename_pattern)
+    locale_translations = load_all_translations(config.i18n_locales)
 
     if clean and config.output_root.exists():
         shutil.rmtree(config.output_root)
@@ -319,6 +596,14 @@ def run_pipeline(config: PipelineConfig, clean: bool = False) -> None:
 
             model_domain_map[model_name] = domain
             resolved = resolve_refs(deepcopy(schema_def), domain, model_domain_map)
+            applied_locales: Tuple[str, ...] = ()
+            if isinstance(resolved, MutableMapping):
+                applied_locales = apply_locale_translations(
+                    resolved,
+                    model_name,
+                    locale_translations,
+                    config,
+                )
             document_payload = build_schema_document(
                 model_name,
                 domain,
@@ -327,6 +612,7 @@ def run_pipeline(config: PipelineConfig, clean: bool = False) -> None:
                 document,
                 schema_counts.get(model_name, 0),
                 repo_root,
+                applied_locales,
             )
             write_schema_file(config.output_root, domain, model_name, document_payload)
             written_models[model_name] = document

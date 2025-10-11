@@ -9,6 +9,7 @@
 - **容错日志**：解析失败时输出告警，不阻塞整体流程，便于后续排查质量问题。
 - **多协议优先级**：同一模型若在 OpenAPI 与 AsyncAPI 中同时出现，将自动优先采用 REST 定义，保持输出一致性。
 - **元数据沉淀**：生成的 Schema 将携带来源 API、版本、协议与使用频次等元数据，便于后续治理。
+- **多语言融合**：读取 `overrides/i18n/` 中的翻译文件，自动生成中英文对照的 `x-i18n` 字段，兼顾国际化与本地化需求。
 
 ## 使用步骤
 
@@ -17,19 +18,20 @@
    - `asyncapi/` 子目录放置 `*.asyncapi.json`/`*.asyncapi.yaml` 等事件接口。
 2. 如有额外参考源，可放入 `sources/external/`。
 3. 根据需要编辑 `config/domain_mapping.yaml` 与 `config/name_mapping.json`，统一域映射与命名规范。
-4. （首次执行前）在 Python 环境中安装依赖：
+4. 可选：在 `overrides/i18n/<locale>/` 目录补充翻译文件（详见 `overrides/i18n/README.md`），流水线会在生成 schema 时写入对应语种的 `x-i18n` 内容。
+5. （首次执行前）在 Python 环境中安装依赖：
 
    ```bash
    pip install pyyaml
    ```
 
-5. 执行：
+6. 执行：
 
    ```bash
    python tools/pipeline/build_schemas.py --clean
    ```
 
-6. 生成的企业级 schema 将按照域分类输出到 `dist/json/`，后续可扩展生成 YAML/文档等成果。
+7. 生成的企业级 schema 将按照域分类输出到 `dist/json/`，若提供了翻译文件，会在 `x-i18n` 中展示可用语种列表，后续可扩展生成 YAML/文档等成果。
 
 ## 后续扩展建议
 
