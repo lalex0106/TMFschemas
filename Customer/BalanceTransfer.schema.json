@@ -33,7 +33,7 @@
         },
         "requestor": {
           "description": "Identifier for the user/customer/entity that performs the transfer action.This can be used to indicate the identifier of an agent that performs the operation on behalf of a user via a customer service channel Structure including at least attributes “role” and “name”",
-          "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+          "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
         },
         "targetId": {
           "type": "string",
@@ -44,7 +44,7 @@
           "description": "Intended for scenarios where the transfer is done from one bucket type to another (from voice to data). A preconfigured value that describes a Transfer type which determines the prepay balance bucket in which the transfer is done"
         },
         "receiver": {
-          "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty",
+          "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty",
           "description": "Identifier for the user/customer/entity that receives the transfer action when it is required to indicate additional customer hierarchy information regarding the entity receiving the balance transfer Structure including at least attributes “role” and “name”"
         },
         "amount": {
@@ -69,12 +69,12 @@
         },
         "partyAccount": {
           "description": "A reference to the account that owns the bucket impacted by the balance transfer request",
-          "$ref": "../EngagedParty/PartyAccountRef.schema.json#PartyAccountRef"
+          "$ref": "../BusinessPartner/PartyAccountRef.schema.json#PartyAccountRef"
         },
         "relatedParty": {
           "type": "array",
           "items": {
-            "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+            "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
           },
           "description": "Used to provide information about any other entity with relation to the balance transfer"
         }

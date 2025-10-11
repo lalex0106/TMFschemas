@@ -25,7 +25,7 @@
           "description": "Public identifier associated to the product for which the consumption counter is detailed. If the level of the counter is global (i.e. concerning all the network products), the list of them is not specified. It can be found through the network products listed in the bucket sub-resource"
         },
         "user": {
-          "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty",
+          "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty",
           "description": "Reference of the user for which the consumption counter is detailed. If the level of the counter is global (i.e. concerning all the users), the list of them is not specified. It can be found through the users listed in the network products of the bucket sub-resource"
         },
         "value": {
