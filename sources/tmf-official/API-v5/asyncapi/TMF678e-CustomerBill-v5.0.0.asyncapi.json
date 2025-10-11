@@ -1,0 +1,3822 @@
+{
+  "asyncapi": "2.6.0",
+  "servers": {
+    "kafkaServer": {
+      "url": "kafka:9092",
+      "protocol": "kafka",
+      "description": "Kafka broker"
+    }
+  },
+  "info": {
+    "title": "CustomerBill",
+    "description": "The Customer Bill Management API allows to find and retrieve one or several customer bills (also called invoices) produced for a customer. A customer bill is an electronic or paper document produced at the end of the billing process. The customer bill gathers and displays different items (applied customer billing rates generated during the rating and billing processes) to be charged to a customer. It represents a total amount due for all the products during the billing period and all significant information like dates, bill reference...\nThis API provides also operations to find and retrieve the details of applied customer billing rates presented on a customer bill. \nFinally, this API allows to request in real-time a customer bill creation and to manage this request.\n### Resources \n- customerBill\n- appliedCustomerBillingRate\n- customerBillOnDemand\n- billingCycle\n### Operations\nCustomer Bill Management API performs the following operations :\n- Retrieve a customer bill or a collection of customer bills depending on filter criteria.\n- Partial update of  a customer bill (for administration purposes).\n-  Retrieve an applied customer billing rate or a collection of applied customer billing rates depending on filter criteria.\n-  Create a customer bill on demand request, retrieve one or a collection of  customer bill on demand request(s) depending on filter criteria.\n- Manage notification of events on customer bill and customer bill on demand.",
+    "version": "5.0.0"
+  },
+  "tags": [
+    {
+      "name": "customerBillOnDemand",
+      "description": "Operations for CustomerBillOnDemand Resource"
+    },
+    {
+      "name": "customerBill",
+      "description": "Operations for CustomerBill Resource"
+    },
+    {
+      "name": "appliedCustomerBillingRate",
+      "description": "Operations for AppliedCustomerBillingRate Resource"
+    },
+    {
+      "name": "billCycle",
+      "description": "Operations for BillCycle Resource"
+    }
+  ],
+  "channels": {
+    "{prefix}.customerBill.v5.listAppliedCustomerBillingRate.commandRequest": {
+      "publish": {
+        "description": "List or find AppliedCustomerBillingRate objects",
+        "operationId": "listAppliedCustomerBillingRateRequest",
+        "summary": "List or find AppliedCustomerBillingRate objects",
+        "message": {
+          "$ref": "#/components/messages/ListAppliedCustomerBillingRateRequest"
+        },
+        "tags": [
+          {
+            "name": "appliedCustomerBillingRate"
+          }
+        ]
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    },
+    "{prefix}.customerBill.v5.listAppliedCustomerBillingRate.commandReply": {
+      "subscribe": {
+        "operationId": "listAppliedCustomerBillingRateReply",
+        "tags": [
+          {
+            "name": "appliedCustomerBillingRate"
+          }
+        ],
+        "message": {
+          "oneOf": [
+            {
+              "$ref": "#/components/messages/200AppliedCustomerBillingRateArrayJsonReply"
+            },
+            {
+              "$ref": "#/components/messages/400JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/401JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/403JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/404JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/405JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/500JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/501JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/503JsonReply"
+            }
+          ]
+        }
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    },
+    "{prefix}.customerBill.v5.retrieveAppliedCustomerBillingRate.commandRequest": {
+      "publish": {
+        "description": "This operation retrieves a AppliedCustomerBillingRate entity. Attribute selection enabled for all first level attributes.",
+        "operationId": "retrieveAppliedCustomerBillingRateRequest",
+        "summary": "Retrieves a AppliedCustomerBillingRate by ID",
+        "message": {
+          "$ref": "#/components/messages/RetrieveAppliedCustomerBillingRateRequest"
+        },
+        "tags": [
+          {
+            "name": "appliedCustomerBillingRate"
+          }
+        ]
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    },
+    "{prefix}.customerBill.v5.retrieveAppliedCustomerBillingRate.commandReply": {
+      "subscribe": {
+        "operationId": "retrieveAppliedCustomerBillingRateReply",
+        "tags": [
+          {
+            "name": "appliedCustomerBillingRate"
+          }
+        ],
+        "message": {
+          "oneOf": [
+            {
+              "$ref": "#/components/messages/200AppliedCustomerBillingRate_GetJsonReply"
+            },
+            {
+              "$ref": "#/components/messages/400JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/401JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/403JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/404JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/405JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/500JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/501JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/503JsonReply"
+            }
+          ]
+        }
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    },
+    "{prefix}.customerBill.v5.listBillCycle.commandRequest": {
+      "publish": {
+        "description": "List or find BillCycle objects",
+        "operationId": "listBillCycleRequest",
+        "summary": "List or find BillCycle objects",
+        "message": {
+          "$ref": "#/components/messages/ListBillCycleRequest"
+        },
+        "tags": [
+          {
+            "name": "billCycle"
+          }
+        ]
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    },
+    "{prefix}.customerBill.v5.listBillCycle.commandReply": {
+      "subscribe": {
+        "operationId": "listBillCycleReply",
+        "tags": [
+          {
+            "name": "billCycle"
+          }
+        ],
+        "message": {
+          "oneOf": [
+            {
+              "$ref": "#/components/messages/200BillCycleArrayJsonReply"
+            },
+            {
+              "$ref": "#/components/messages/400JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/401JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/403JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/404JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/405JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/500JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/501JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/503JsonReply"
+            }
+          ]
+        }
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    },
+    "{prefix}.customerBill.v5.retrieveBillCycle.commandRequest": {
+      "publish": {
+        "description": "This operation retrieves a BillCycle entity. Attribute selection enabled for all first level attributes.",
+        "operationId": "retrieveBillCycleRequest",
+        "summary": "Retrieves a BillCycle by ID",
+        "message": {
+          "$ref": "#/components/messages/RetrieveBillCycleRequest"
+        },
+        "tags": [
+          {
+            "name": "billCycle"
+          }
+        ]
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    },
+    "{prefix}.customerBill.v5.retrieveBillCycle.commandReply": {
+      "subscribe": {
+        "operationId": "retrieveBillCycleReply",
+        "tags": [
+          {
+            "name": "billCycle"
+          }
+        ],
+        "message": {
+          "oneOf": [
+            {
+              "$ref": "#/components/messages/200BillCycle_GetJsonReply"
+            },
+            {
+              "$ref": "#/components/messages/400JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/401JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/403JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/404JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/405JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/500JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/501JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/503JsonReply"
+            }
+          ]
+        }
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    },
+    "{prefix}.customerBill.v5.listCustomerBill.commandRequest": {
+      "publish": {
+        "description": "List or find CustomerBill objects",
+        "operationId": "listCustomerBillRequest",
+        "summary": "List or find CustomerBill objects",
+        "message": {
+          "$ref": "#/components/messages/ListCustomerBillRequest"
+        },
+        "tags": [
+          {
+            "name": "customerBill"
+          }
+        ]
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    },
+    "{prefix}.customerBill.v5.listCustomerBill.commandReply": {
+      "subscribe": {
+        "operationId": "listCustomerBillReply",
+        "tags": [
+          {
+            "name": "customerBill"
+          }
+        ],
+        "message": {
+          "oneOf": [
+            {
+              "$ref": "#/components/messages/200CustomerBillArrayJsonReply"
+            },
+            {
+              "$ref": "#/components/messages/400JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/401JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/403JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/404JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/405JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/500JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/501JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/503JsonReply"
+            }
+          ]
+        }
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    },
+    "{prefix}.customerBill.v5.retrieveCustomerBill.commandRequest": {
+      "publish": {
+        "description": "This operation retrieves a CustomerBill entity. Attribute selection enabled for all first level attributes.",
+        "operationId": "retrieveCustomerBillRequest",
+        "summary": "Retrieves a CustomerBill by ID",
+        "message": {
+          "$ref": "#/components/messages/RetrieveCustomerBillRequest"
+        },
+        "tags": [
+          {
+            "name": "customerBill"
+          }
+        ]
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    },
+    "{prefix}.customerBill.v5.retrieveCustomerBill.commandReply": {
+      "subscribe": {
+        "operationId": "retrieveCustomerBillReply",
+        "tags": [
+          {
+            "name": "customerBill"
+          }
+        ],
+        "message": {
+          "oneOf": [
+            {
+              "$ref": "#/components/messages/200CustomerBill_GetJsonReply"
+            },
+            {
+              "$ref": "#/components/messages/400JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/401JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/403JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/404JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/405JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/500JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/501JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/503JsonReply"
+            }
+          ]
+        }
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    },
+    "{prefix}.customerBill.v5.patchCustomerBill.commandRequest": {
+      "publish": {
+        "description": "This operation updates partially a CustomerBill entity.",
+        "operationId": "patchCustomerBillRequest",
+        "summary": "Updates partially a CustomerBill",
+        "message": {
+          "oneOf": [
+            {
+              "$ref": "#/components/messages/PatchCustomerBillJsonRequest"
+            },
+            {
+              "$ref": "#/components/messages/PatchCustomerBillMergePatchRequest"
+            },
+            {
+              "$ref": "#/components/messages/PatchCustomerBillJsonPatchRequest"
+            },
+            {
+              "$ref": "#/components/messages/PatchCustomerBillJsonPatchQueryRequest"
+            }
+          ]
+        },
+        "tags": [
+          {
+            "name": "customerBill"
+          }
+        ]
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    },
+    "{prefix}.customerBill.v5.patchCustomerBill.commandReply": {
+      "subscribe": {
+        "operationId": "patchCustomerBillReply",
+        "tags": [
+          {
+            "name": "customerBill"
+          }
+        ],
+        "message": {
+          "oneOf": [
+            {
+              "$ref": "#/components/messages/200CustomerBill_PatchJsonReply"
+            },
+            {
+              "$ref": "#/components/messages/200CustomerBill_PatchMergePatchReply"
+            },
+            {
+              "$ref": "#/components/messages/200CustomerBill_PatchJsonPatchReply"
+            },
+            {
+              "$ref": "#/components/messages/200CustomerBill_PatchJsonPatchQueryReply"
+            },
+            {
+              "$ref": "#/components/messages/400JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/401JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/403JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/404JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/405JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/409JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/500JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/501JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/503JsonReply"
+            }
+          ]
+        }
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    },
+    "{prefix}.customerBill.v5.listCustomerBillOnDemand.commandRequest": {
+      "publish": {
+        "description": "List or find CustomerBillOnDemand objects",
+        "operationId": "listCustomerBillOnDemandRequest",
+        "summary": "List or find CustomerBillOnDemand objects",
+        "message": {
+          "$ref": "#/components/messages/ListCustomerBillOnDemandRequest"
+        },
+        "tags": [
+          {
+            "name": "customerBillOnDemand"
+          }
+        ]
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    },
+    "{prefix}.customerBill.v5.listCustomerBillOnDemand.commandReply": {
+      "subscribe": {
+        "operationId": "listCustomerBillOnDemandReply",
+        "tags": [
+          {
+            "name": "customerBillOnDemand"
+          }
+        ],
+        "message": {
+          "oneOf": [
+            {
+              "$ref": "#/components/messages/200CustomerBillOnDemandArrayJsonReply"
+            },
+            {
+              "$ref": "#/components/messages/400JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/401JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/403JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/404JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/405JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/500JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/501JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/503JsonReply"
+            }
+          ]
+        }
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    },
+    "{prefix}.customerBill.v5.createCustomerBillOnDemand.commandRequest": {
+      "publish": {
+        "description": "This operation creates a CustomerBillOnDemand entity.",
+        "operationId": "createCustomerBillOnDemandRequest",
+        "summary": "Creates a CustomerBillOnDemand",
+        "message": {
+          "$ref": "#/components/messages/CreateCustomerBillOnDemandJsonRequest"
+        },
+        "tags": [
+          {
+            "name": "customerBillOnDemand"
+          }
+        ]
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    },
+    "{prefix}.customerBill.v5.createCustomerBillOnDemand.commandReply": {
+      "subscribe": {
+        "operationId": "createCustomerBillOnDemandReply",
+        "tags": [
+          {
+            "name": "customerBillOnDemand"
+          }
+        ],
+        "message": {
+          "oneOf": [
+            {
+              "$ref": "#/components/messages/201CustomerBillOnDemandJsonReply"
+            },
+            {
+              "$ref": "#/components/messages/400JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/401JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/403JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/404JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/405JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/409JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/500JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/501JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/503JsonReply"
+            }
+          ]
+        }
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    },
+    "{prefix}.customerBill.v5.retrieveCustomerBillOnDemand.commandRequest": {
+      "publish": {
+        "description": "This operation retrieves a CustomerBillOnDemand entity. Attribute selection enabled for all first level attributes.",
+        "operationId": "retrieveCustomerBillOnDemandRequest",
+        "summary": "Retrieves a CustomerBillOnDemand by ID",
+        "message": {
+          "$ref": "#/components/messages/RetrieveCustomerBillOnDemandRequest"
+        },
+        "tags": [
+          {
+            "name": "customerBillOnDemand"
+          }
+        ]
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    },
+    "{prefix}.customerBill.v5.retrieveCustomerBillOnDemand.commandReply": {
+      "subscribe": {
+        "operationId": "retrieveCustomerBillOnDemandReply",
+        "tags": [
+          {
+            "name": "customerBillOnDemand"
+          }
+        ],
+        "message": {
+          "oneOf": [
+            {
+              "$ref": "#/components/messages/200CustomerBillOnDemand_GetJsonReply"
+            },
+            {
+              "$ref": "#/components/messages/400JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/401JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/403JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/404JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/405JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/500JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/501JsonReply"
+            },
+            {
+              "$ref": "#/components/messages/503JsonReply"
+            }
+          ]
+        }
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    },
+    "{prefix}.customerBill.v5.customerBill.notificationEvent": {
+      "subscribe": {
+        "operationId": "customerBillNotification",
+        "tags": [
+          {
+            "name": "customerBill"
+          }
+        ],
+        "message": {
+          "$ref": "#/components/messages/CustomerBillNotification"
+        }
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    },
+    "{prefix}.customerBill.v5.customerBillOnDemand.notificationEvent": {
+      "subscribe": {
+        "operationId": "customerBillOnDemandNotification",
+        "tags": [
+          {
+            "name": "customerBillOnDemand"
+          }
+        ],
+        "message": {
+          "$ref": "#/components/messages/CustomerBillOnDemandNotification"
+        }
+      },
+      "parameters": {
+        "prefix": {
+          "$ref": "#/components/parameters/Prefix"
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "Prefix": {
+        "description": "The prefix.",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "schemas": {
+      "RequestHeaders": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CorrelationHeader"
+          },
+          {
+            "properties": {
+              "Reply-Channel": {
+                "description": "Name of the channel to send the reply to.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "Reply-Channel"
+            ],
+            "type": "object"
+          }
+        ],
+        "type": "object"
+      },
+      "CorrelationHeader": {
+        "properties": {
+          "X-Correlation-Id": {
+            "description": "Correlation ID set by application",
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "X-Correlation-Id"
+        ],
+        "type": "object"
+      },
+      "RequestChannel": {
+        "properties": {
+          "X-Request-Channel": {
+            "description": "Channel on which the request was received",
+            "type": "string"
+          }
+        },
+        "required": [
+          "X-Request-Channel"
+        ],
+        "type": "object"
+      },
+      "QueryFilters": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "type": "object"
+      },
+      "QueryFiltersHeader": {
+        "properties": {
+          "Query-Filters": {
+            "$ref": "#/components/schemas/QueryFilters"
+          }
+        },
+        "type": "object"
+      },
+      "XTotalCountHeader": {
+        "properties": {
+          "X-Total-Count": {
+            "type": "integer",
+            "description": "Total number of items matching criteria"
+          }
+        },
+        "type": "object"
+      },
+      "XResultCountHeader": {
+        "properties": {
+          "X-Result-Count": {
+            "type": "integer",
+            "description": "Actual number of items returned in the response body"
+          }
+        },
+        "type": "object"
+      },
+      "IdParameter": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Identifier of the Resource"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "FieldsParameter": {
+        "type": "object",
+        "properties": {
+          "fields": {
+            "type": "string",
+            "description": "Comma-separated properties to be provided in response"
+          }
+        }
+      },
+      "OffsetParameter": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "type": "integer",
+            "description": "Requested index for start of resources to be provided in response"
+          }
+        }
+      },
+      "LimitParameter": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "description": "Requested number of resources to be provided in response"
+          }
+        }
+      },
+      "ListAppliedCustomerBillingRateRequestParameters": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FieldsParameter"
+          },
+          {
+            "$ref": "#/components/schemas/OffsetParameter"
+          },
+          {
+            "$ref": "#/components/schemas/LimitParameter"
+          }
+        ]
+      },
+      "ListAppliedCustomerBillingRateRequestParametersHeader": {
+        "properties": {
+          "Parameters": {
+            "$ref": "#/components/schemas/ListAppliedCustomerBillingRateRequestParameters"
+          }
+        },
+        "required": [
+          "Parameters"
+        ],
+        "type": "object"
+      },
+      "StatusCode200Header": {
+        "properties": {
+          "Status-Code": {
+            "const": 200,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "Status-Code"
+        ],
+        "type": "object"
+      },
+      "StatusCode400Header": {
+        "properties": {
+          "Status-Code": {
+            "const": 400,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "Status-Code"
+        ],
+        "type": "object"
+      },
+      "StatusCode401Header": {
+        "properties": {
+          "Status-Code": {
+            "const": 401,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "Status-Code"
+        ],
+        "type": "object"
+      },
+      "StatusCode403Header": {
+        "properties": {
+          "Status-Code": {
+            "const": 403,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "Status-Code"
+        ],
+        "type": "object"
+      },
+      "StatusCode404Header": {
+        "properties": {
+          "Status-Code": {
+            "const": 404,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "Status-Code"
+        ],
+        "type": "object"
+      },
+      "StatusCode405Header": {
+        "properties": {
+          "Status-Code": {
+            "const": 405,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "Status-Code"
+        ],
+        "type": "object"
+      },
+      "StatusCode500Header": {
+        "properties": {
+          "Status-Code": {
+            "const": 500,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "Status-Code"
+        ],
+        "type": "object"
+      },
+      "StatusCode501Header": {
+        "properties": {
+          "Status-Code": {
+            "const": 501,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "Status-Code"
+        ],
+        "type": "object"
+      },
+      "StatusCode503Header": {
+        "properties": {
+          "Status-Code": {
+            "const": 503,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "Status-Code"
+        ],
+        "type": "object"
+      },
+      "RetrieveAppliedCustomerBillingRateRequestParameters": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/IdParameter"
+          },
+          {
+            "$ref": "#/components/schemas/FieldsParameter"
+          }
+        ]
+      },
+      "RetrieveAppliedCustomerBillingRateRequestParametersHeader": {
+        "properties": {
+          "Parameters": {
+            "$ref": "#/components/schemas/RetrieveAppliedCustomerBillingRateRequestParameters"
+          }
+        },
+        "required": [
+          "Parameters"
+        ],
+        "type": "object"
+      },
+      "ListBillCycleRequestParameters": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FieldsParameter"
+          },
+          {
+            "$ref": "#/components/schemas/OffsetParameter"
+          },
+          {
+            "$ref": "#/components/schemas/LimitParameter"
+          }
+        ]
+      },
+      "ListBillCycleRequestParametersHeader": {
+        "properties": {
+          "Parameters": {
+            "$ref": "#/components/schemas/ListBillCycleRequestParameters"
+          }
+        },
+        "required": [
+          "Parameters"
+        ],
+        "type": "object"
+      },
+      "RetrieveBillCycleRequestParameters": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/IdParameter"
+          },
+          {
+            "$ref": "#/components/schemas/FieldsParameter"
+          }
+        ]
+      },
+      "RetrieveBillCycleRequestParametersHeader": {
+        "properties": {
+          "Parameters": {
+            "$ref": "#/components/schemas/RetrieveBillCycleRequestParameters"
+          }
+        },
+        "required": [
+          "Parameters"
+        ],
+        "type": "object"
+      },
+      "ListCustomerBillRequestParameters": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FieldsParameter"
+          },
+          {
+            "$ref": "#/components/schemas/OffsetParameter"
+          },
+          {
+            "$ref": "#/components/schemas/LimitParameter"
+          }
+        ]
+      },
+      "ListCustomerBillRequestParametersHeader": {
+        "properties": {
+          "Parameters": {
+            "$ref": "#/components/schemas/ListCustomerBillRequestParameters"
+          }
+        },
+        "required": [
+          "Parameters"
+        ],
+        "type": "object"
+      },
+      "RetrieveCustomerBillRequestParameters": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/IdParameter"
+          },
+          {
+            "$ref": "#/components/schemas/FieldsParameter"
+          }
+        ]
+      },
+      "RetrieveCustomerBillRequestParametersHeader": {
+        "properties": {
+          "Parameters": {
+            "$ref": "#/components/schemas/RetrieveCustomerBillRequestParameters"
+          }
+        },
+        "required": [
+          "Parameters"
+        ],
+        "type": "object"
+      },
+      "PatchCustomerBillRequestParameters": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/IdParameter"
+          },
+          {
+            "$ref": "#/components/schemas/FieldsParameter"
+          }
+        ]
+      },
+      "PatchCustomerBillRequestParametersHeader": {
+        "properties": {
+          "Parameters": {
+            "$ref": "#/components/schemas/PatchCustomerBillRequestParameters"
+          }
+        },
+        "required": [
+          "Parameters"
+        ],
+        "type": "object"
+      },
+      "StatusCode409Header": {
+        "properties": {
+          "Status-Code": {
+            "const": 409,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "Status-Code"
+        ],
+        "type": "object"
+      },
+      "ListCustomerBillOnDemandRequestParameters": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FieldsParameter"
+          },
+          {
+            "$ref": "#/components/schemas/OffsetParameter"
+          },
+          {
+            "$ref": "#/components/schemas/LimitParameter"
+          }
+        ]
+      },
+      "ListCustomerBillOnDemandRequestParametersHeader": {
+        "properties": {
+          "Parameters": {
+            "$ref": "#/components/schemas/ListCustomerBillOnDemandRequestParameters"
+          }
+        },
+        "required": [
+          "Parameters"
+        ],
+        "type": "object"
+      },
+      "CreateCustomerBillOnDemandRequestParameters": {
+        "$ref": "#/components/schemas/FieldsParameter"
+      },
+      "CreateCustomerBillOnDemandRequestParametersHeader": {
+        "properties": {
+          "Parameters": {
+            "$ref": "#/components/schemas/CreateCustomerBillOnDemandRequestParameters"
+          }
+        },
+        "required": [
+          "Parameters"
+        ],
+        "type": "object"
+      },
+      "StatusCode201Header": {
+        "properties": {
+          "Status-Code": {
+            "const": 201,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "Status-Code"
+        ],
+        "type": "object"
+      },
+      "RetrieveCustomerBillOnDemandRequestParameters": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/IdParameter"
+          },
+          {
+            "$ref": "#/components/schemas/FieldsParameter"
+          }
+        ]
+      },
+      "RetrieveCustomerBillOnDemandRequestParametersHeader": {
+        "properties": {
+          "Parameters": {
+            "$ref": "#/components/schemas/RetrieveCustomerBillOnDemandRequestParameters"
+          }
+        },
+        "required": [
+          "Parameters"
+        ],
+        "type": "object"
+      },
+      "Addressable": {
+        "type": "object",
+        "description": "Base schema for addressable entities",
+        "properties": {
+          "href": {
+            "type": "string",
+            "description": "Hyperlink reference"
+          },
+          "id": {
+            "type": "string",
+            "description": "unique identifier"
+          },
+          "topicRef": {
+            "type": "string",
+            "description": "A reference to the topic from which this entity can be fetched"
+          }
+        }
+      },
+      "Addressable_MVO": {
+        "type": "object",
+        "description": "Base schema for addressable entities"
+      },
+      "AppliedBillingTaxRate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Entity"
+          },
+          {
+            "type": "object",
+            "description": "The applied billing tax rate represents taxes applied billing rate it refers to. It is calculated during the billing process.",
+            "properties": {
+              "taxAmount": {
+                "$ref": "#/components/schemas/Money"
+              },
+              "taxCategory": {
+                "type": "string",
+                "description": "A categorization of the tax rate"
+              },
+              "taxRate": {
+                "type": "number",
+                "format": "float",
+                "description": "Applied rate"
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "AppliedCustomerBillingRate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Entity"
+          },
+          {
+            "type": "object",
+            "description": "A customer bill displays applied billing rates created before or during the billing process.",
+            "properties": {
+              "appliedTax": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/AppliedBillingTaxRate"
+                }
+              },
+              "bill": {
+                "$ref": "#/components/schemas/CustomerBillRef"
+              },
+              "date": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Creation date of the applied billing rate"
+              },
+              "description": {
+                "type": "string",
+                "description": "Additional data to be displayed on the bill for this customer applied billing rate"
+              },
+              "isBilled": {
+                "type": "boolean",
+                "description": "Indicates if this applied billing rate has been presented on a bill or not. If isBilled = true then bill should be provided, if false then billingAccount should be provided"
+              },
+              "name": {
+                "type": "string",
+                "description": "Name of the customer applied billing rate"
+              },
+              "periodCoverage": {
+                "$ref": "#/components/schemas/TimePeriod"
+              },
+              "taxExcludedAmount": {
+                "$ref": "#/components/schemas/Money"
+              },
+              "taxIncludedAmount": {
+                "$ref": "#/components/schemas/Money"
+              },
+              "appliedBillingRateType": {
+                "type": "string",
+                "description": "Type of the applied billing rate : appliedBillingCharge (any kind of charge except taxation charges : recurringCharge, oneTimeCharge, usageCharge),  appliedBillingCredit (any kind of credit : rebate or productAlteration) or appliedPenaltyCharge (penalty charges such as late fees, payment rejection fees,...)"
+              },
+              "billingAccount": {
+                "$ref": "#/components/schemas/BillingAccountRef"
+              },
+              "product": {
+                "$ref": "#/components/schemas/ProductRef"
+              },
+              "characteristic": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Characteristic"
+                }
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "AppliedPayment": {
+        "type": "object",
+        "description": "The applied payment is the result of lettering process. It enables to assign automatically or manually part of incoming payment amount to a bill.",
+        "properties": {
+          "appliedAmount": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "payment": {
+            "$ref": "#/components/schemas/PaymentRef"
+          }
+        }
+      },
+      "AppliedPayment_MVO": {
+        "type": "object",
+        "description": "The applied payment is the result of lettering process. It enables to assign automatically or manually part of incoming payment amount to a bill.",
+        "properties": {
+          "appliedAmount": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "payment": {
+            "$ref": "#/components/schemas/PaymentRef_MVO"
+          }
+        }
+      },
+      "Attachment": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Entity"
+          },
+          {
+            "type": "object",
+            "description": "Complements the description of an element (for instance a product) through video, pictures...",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "The name of the attachment"
+              },
+              "description": {
+                "type": "string",
+                "description": "A narrative text describing the content of the attachment",
+                "example": "Photograph of the Product"
+              },
+              "url": {
+                "type": "string",
+                "description": "Uniform Resource Locator, is a web page address (a subset of URI)",
+                "example": "https://host/Content/4aafacbd-11ff-4dc8-b445-305f2215715f"
+              },
+              "content": {
+                "type": "string",
+                "format": "base64",
+                "description": "The actual contents of the attachment object, if embedded, encoded as base64"
+              },
+              "size": {
+                "$ref": "#/components/schemas/Quantity"
+              },
+              "validFor": {
+                "$ref": "#/components/schemas/TimePeriod"
+              },
+              "attachmentType": {
+                "type": "string",
+                "description": "a business characterization of the purpose of the attachment, for example logo, instructionManual, contractCopy"
+              },
+              "mimeType": {
+                "type": "string",
+                "description": "a technical characterization of the attachment content format using IETF Mime Types"
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "AttachmentRef": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityRef"
+          },
+          {
+            "type": "object",
+            "description": "Attachment reference. An attachment complements the description of an element (for instance a product) through video, pictures",
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "A narrative text describing the content of the attachment"
+              },
+              "url": {
+                "description": "Link to the attachment media/content",
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "AttachmentRefOrValue": {
+        "type": "object",
+        "description": "The polymorphic attributes @type, @schemaLocation & @referredType are related to the Attachment entity and not the AttachmentRefOrValue class itself",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Attachment"
+          },
+          {
+            "$ref": "#/components/schemas/AttachmentRef"
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "AttachmentRefOrValue_MVO": {
+        "type": "object",
+        "description": "The polymorphic attributes @type, @schemaLocation & @referredType are related to the Attachment entity and not the AttachmentRefOrValue class itself",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Attachment"
+          },
+          {
+            "$ref": "#/components/schemas/AttachmentRef_MVO"
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "AttachmentRef_MVO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityRef_MVO"
+          },
+          {
+            "type": "object",
+            "description": "Attachment reference. An attachment complements the description of an element (for instance a product) through video, pictures",
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "A narrative text describing the content of the attachment"
+              },
+              "url": {
+                "description": "Link to the attachment media/content",
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "BaseEvent": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Entity"
+          },
+          {
+            "type": "object",
+            "description": "Base event with common attributes.",
+            "properties": {
+              "event": {
+                "type": "object",
+                "description": "The event linked to the involved resource object"
+              },
+              "eventId": {
+                "type": "string",
+                "description": "The identifier of the notification."
+              },
+              "eventTime": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Time of the event occurrence."
+              },
+              "eventType": {
+                "type": "string",
+                "description": "The type of the notification."
+              },
+              "correlationId": {
+                "type": "string",
+                "description": "The correlation id for this event."
+              },
+              "domain": {
+                "type": "string",
+                "description": "The domain of the event."
+              },
+              "title": {
+                "type": "string",
+                "description": "The title of the event."
+              },
+              "description": {
+                "type": "string",
+                "description": "An explanatory of the event."
+              },
+              "priority": {
+                "type": "string",
+                "description": "A priority."
+              },
+              "timeOcurred": {
+                "type": "string",
+                "format": "date-time",
+                "description": "The time the event occurred."
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "BillCycle": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Entity"
+          },
+          {
+            "type": "object",
+            "description": "A detailed description of a billing cycle and the various sub steps of a billing cycle.",
+            "properties": {
+              "billingDate": {
+                "type": "string",
+                "format": "date-time",
+                "description": "The billing/settlement date."
+              },
+              "billingPeriod": {
+                "type": "string",
+                "description": "A billing time period. It is e.g. the concrete expressed month. Example: 'March'."
+              },
+              "chargeDate": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Date through when a payment method (e.g. credit card,...) will be activated."
+              },
+              "creditDate": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Date through which credits previously received by the billing system are displeyed on the bill."
+              },
+              "description": {
+                "type": "string",
+                "description": "An explanation regarding this billing cycle. If necessary."
+              },
+              "mailingDate": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Customer bill mailing date."
+              },
+              "name": {
+                "type": "string",
+                "description": "A short descriptive name of the actual billing cycle"
+              },
+              "paymentDueDate": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Date, when the payment is due."
+              },
+              "BillCycleSpecification": {
+                "$ref": "#/components/schemas/BillCycleSpecificationRef"
+              },
+              "validFor": {
+                "$ref": "#/components/schemas/TimePeriod"
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "BillCycleRef": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityRef"
+          },
+          {
+            "type": "object",
+            "description": "....",
+            "properties": {
+              "@referredType": {
+                "type": "string",
+                "description": "The actual type of the target instance when needed for disambiguation."
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "BillCycleRef_MVO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityRef_MVO"
+          },
+          {
+            "type": "object",
+            "description": "....",
+            "properties": {
+              "@referredType": {
+                "type": "string",
+                "description": "The actual type of the target instance when needed for disambiguation."
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "BillCycleSpecificationRef": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extensible"
+          },
+          {
+            "$ref": "#/components/schemas/EntityRef"
+          },
+          {
+            "type": "object",
+            "description": "Refers an BillCycleSpecification",
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "An explanatory text regarding the BillCycleSpecification"
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "BillingAccountRef": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extensible"
+          },
+          {
+            "$ref": "#/components/schemas/EntityRef"
+          },
+          {
+            "type": "object",
+            "description": "BillingAccount reference. A BillingAccount is a detailed description of a bill structure.",
+            "properties": {
+              "ratingType": {
+                "type": "string",
+                "description": "Indicates whether the account follows a specific payment option such as prepaid or postpaid"
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "BillingAccountRef_FVO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extensible"
+          },
+          {
+            "$ref": "#/components/schemas/EntityRef_FVO"
+          },
+          {
+            "type": "object",
+            "description": "BillingAccount reference. A BillingAccount is a detailed description of a bill structure.",
+            "properties": {
+              "ratingType": {
+                "type": "string",
+                "description": "Indicates whether the account follows a specific payment option such as prepaid or postpaid"
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "BillingAccountRef_MVO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extensible_MVO"
+          },
+          {
+            "$ref": "#/components/schemas/EntityRef_MVO"
+          },
+          {
+            "type": "object",
+            "description": "BillingAccount reference. A BillingAccount is a detailed description of a bill structure.",
+            "properties": {
+              "ratingType": {
+                "type": "string",
+                "description": "Indicates whether the account follows a specific payment option such as prepaid or postpaid"
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "BooleanArrayCharacteristic": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Characteristic"
+          },
+          {
+            "type": "object",
+            "description": "A characteristic which value is an array of Boolean(s).",
+            "properties": {
+              "value": {
+                "type": "array",
+                "description": "A characteristic which value is an array of Boolean(s).",
+                "items": {
+                  "type": "boolean",
+                  "description": "Characteristic item boolean value"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "BooleanCharacteristic": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Characteristic"
+          },
+          {
+            "type": "object",
+            "description": "A characteristic which value is a Boolean.",
+            "properties": {
+              "value": {
+                "type": "boolean",
+                "description": "Value of the characteristic"
+              }
+            }
+          }
+        ]
+      },
+      "Characteristic": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extensible"
+          },
+          {
+            "type": "object",
+            "description": "Describes a given characteristic of an object or entity through a name/value pair. This is an abstract base class, the actual value is in one of the strongly-typed subclasses : StringCharacteristic, ObjectCharacteristic, FloatCharacteristic, BooleanCharacteristic, NumberCharacteristic, IntegerCharacteristic, StringArrayCharacteristic, ObjectArrayCharacteristic, BooleanArrayCharacteristic, NumberArrayCharacteristic, IntegerArrayCharacteristic...",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Unique identifier of the characteristic"
+              },
+              "name": {
+                "type": "string",
+                "description": "Name of the characteristic"
+              },
+              "valueType": {
+                "type": "string",
+                "description": "Data type of the value of the characteristic"
+              },
+              "characteristicRelationship": {
+                "type": "array",
+                "description": "Collection of characteristic relationships",
+                "items": {
+                  "$ref": "#/components/schemas/CharacteristicRelationship"
+                }
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "CharacteristicRelationship": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extensible"
+          },
+          {
+            "type": "object",
+            "description": "Another Characteristic that is related to the current Characteristic;",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Unique identifier of the characteristic"
+              },
+              "relationshipType": {
+                "type": "string",
+                "description": "The type of relationship"
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "CustomerBill": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Entity"
+          },
+          {
+            "type": "object",
+            "description": "The customer bill. Can be a regular recurring bill or an extra bill on demand by the customer or the csp.",
+            "properties": {
+              "amountDue": {
+                "$ref": "#/components/schemas/Money"
+              },
+              "appliedPayment": {
+                "description": "Applied payment is a payment associated with the bill. There may be a partial payment, then there should be several applied payments available. On the other hand, more than one bill could be payed by one payment. In general there is an n:m relation between payment and bill.",
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/AppliedPayment"
+                }
+              },
+              "billDate": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Bill date, external customer view (in consequence: different to the production date of the bill)"
+              },
+              "billDocument": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/AttachmentRefOrValue"
+                }
+              },
+              "billNo": {
+                "type": "string",
+                "description": "Bill reference known by the customer or the party and displayed on the bill. Could be different from the id"
+              },
+              "billingAccount": {
+                "$ref": "#/components/schemas/BillingAccountRef"
+              },
+              "billingPeriod": {
+                "$ref": "#/components/schemas/TimePeriod"
+              },
+              "billCycle": {
+                "$ref": "#/components/schemas/BillCycleRef"
+              },
+              "category": {
+                "type": "string",
+                "description": "Category of the bill produced : normal, duplicate, interim, last, trial customer or credit note for example"
+              },
+              "financialAccount": {
+                "$ref": "#/components/schemas/FinancialAccountRef"
+              },
+              "lastUpdate": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Date of bill last update"
+              },
+              "nextBillDate": {
+                "type": "string",
+                "format": "date-time",
+                "description": "). Approximate date of  the next bill production given for information (only used/meaningful for on cycle / regular bills)"
+              },
+              "paymentDueDate": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Date at which the amount due should have been paid"
+              },
+              "paymentMethod": {
+                "$ref": "#/components/schemas/PaymentMethodRef"
+              },
+              "relatedParty": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/RelatedPartyRefOrPartyRoleRef"
+                }
+              },
+              "remainingAmount": {
+                "$ref": "#/components/schemas/Money"
+              },
+              "runType": {
+                "$ref": "#/components/schemas/CustomerBillRunType"
+              },
+              "taxExcludedAmount": {
+                "$ref": "#/components/schemas/Money"
+              },
+              "taxIncludedAmount": {
+                "$ref": "#/components/schemas/Money"
+              },
+              "taxItem": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/TaxItem"
+                }
+              },
+              "state": {
+                "$ref": "#/components/schemas/CustomerBillStateType"
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "CustomerBillCreateEvent": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Event"
+          },
+          {
+            "type": "object",
+            "description": "CustomerBillCreateEvent generic structure",
+            "properties": {
+              "event": {
+                "$ref": "#/components/schemas/CustomerBillCreateEventPayload"
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "CustomerBillCreateEventPayload": {
+        "type": "object",
+        "description": "CustomerBillCreateEventPayload generic structure",
+        "properties": {
+          "customerBill": {
+            "$ref": "#/components/schemas/CustomerBill"
+          }
+        }
+      },
+      "CustomerBillOnDemand": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Entity"
+          },
+          {
+            "type": "object",
+            "description": "This resource is used to manage the creation request of a customer bill in real-time (on demand).",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Friendly name to identify the customer bill on demand request"
+              },
+              "state": {
+                "$ref": "#/components/schemas/CustomerBillOnDemandStateType"
+              },
+              "billingAccount": {
+                "$ref": "#/components/schemas/BillingAccountRef"
+              },
+              "customerBill": {
+                "$ref": "#/components/schemas/CustomerBillRef"
+              },
+              "description": {
+                "type": "string",
+                "description": "Additional data describing the customer bill on demand request"
+              },
+              "lastUpdate": {
+                "type": "string",
+                "description": "The last date time when the customer bill on demand has been updated"
+              },
+              "relatedParty": {
+                "$ref": "#/components/schemas/RelatedPartyRefOrPartyRoleRef"
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "CustomerBillOnDemandCreateEvent": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Event"
+          },
+          {
+            "type": "object",
+            "description": "CustomerBillOnDemandCreateEvent generic structure",
+            "properties": {
+              "event": {
+                "$ref": "#/components/schemas/CustomerBillOnDemandCreateEventPayload"
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "CustomerBillOnDemandCreateEventPayload": {
+        "type": "object",
+        "description": "CustomerBillOnDemandCreateEventPayload generic structure",
+        "properties": {
+          "customerBillOnDemand": {
+            "$ref": "#/components/schemas/CustomerBillOnDemand"
+          }
+        }
+      },
+      "CustomerBillOnDemandStateChangeEvent": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Event"
+          },
+          {
+            "type": "object",
+            "description": "CustomerBillOnDemandStateChangeEvent generic structure",
+            "properties": {
+              "event": {
+                "$ref": "#/components/schemas/CustomerBillOnDemandStateChangeEventPayload"
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "CustomerBillOnDemandStateChangeEventPayload": {
+        "type": "object",
+        "description": "CustomerBillOnDemandStateChangeEventPayload generic structure",
+        "properties": {
+          "customerBillOnDemand": {
+            "$ref": "#/components/schemas/CustomerBillOnDemand"
+          }
+        }
+      },
+      "CustomerBillOnDemandStateType": {
+        "enum": [
+          "inProgress",
+          "rejected",
+          "done",
+          "terminatedWithError"
+        ],
+        "type": "string",
+        "description": "Recommended Enumeration Type (not formal forced in standard): Valid values for 'CustomerBillOnDemand': 'inProgress', 'rejected', 'done', 'terminatedWithError'"
+      },
+      "CustomerBillOnDemand_FVO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Entity"
+          },
+          {
+            "type": "object",
+            "description": "This resource is used to manage the creation request of a customer bill in real-time (on demand).",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Friendly name to identify the customer bill on demand request"
+              },
+              "state": {
+                "$ref": "#/components/schemas/CustomerBillOnDemandStateType"
+              },
+              "billingAccount": {
+                "$ref": "#/components/schemas/BillingAccountRef_FVO"
+              },
+              "customerBill": {
+                "$ref": "#/components/schemas/CustomerBillRef_FVO"
+              },
+              "description": {
+                "type": "string",
+                "description": "Additional data describing the customer bill on demand request"
+              },
+              "lastUpdate": {
+                "type": "string",
+                "description": "The last date time when the customer bill on demand has been updated"
+              },
+              "relatedParty": {
+                "$ref": "#/components/schemas/RelatedPartyRefOrPartyRoleRef_FVO"
+              }
+            },
+            "required": [
+              "billingAccount"
+            ]
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "CustomerBillRef": {
+        "type": "object",
+        "description": "Bill reference.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityRef"
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "CustomerBillRef_FVO": {
+        "type": "object",
+        "description": "Bill reference.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityRef_FVO"
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "CustomerBillRunType": {
+        "enum": [
+          "onCycle",
+          "offCycle"
+        ],
+        "type": "string",
+        "description": "Recommended Enumeration Type (not formal forced in standard): Valid values for the runType of a bill. The bill could be produced in a regular bill cycle 'onCycle'. Otherwise the bill is produced on a request (e.g. customer request). This could be indicated by 'offCycle'"
+      },
+      "CustomerBillStateChangeEvent": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Event"
+          },
+          {
+            "type": "object",
+            "description": "CustomerBillStateChangeEvent generic structure",
+            "properties": {
+              "event": {
+                "$ref": "#/components/schemas/CustomerBillStateChangeEventPayload"
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "CustomerBillStateChangeEventPayload": {
+        "type": "object",
+        "description": "CustomerBillStateChangeEventPayload generic structure",
+        "properties": {
+          "customerBill": {
+            "$ref": "#/components/schemas/CustomerBill"
+          }
+        }
+      },
+      "CustomerBillStateType": {
+        "enum": [
+          "new",
+          "onHold",
+          "validated",
+          "sent",
+          "settled",
+          "partiallyPaid"
+        ],
+        "type": "string",
+        "description": "Recommended Enumeration Type (not formal forced in standard): Valid values for the lifecycle state of the bill: new = 'bill is ready to validate or to sent', validated = 'bill is checked (manual / automatic)', sent = 'bill is sent with the channel defined in the billingaccount', settled = 'bill is payed', partiallySettled = 'bill is partially payed', onHold = 'bill will not be in further processing until open issues connected to the bill are solved'"
+      },
+      "CustomerBill_MVO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Entity"
+          },
+          {
+            "type": "object",
+            "description": "The customer bill. Can be a regular recurring bill or an extra bill on demand by the customer or the csp.",
+            "properties": {
+              "billCycle": {
+                "$ref": "#/components/schemas/BillCycleRef_MVO"
+              },
+              "state": {
+                "$ref": "#/components/schemas/CustomerBillStateType"
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "Entity": {
+        "type": "object",
+        "description": "Base entity schema for use in TMForum Open-APIs. Property.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extensible"
+          },
+          {
+            "$ref": "#/components/schemas/Addressable"
+          }
+        ]
+      },
+      "EntityRef": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extensible"
+          },
+          {
+            "$ref": "#/components/schemas/Addressable"
+          },
+          {
+            "type": "object",
+            "description": "Entity reference schema to be use for all entityRef class.",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The identifier of the referred entity."
+              },
+              "href": {
+                "type": "string",
+                "description": "The URI of the referred entity."
+              },
+              "name": {
+                "type": "string",
+                "description": "Name of the referred entity."
+              },
+              "@referredType": {
+                "type": "string",
+                "description": "The actual type of the target instance when needed for disambiguation."
+              },
+              "topicRef": {
+                "type": "string",
+                "description": "A reference to the topic from which this entity can be fetched"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          }
+        ]
+      },
+      "EntityRef_FVO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extensible"
+          },
+          {
+            "$ref": "#/components/schemas/Addressable"
+          },
+          {
+            "type": "object",
+            "description": "Entity reference schema to be use for all entityRef class.",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The identifier of the referred entity."
+              },
+              "href": {
+                "type": "string",
+                "description": "The URI of the referred entity."
+              },
+              "name": {
+                "type": "string",
+                "description": "Name of the referred entity."
+              },
+              "@referredType": {
+                "type": "string",
+                "description": "The actual type of the target instance when needed for disambiguation."
+              },
+              "topicRef": {
+                "type": "string",
+                "description": "A reference to the topic from which this entity can be fetched"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          }
+        ]
+      },
+      "EntityRef_MVO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extensible"
+          },
+          {
+            "$ref": "#/components/schemas/Addressable"
+          },
+          {
+            "type": "object",
+            "description": "Entity reference schema to be use for all entityRef class.",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the referred entity."
+              },
+              "@referredType": {
+                "type": "string",
+                "description": "The actual type of the target instance when needed for disambiguation."
+              }
+            }
+          }
+        ]
+      },
+      "Entity_MVO": {
+        "type": "object",
+        "description": "Base entity schema for use in TMForum Open-APIs. Property.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extensible"
+          }
+        ]
+      },
+      "Event": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extensible"
+          },
+          {
+            "type": "object",
+            "description": "event with common attributes.",
+            "properties": {
+              "href": {
+                "type": "string",
+                "description": "Hyperlink reference"
+              },
+              "id": {
+                "type": "string",
+                "description": "unique identifier"
+              },
+              "correlationId": {
+                "type": "string",
+                "description": "The correlation id for this event."
+              },
+              "domain": {
+                "type": "string",
+                "description": "The domain of the event."
+              },
+              "title": {
+                "type": "string",
+                "description": "The title of the event."
+              },
+              "description": {
+                "type": "string",
+                "description": "An explanation of the event."
+              },
+              "priority": {
+                "type": "string",
+                "description": "A priority."
+              },
+              "timeOccurred": {
+                "type": "string",
+                "format": "date-time",
+                "description": "The time the event occurred."
+              },
+              "source": {
+                "$ref": "#/components/schemas/EntityRef"
+              },
+              "reportingSystem": {
+                "$ref": "#/components/schemas/EntityRef"
+              },
+              "relatedParty": {
+                "type": "array",
+                "description": "Collection of related parties",
+                "items": {
+                  "$ref": "#/components/schemas/RelatedPartyRefOrPartyRoleRef"
+                }
+              },
+              "analyticCharacteristic": {
+                "type": "array",
+                "description": "Collection of analytic characteristics",
+                "items": {
+                  "$ref": "#/components/schemas/Characteristic"
+                }
+              },
+              "eventId": {
+                "type": "string",
+                "description": "The identifier of the notification."
+              },
+              "eventTime": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Time of the event occurrence."
+              },
+              "eventType": {
+                "type": "string",
+                "description": "The type of the notification."
+              },
+              "event": {
+                "description": "The event linked to the involved resource object",
+                "type": "object"
+              },
+              "topicRef": {
+                "type": "string",
+                "description": "A reference to the topic from which this entity can be fetched"
+              }
+            }
+          }
+        ]
+      },
+      "Extensible": {
+        "type": "object",
+        "description": "Base Extensible schema for use in TMForum Open-APIs - When used for in a schema it means that the Entity described by the schema  MUST be extended with the @type",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "description": "When sub-classing, this defines the sub-class Extensible name"
+          },
+          "@baseType": {
+            "type": "string",
+            "description": "When sub-classing, this defines the super-class"
+          },
+          "@schemaLocation": {
+            "type": "string",
+            "description": "A URI to a JSON-Schema file that defines additional attributes and relationships"
+          }
+        },
+        "required": [
+          "@type"
+        ]
+      },
+      "Extensible_MVO": {
+        "type": "object",
+        "description": "Base Extensible schema for use in TMForum Open-APIs - When used for in a schema it means that the Entity described by the schema  MUST be extended with the @type"
+      },
+      "FinancialAccountRef": {
+        "type": "object",
+        "description": "AccountReceivable reference. An account of money owed by a party to another entity in exchange for goods or services that have been delivered or used. An account receivable aggregates the amounts of one or more party accounts (billing or settlement) owned by a given party.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityRef"
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "FinancialAccountRef_MVO": {
+        "type": "object",
+        "description": "AccountReceivable reference. An account of money owed by a party to another entity in exchange for goods or services that have been delivered or used. An account receivable aggregates the amounts of one or more party accounts (billing or settlement) owned by a given party.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityRef_MVO"
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "FloatCharacteristic": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Characteristic"
+          },
+          {
+            "type": "object",
+            "description": "A characteristic which value is a Float.",
+            "properties": {
+              "value": {
+                "type": "number",
+                "format": "float",
+                "description": "Value of the characteristic"
+              }
+            }
+          }
+        ]
+      },
+      "IntegerArrayCharacteristic": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Characteristic"
+          },
+          {
+            "type": "object",
+            "description": "A characteristic which value is an array of Integer(s).",
+            "properties": {
+              "value": {
+                "type": "array",
+                "description": "A characteristic which value is an array of Integer(s).",
+                "items": {
+                  "type": "integer",
+                  "description": "Characteristic value"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "IntegerCharacteristic": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Characteristic"
+          },
+          {
+            "type": "object",
+            "description": "A characteristic which value is a Integer.",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "description": "Value of the characteristic"
+              }
+            }
+          }
+        ]
+      },
+      "Money": {
+        "type": "object",
+        "description": "A base / value business entity used to represent money",
+        "properties": {
+          "unit": {
+            "type": "string",
+            "description": "Currency (ISO4217 norm uses 3 letters to define the currency)"
+          },
+          "value": {
+            "type": "number",
+            "format": "float",
+            "description": "A signed floating point number, the meaning of the sign is according to the context of the API that uses this Data type"
+          }
+        }
+      },
+      "NumberArrayCharacteristic": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Characteristic"
+          },
+          {
+            "type": "object",
+            "description": "A characteristic which value is an array of Number(s).",
+            "properties": {
+              "value": {
+                "type": "array",
+                "description": "A characteristic which value is an array of Number(s).",
+                "items": {
+                  "type": "number",
+                  "description": "Characteristic value"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "NumberCharacteristic": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Characteristic"
+          },
+          {
+            "type": "object",
+            "description": "A characteristic which value is a Number.",
+            "properties": {
+              "value": {
+                "type": "number",
+                "description": "Value of the characteristic"
+              }
+            }
+          }
+        ]
+      },
+      "ObjectArrayCharacteristic": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Characteristic"
+          },
+          {
+            "type": "object",
+            "description": "A characteristic which value is an array of Object(s).",
+            "properties": {
+              "value": {
+                "type": "array",
+                "description": "Collection of characteristic values",
+                "items": {
+                  "type": "object",
+                  "description": "Characteristic value"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ObjectCharacteristic": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Characteristic"
+          },
+          {
+            "type": "object",
+            "description": "A characteristic which value is a Object.",
+            "properties": {
+              "value": {
+                "type": "object",
+                "description": "Value of the characteristic"
+              }
+            }
+          }
+        ]
+      },
+      "PartyRef": {
+        "type": "object",
+        "description": "A Party reference",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityRef"
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "PartyRefOrPartyRoleRef": {
+        "type": "object",
+        "description": "",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/PartyRef"
+          },
+          {
+            "$ref": "#/components/schemas/PartyRoleRef"
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "PartyRefOrPartyRoleRef_FVO": {
+        "type": "object",
+        "description": "",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/PartyRef_FVO"
+          },
+          {
+            "$ref": "#/components/schemas/PartyRoleRef_FVO"
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "PartyRefOrPartyRoleRef_MVO": {
+        "type": "object",
+        "description": "",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/PartyRef_MVO"
+          },
+          {
+            "$ref": "#/components/schemas/PartyRoleRef_MVO"
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "PartyRef_FVO": {
+        "type": "object",
+        "description": "A Party reference",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityRef_FVO"
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "PartyRef_MVO": {
+        "type": "object",
+        "description": "A Party reference",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityRef_MVO"
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "PartyRoleRef": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityRef"
+          },
+          {
+            "type": "object",
+            "description": "Party role reference. A party role represents the part played by a party in a given context.",
+            "properties": {
+              "partyId": {
+                "type": "string",
+                "description": "The identifier of the engaged party that is linked to the PartyRole object."
+              },
+              "partyName": {
+                "type": "string",
+                "description": "The name of the engaged party that is linked to the PartyRole object."
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "PartyRoleRef_FVO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityRef_FVO"
+          },
+          {
+            "type": "object",
+            "description": "Party role reference. A party role represents the part played by a party in a given context.",
+            "properties": {
+              "partyId": {
+                "type": "string",
+                "description": "The identifier of the engaged party that is linked to the PartyRole object."
+              },
+              "partyName": {
+                "type": "string",
+                "description": "The name of the engaged party that is linked to the PartyRole object."
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "PartyRoleRef_MVO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityRef_MVO"
+          },
+          {
+            "type": "object",
+            "description": "Party role reference. A party role represents the part played by a party in a given context.",
+            "properties": {
+              "partyId": {
+                "type": "string",
+                "description": "The identifier of the engaged party that is linked to the PartyRole object."
+              },
+              "partyName": {
+                "type": "string",
+                "description": "The name of the engaged party that is linked to the PartyRole object."
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "PaymentMethodRef": {
+        "type": "object",
+        "description": "PaymentMethod reference. A payment method defines a specific mean of payment (e.g direct debit).",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityRef"
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "PaymentMethodRef_MVO": {
+        "type": "object",
+        "description": "PaymentMethod reference. A payment method defines a specific mean of payment (e.g direct debit).",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityRef_MVO"
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "PaymentRef": {
+        "type": "object",
+        "description": "If an immediate payment has been done at the product order submission, the payment information are captured and stored (as a reference) in the order.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extensible"
+          },
+          {
+            "$ref": "#/components/schemas/EntityRef"
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "PaymentRef_MVO": {
+        "type": "object",
+        "description": "If an immediate payment has been done at the product order submission, the payment information are captured and stored (as a reference) in the order.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extensible_MVO"
+          },
+          {
+            "$ref": "#/components/schemas/EntityRef_MVO"
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "ProductRef": {
+        "type": "object",
+        "description": "A Product reference",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityRef"
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "ProductRelationshipType": {
+        "enum": [
+          "migratesTo",
+          "bundles",
+          "bundledBy",
+          "reliesOn",
+          "enables",
+          "requires",
+          "dependsOn",
+          "brings"
+        ],
+        "type": "string",
+        "description": "Possible values for product relationship - This is informative information and implementation are free to use distinct."
+      },
+      "Quantity": {
+        "type": "object",
+        "description": "An amount in a given unit",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "format": "float",
+            "default": 1,
+            "description": "Numeric value in a given unit"
+          },
+          "units": {
+            "type": "string",
+            "description": "Unit"
+          }
+        }
+      },
+      "RelatedPartyRefOrPartyRoleRef": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extensible"
+          },
+          {
+            "type": "object",
+            "description": "RelatedParty reference. A related party defines party or party role or its reference, linked to a specific entity",
+            "properties": {
+              "role": {
+                "description": "Role played by the related party or party role in the context of the specific entity it is linked to. Such as 'initiator', 'customer',  'salesAgent', 'user'",
+                "type": "string"
+              },
+              "partyOrPartyRole": {
+                "$ref": "#/components/schemas/PartyRefOrPartyRoleRef"
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "RelatedPartyRefOrPartyRoleRef_FVO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extensible"
+          },
+          {
+            "type": "object",
+            "description": "RelatedParty reference. A related party defines party or party role or its reference, linked to a specific entity",
+            "properties": {
+              "role": {
+                "description": "Role played by the related party or party role in the context of the specific entity it is linked to. Such as 'initiator', 'customer',  'salesAgent', 'user'",
+                "type": "string"
+              },
+              "partyOrPartyRole": {
+                "$ref": "#/components/schemas/PartyRefOrPartyRoleRef_FVO"
+              }
+            },
+            "required": [
+              "role"
+            ]
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "RelatedPartyRefOrPartyRoleRef_MVO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extensible_MVO"
+          },
+          {
+            "type": "object",
+            "description": "RelatedParty reference. A related party defines party or party role or its reference, linked to a specific entity",
+            "properties": {
+              "role": {
+                "description": "Role played by the related party or party role in the context of the specific entity it is linked to. Such as 'initiator', 'customer',  'salesAgent', 'user'",
+                "type": "string"
+              },
+              "partyOrPartyRole": {
+                "$ref": "#/components/schemas/PartyRefOrPartyRoleRef_MVO"
+              }
+            },
+            "required": [
+              "role"
+            ]
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "StringArrayCharacteristic": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Characteristic"
+          },
+          {
+            "type": "object",
+            "description": "A characteristic which value is an array of String(s).",
+            "properties": {
+              "value": {
+                "type": "array",
+                "description": "Collection of string characteristics",
+                "items": {
+                  "type": "string",
+                  "description": "Characteristic value"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "StringCharacteristic": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Characteristic"
+          },
+          {
+            "type": "object",
+            "description": "A characteristic which value is a String.",
+            "properties": {
+              "value": {
+                "type": "string",
+                "description": "Value of the characteristic"
+              }
+            }
+          }
+        ]
+      },
+      "TaxItem": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extensible"
+          },
+          {
+            "type": "object",
+            "description": "A tax item is created for each tax rate and tax type used in the bill.",
+            "properties": {
+              "taxAmount": {
+                "$ref": "#/components/schemas/Money"
+              },
+              "taxCategory": {
+                "type": "string",
+                "description": "Tax category"
+              },
+              "taxRate": {
+                "type": "number",
+                "format": "float",
+                "description": "Applied rate of the tax"
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "TaxItem_MVO": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extensible_MVO"
+          },
+          {
+            "type": "object",
+            "description": "A tax item is created for each tax rate and tax type used in the bill.",
+            "properties": {
+              "taxAmount": {
+                "$ref": "#/components/schemas/Money"
+              },
+              "taxCategory": {
+                "type": "string",
+                "description": "Tax category"
+              },
+              "taxRate": {
+                "type": "number",
+                "format": "float",
+                "description": "Applied rate of the tax"
+              }
+            }
+          }
+        ],
+        "discriminator": "@type"
+      },
+      "TimePeriod": {
+        "type": "object",
+        "description": "A period of time, either as a deadline (endDateTime only) a startDateTime only, or both",
+        "properties": {
+          "startDateTime": {
+            "description": "Start of the time period, using IETC-RFC-3339 format",
+            "type": "string",
+            "format": "date-time",
+            "example": "1985-04-12T23:20:50.52Z"
+          },
+          "endDateTime": {
+            "description": "End of the time period, using IETC-RFC-3339 format",
+            "type": "string",
+            "format": "date-time",
+            "example": "1985-04-12T23:20:50.52Z"
+          }
+        }
+      },
+      "Error": {
+        "discriminator": "@type",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extensible"
+          },
+          {
+            "type": "object",
+            "required": [
+              "code",
+              "reason"
+            ],
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Application relevant detail, defined in the API or a common list."
+              },
+              "reason": {
+                "type": "string",
+                "description": "Explanation of the reason for the error which can be shown to a client user."
+              },
+              "message": {
+                "type": "string",
+                "description": "More details and corrective actions related to the error which can be shown to a client user."
+              },
+              "status": {
+                "type": "string",
+                "description": "HTTP Error code extension"
+              },
+              "referenceError": {
+                "type": "string",
+                "description": "URI of documentation describing the error."
+              }
+            }
+          }
+        ],
+        "description": "Used when an API throws an Error, typically with a HTTP error response-code (3xx, 4xx, 5xx)"
+      },
+      "Hub_FVO": {
+        "type": "object",
+        "description": "Sets the communication endpoint address the service instance must use to deliver notification information",
+        "required": [
+          "callback"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Extensible"
+          },
+          {
+            "properties": {
+              "callback": {
+                "type": "string",
+                "description": "The callback being registered."
+              },
+              "query": {
+                "type": "string",
+                "description": "additional data to be passed"
+              }
+            }
+          }
+        ]
+      },
+      "Hub": {
+        "type": "object",
+        "description": "Sets the communication endpoint address the service instance must use to deliver notification information",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Entity"
+          },
+          {
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Id of the listener"
+              },
+              "callback": {
+                "type": "string",
+                "description": "The callback being registered."
+              },
+              "query": {
+                "type": "string",
+                "description": "additional data to be passed"
+              }
+            },
+            "required": [
+              "callback"
+            ]
+          }
+        ]
+      },
+      "JsonPatch": {
+        "type": "object",
+        "description": "A JSONPatch document as defined by RFC 6902",
+        "required": [
+          "op",
+          "path"
+        ],
+        "properties": {
+          "op": {
+            "type": "string",
+            "description": "The operation to be performed",
+            "enum": [
+              "add",
+              "remove",
+              "replace",
+              "move",
+              "copy",
+              "test"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "description": "A JSON-Pointer"
+          },
+          "value": {
+            "description": "The value to be used within the operations."
+          },
+          "from": {
+            "type": "string",
+            "description": "A string containing a JSON Pointer value."
+          }
+        }
+      },
+      "JsonPatchOperations": {
+        "description": "JSONPatch Operations document as defined by RFC 6902",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/JsonPatch"
+        }
+      },
+      "CustomerBillNotificationPayload": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/CustomerBillCreateEvent"
+          },
+          {
+            "$ref": "#/components/schemas/CustomerBillStateChangeEvent"
+          }
+        ]
+      },
+      "CustomerBillOnDemandNotificationPayload": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/CustomerBillOnDemandCreateEvent"
+          },
+          {
+            "$ref": "#/components/schemas/CustomerBillOnDemandStateChangeEvent"
+          }
+        ]
+      }
+    },
+    "messages": {
+      "ListAppliedCustomerBillingRateRequest": {
+        "name": "ListAppliedCustomerBillingRateRequest",
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/RequestHeaders"
+            },
+            {
+              "$ref": "#/components/schemas/ListAppliedCustomerBillingRateRequestParametersHeader"
+            },
+            {
+              "$ref": "#/components/schemas/QueryFiltersHeader"
+            }
+          ]
+        }
+      },
+      "200AppliedCustomerBillingRateArrayJsonReply": {
+        "name": "200AppliedCustomerBillingRateArrayJsonReply",
+        "payload": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/AppliedCustomerBillingRate"
+          }
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode200Header"
+            },
+            {
+              "$ref": "#/components/schemas/XTotalCountHeader"
+            },
+            {
+              "$ref": "#/components/schemas/XResultCountHeader"
+            },
+            {
+              "$ref": "#/components/schemas/RequestChannel"
+            }
+          ]
+        },
+        "contentType": "application/json"
+      },
+      "400JsonReply": {
+        "name": "400JsonReply",
+        "payload": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode400Header"
+            }
+          ]
+        },
+        "contentType": "application/json"
+      },
+      "401JsonReply": {
+        "name": "401JsonReply",
+        "payload": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode401Header"
+            }
+          ]
+        },
+        "contentType": "application/json"
+      },
+      "403JsonReply": {
+        "name": "403JsonReply",
+        "payload": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode403Header"
+            }
+          ]
+        },
+        "contentType": "application/json"
+      },
+      "404JsonReply": {
+        "name": "404JsonReply",
+        "payload": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode404Header"
+            }
+          ]
+        },
+        "contentType": "application/json"
+      },
+      "405JsonReply": {
+        "name": "405JsonReply",
+        "payload": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode405Header"
+            }
+          ]
+        },
+        "contentType": "application/json"
+      },
+      "500JsonReply": {
+        "name": "500JsonReply",
+        "payload": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode500Header"
+            }
+          ]
+        },
+        "contentType": "application/json"
+      },
+      "501JsonReply": {
+        "name": "501JsonReply",
+        "payload": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode501Header"
+            }
+          ]
+        },
+        "contentType": "application/json"
+      },
+      "503JsonReply": {
+        "name": "503JsonReply",
+        "payload": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode503Header"
+            }
+          ]
+        },
+        "contentType": "application/json"
+      },
+      "RetrieveAppliedCustomerBillingRateRequest": {
+        "name": "RetrieveAppliedCustomerBillingRateRequest",
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/RequestHeaders"
+            },
+            {
+              "$ref": "#/components/schemas/RetrieveAppliedCustomerBillingRateRequestParametersHeader"
+            },
+            {
+              "$ref": "#/components/schemas/QueryFiltersHeader"
+            }
+          ]
+        }
+      },
+      "200AppliedCustomerBillingRate_GetJsonReply": {
+        "name": "200AppliedCustomerBillingRate_GetJsonReply",
+        "payload": {
+          "$ref": "#/components/schemas/AppliedCustomerBillingRate"
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode200Header"
+            },
+            {
+              "$ref": "#/components/schemas/RequestChannel"
+            }
+          ]
+        },
+        "contentType": "application/json"
+      },
+      "ListBillCycleRequest": {
+        "name": "ListBillCycleRequest",
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/RequestHeaders"
+            },
+            {
+              "$ref": "#/components/schemas/ListBillCycleRequestParametersHeader"
+            },
+            {
+              "$ref": "#/components/schemas/QueryFiltersHeader"
+            }
+          ]
+        }
+      },
+      "200BillCycleArrayJsonReply": {
+        "name": "200BillCycleArrayJsonReply",
+        "payload": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/BillCycle"
+          }
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode200Header"
+            },
+            {
+              "$ref": "#/components/schemas/XTotalCountHeader"
+            },
+            {
+              "$ref": "#/components/schemas/XResultCountHeader"
+            },
+            {
+              "$ref": "#/components/schemas/RequestChannel"
+            }
+          ]
+        },
+        "contentType": "application/json"
+      },
+      "RetrieveBillCycleRequest": {
+        "name": "RetrieveBillCycleRequest",
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/RequestHeaders"
+            },
+            {
+              "$ref": "#/components/schemas/RetrieveBillCycleRequestParametersHeader"
+            },
+            {
+              "$ref": "#/components/schemas/QueryFiltersHeader"
+            }
+          ]
+        }
+      },
+      "200BillCycle_GetJsonReply": {
+        "name": "200BillCycle_GetJsonReply",
+        "payload": {
+          "$ref": "#/components/schemas/BillCycle"
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode200Header"
+            },
+            {
+              "$ref": "#/components/schemas/RequestChannel"
+            }
+          ]
+        },
+        "contentType": "application/json"
+      },
+      "ListCustomerBillRequest": {
+        "name": "ListCustomerBillRequest",
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/RequestHeaders"
+            },
+            {
+              "$ref": "#/components/schemas/ListCustomerBillRequestParametersHeader"
+            },
+            {
+              "$ref": "#/components/schemas/QueryFiltersHeader"
+            }
+          ]
+        }
+      },
+      "200CustomerBillArrayJsonReply": {
+        "name": "200CustomerBillArrayJsonReply",
+        "payload": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/CustomerBill"
+          }
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode200Header"
+            },
+            {
+              "$ref": "#/components/schemas/XTotalCountHeader"
+            },
+            {
+              "$ref": "#/components/schemas/XResultCountHeader"
+            },
+            {
+              "$ref": "#/components/schemas/RequestChannel"
+            }
+          ]
+        },
+        "contentType": "application/json"
+      },
+      "RetrieveCustomerBillRequest": {
+        "name": "RetrieveCustomerBillRequest",
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/RequestHeaders"
+            },
+            {
+              "$ref": "#/components/schemas/RetrieveCustomerBillRequestParametersHeader"
+            },
+            {
+              "$ref": "#/components/schemas/QueryFiltersHeader"
+            }
+          ]
+        }
+      },
+      "200CustomerBill_GetJsonReply": {
+        "name": "200CustomerBill_GetJsonReply",
+        "payload": {
+          "$ref": "#/components/schemas/CustomerBill"
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode200Header"
+            },
+            {
+              "$ref": "#/components/schemas/RequestChannel"
+            }
+          ]
+        },
+        "contentType": "application/json"
+      },
+      "PatchCustomerBillJsonRequest": {
+        "name": "PatchCustomerBillJsonRequest",
+        "payload": {
+          "$ref": "#/components/schemas/CustomerBill_MVO"
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/RequestHeaders"
+            },
+            {
+              "$ref": "#/components/schemas/PatchCustomerBillRequestParametersHeader"
+            }
+          ]
+        },
+        "contentType": "application/json"
+      },
+      "PatchCustomerBillMergePatchRequest": {
+        "name": "PatchCustomerBillMergePatchRequest",
+        "payload": {
+          "$ref": "#/components/schemas/CustomerBill_MVO"
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/RequestHeaders"
+            },
+            {
+              "$ref": "#/components/schemas/PatchCustomerBillRequestParametersHeader"
+            }
+          ]
+        },
+        "contentType": "application/merge-patch+json"
+      },
+      "PatchCustomerBillJsonPatchRequest": {
+        "name": "PatchCustomerBillJsonPatchRequest",
+        "payload": {
+          "$ref": "#/components/schemas/JsonPatchOperations"
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/RequestHeaders"
+            },
+            {
+              "$ref": "#/components/schemas/PatchCustomerBillRequestParametersHeader"
+            }
+          ]
+        },
+        "contentType": "application/json-patch+json"
+      },
+      "PatchCustomerBillJsonPatchQueryRequest": {
+        "name": "PatchCustomerBillJsonPatchQueryRequest",
+        "payload": {
+          "$ref": "#/components/schemas/JsonPatchOperations"
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/RequestHeaders"
+            },
+            {
+              "$ref": "#/components/schemas/PatchCustomerBillRequestParametersHeader"
+            }
+          ]
+        },
+        "contentType": "application/json-patch-query+json"
+      },
+      "200CustomerBill_PatchJsonReply": {
+        "name": "200CustomerBill_PatchJsonReply",
+        "payload": {
+          "$ref": "#/components/schemas/CustomerBill"
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode200Header"
+            },
+            {
+              "$ref": "#/components/schemas/RequestChannel"
+            }
+          ]
+        },
+        "contentType": "application/json"
+      },
+      "200CustomerBill_PatchMergePatchReply": {
+        "name": "200CustomerBill_PatchMergePatchReply",
+        "payload": {
+          "$ref": "#/components/schemas/CustomerBill"
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode200Header"
+            },
+            {
+              "$ref": "#/components/schemas/RequestChannel"
+            }
+          ]
+        },
+        "contentType": "application/merge-patch+json"
+      },
+      "200CustomerBill_PatchJsonPatchReply": {
+        "name": "200CustomerBill_PatchJsonPatchReply",
+        "payload": {
+          "oneOf": [
+            {
+              "$ref": "#/components/schemas/CustomerBill"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/CustomerBill"
+              }
+            },
+            {
+              "type": "string",
+              "nullable": true
+            }
+          ]
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode200Header"
+            },
+            {
+              "$ref": "#/components/schemas/RequestChannel"
+            }
+          ]
+        },
+        "contentType": "application/json-patch+json"
+      },
+      "200CustomerBill_PatchJsonPatchQueryReply": {
+        "name": "200CustomerBill_PatchJsonPatchQueryReply",
+        "payload": {
+          "oneOf": [
+            {
+              "$ref": "#/components/schemas/CustomerBill"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/CustomerBill"
+              }
+            },
+            {
+              "type": "string",
+              "nullable": true
+            }
+          ]
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode200Header"
+            },
+            {
+              "$ref": "#/components/schemas/RequestChannel"
+            }
+          ]
+        },
+        "contentType": "application/json-patch-query+json"
+      },
+      "409JsonReply": {
+        "name": "409JsonReply",
+        "payload": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode409Header"
+            }
+          ]
+        },
+        "contentType": "application/json"
+      },
+      "ListCustomerBillOnDemandRequest": {
+        "name": "ListCustomerBillOnDemandRequest",
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/RequestHeaders"
+            },
+            {
+              "$ref": "#/components/schemas/ListCustomerBillOnDemandRequestParametersHeader"
+            },
+            {
+              "$ref": "#/components/schemas/QueryFiltersHeader"
+            }
+          ]
+        }
+      },
+      "200CustomerBillOnDemandArrayJsonReply": {
+        "name": "200CustomerBillOnDemandArrayJsonReply",
+        "payload": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/CustomerBillOnDemand"
+          }
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode200Header"
+            },
+            {
+              "$ref": "#/components/schemas/XTotalCountHeader"
+            },
+            {
+              "$ref": "#/components/schemas/XResultCountHeader"
+            },
+            {
+              "$ref": "#/components/schemas/RequestChannel"
+            }
+          ]
+        },
+        "contentType": "application/json"
+      },
+      "CreateCustomerBillOnDemandJsonRequest": {
+        "name": "CreateCustomerBillOnDemandJsonRequest",
+        "payload": {
+          "$ref": "#/components/schemas/CustomerBillOnDemand_FVO"
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/RequestHeaders"
+            },
+            {
+              "$ref": "#/components/schemas/CreateCustomerBillOnDemandRequestParametersHeader"
+            }
+          ]
+        },
+        "contentType": "application/json"
+      },
+      "201CustomerBillOnDemandJsonReply": {
+        "name": "201CustomerBillOnDemandJsonReply",
+        "payload": {
+          "$ref": "#/components/schemas/CustomerBillOnDemand"
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode201Header"
+            },
+            {
+              "$ref": "#/components/schemas/RequestChannel"
+            }
+          ]
+        },
+        "contentType": "application/json"
+      },
+      "RetrieveCustomerBillOnDemandRequest": {
+        "name": "RetrieveCustomerBillOnDemandRequest",
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/RequestHeaders"
+            },
+            {
+              "$ref": "#/components/schemas/RetrieveCustomerBillOnDemandRequestParametersHeader"
+            },
+            {
+              "$ref": "#/components/schemas/QueryFiltersHeader"
+            }
+          ]
+        }
+      },
+      "200CustomerBillOnDemand_GetJsonReply": {
+        "name": "200CustomerBillOnDemand_GetJsonReply",
+        "payload": {
+          "$ref": "#/components/schemas/CustomerBillOnDemand"
+        },
+        "headers": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/CorrelationHeader"
+            },
+            {
+              "$ref": "#/components/schemas/StatusCode200Header"
+            },
+            {
+              "$ref": "#/components/schemas/RequestChannel"
+            }
+          ]
+        },
+        "contentType": "application/json"
+      },
+      "CustomerBillNotification": {
+        "name": "CustomerBillNotification",
+        "payload": {
+          "$ref": "#/components/schemas/CustomerBillNotificationPayload"
+        }
+      },
+      "CustomerBillOnDemandNotification": {
+        "name": "CustomerBillOnDemandNotification",
+        "payload": {
+          "$ref": "#/components/schemas/CustomerBillOnDemandNotificationPayload"
+        }
+      }
+    }
+  },
+  "defaultContentType": "application/json"
+}
