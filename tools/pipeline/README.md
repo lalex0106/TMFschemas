@@ -34,7 +34,7 @@
    python tools/pipeline/build_schemas.py --clean
    ```
 
-7. 生成的企业级 schema 将按照域分类输出到 `dist/json/`，若提供了翻译文件，会在 `x-i18n` 中展示可用语种列表；同时会在 `dist/validation/` 目录生成自动剥离 `x-metadata`、`x-i18n` 等扩展字段的严格版本，便于通过 TMF 官方校验。
+7. 生成的企业级 schema 将按照域分类输出到 `dist/json/`，若提供了翻译文件，会在 `x-i18n` 中展示可用语种列表；同时会在 `dist/validation/` 目录生成自动剥离 `x-*` 扩展字段（含 `x-metadata`、`x-i18n` 等）的严格版本，便于通过 TMF 官方校验。
 
 ## 翻译配置常见问答
 
@@ -42,6 +42,8 @@
   - 请确认 CSV 至少包含 `Property` 列；如仅保留四列表头，也需要填写属性名称，流水线会自动把翻译应用到所有匹配的属性节点。
   - 若属性需要限定到某个模型，请增加 `Schema` 列或使用 `模型.属性` 的写法（例如 `Account.description`）。
   - 多个文件提供同一属性翻译时，脚本会按照“模型限定 > 全局属性 > YAML/JSON”顺序合并，保证精确覆盖且不会被全局配置覆盖。
+- **`definitions` 中的属性会自动翻译吗？**
+  - 会。流水线会在遍历过程中同时下探 `definitions`、`items`、`additionalProperties` 等节点，确保模型主体和嵌套结构都能继承 CSV 中的翻译。
 - **发现属性含义在不同模型中不一致怎么办？**
   - 在 `Properties_ZH.csv` 中为该属性新增一行，指定 `Schema` 或使用 `模型.属性` 写法，为特定模型提供差异化翻译；流水线会优先使用更具体的配置。
   - 或者在 `overrides/i18n/<locale>/` 下补充同名 YAML/JSON 覆盖文件，脚本会自动合并并以文件内的内容为准。

@@ -18,6 +18,7 @@ output:
     strip_extensions:
       - x-metadata
       - x-i18n
+      - x-*
 metadata:
   domain_mapping_file: config/domain_mapping.yaml
   schema_draft: 'http://json-schema.org/draft-07/schema#'

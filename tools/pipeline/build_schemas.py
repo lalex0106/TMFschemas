@@ -24,11 +24,9 @@ from pathlib import Path
 from typing import Dict, Iterable, Mapping, MutableMapping, Optional, Tuple
 
 try:
-    import yaml
-except ImportError as exc:  # pragma: no cover - 仅在缺失依赖时执行
-    raise SystemExit(
-        "未安装 PyYAML，请先执行 `pip install pyyaml` 或在虚拟环境中添加依赖。"
-    ) from exc
+    import yaml  # type: ignore
+except ImportError:  # pragma: no cover - 仅在缺失依赖时执行
+    yaml = None  # type: ignore[assignment]
 
 
 @dataclass
@@ -82,6 +80,7 @@ class PipelineConfig:
     def load(cls, config_path: Path) -> "PipelineConfig":
         if not config_path.exists():
             raise FileNotFoundError(f"未找到配置文件: {config_path}")
+        _require_yaml(f"解析配置文件 {config_path}")
         with config_path.open("r", encoding="utf-8") as fh:
             raw = yaml.safe_load(fh) or {}
 
@@ -116,9 +115,9 @@ class PipelineConfig:
 
         strip_keys = tuple(
             str(key)
-            for key in validation.get("strip_extensions", ["x-metadata", "x-i18n"])
+            for key in validation.get("strip_extensions", ["x-metadata", "x-i18n", "x-*"])
             if str(key)
-        ) or ("x-metadata", "x-i18n")
+        ) or ("x-metadata", "x-i18n", "x-*")
 
         validation_root_value = validation.get("root") if isinstance(validation, Mapping) else None
         validation_root = (
@@ -149,6 +148,20 @@ class PipelineConfig:
         )
 
 
+def _require_yaml(context: str) -> None:
+    if yaml is None:
+        raise SystemExit(
+            f"{context} 需要 PyYAML 支持，请先执行 `pip install pyyaml` 或在隔离环境中预装该依赖。"
+        )
+
+
+if yaml is not None:
+    YAML_EXCEPTIONS: Tuple[type[BaseException], ...] = (yaml.YAMLError,)
+else:  # pragma: no cover - 仅用于缺失 PyYAML 的环境
+    YAML_EXCEPTIONS = ()
+JSON_AND_YAML_EXCEPTIONS = (json.JSONDecodeError,) + YAML_EXCEPTIONS
+
+
 def load_json(path: Path) -> MutableMapping[str, str]:
     if not path.exists():
         return {}
@@ -159,6 +172,7 @@ def load_json(path: Path) -> MutableMapping[str, str]:
 def load_domain_mapping(path: Path) -> Mapping[str, str]:
     if not path.exists():
         return {}
+    _require_yaml(f"读取域映射文件 {path}")
     with path.open("r", encoding="utf-8") as fh:
         data = yaml.safe_load(fh) or {}
     return {str(k): str(v) for k, v in data.items()}
@@ -193,22 +207,32 @@ def collect_spec_sources(paths: Iterable[Path]) -> Iterable[Path]:
 
 
 def load_spec_file(path: Path) -> Optional[Mapping[str, object]]:
-    loader = json.load if path.suffix.lower() == ".json" else yaml.safe_load
+    suffix = path.suffix.lower()
+    if suffix == ".json":
+        loader = json.load
+    else:
+        _require_yaml(f"解析规范文件 {path}")
+        loader = yaml.safe_load
     try:
         with path.open("r", encoding="utf-8") as fh:
             data = loader(fh) or {}
-    except (yaml.YAMLError, json.JSONDecodeError) as exc:
+    except JSON_AND_YAML_EXCEPTIONS as exc:
         print(f"⚠️  解析失败 {path}: {exc}")
         return None
     return data if isinstance(data, Mapping) else None
 
 
 def load_translation_file(path: Path) -> Optional[Mapping[str, object]]:
-    loader = json.load if path.suffix.lower() == ".json" else yaml.safe_load
+    suffix = path.suffix.lower()
+    if suffix == ".json":
+        loader = json.load
+    else:
+        _require_yaml(f"解析翻译文件 {path}")
+        loader = yaml.safe_load
     try:
         with path.open("r", encoding="utf-8") as fh:
             data = loader(fh) or {}
-    except (yaml.YAMLError, json.JSONDecodeError) as exc:
+    except JSON_AND_YAML_EXCEPTIONS as exc:
         print(f"⚠️  翻译文件解析失败 {path}: {exc}")
         return None
     return data if isinstance(data, Mapping) else None
@@ -729,13 +753,24 @@ def apply_property_translations_to_schema(
                     stack.append(def_map)
 
 
+def _should_strip_key(key: str, strip_keys: Tuple[str, ...]) -> bool:
+    for candidate in strip_keys:
+        if not candidate:
+            continue
+        if candidate == key:
+            return True
+        if candidate.endswith("*") and key.startswith(candidate[:-1]):
+            return True
+    return False
+
+
 def sanitize_for_validation(
     payload: object, strip_keys: Tuple[str, ...]
 ) -> object:
     if isinstance(payload, dict):
         sanitized: Dict[str, object] = {}
         for key, value in payload.items():
-            if key in strip_keys:
+            if _should_strip_key(key, strip_keys):
                 continue
             sanitized[key] = sanitize_for_validation(value, strip_keys)
         return sanitized
