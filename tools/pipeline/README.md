@@ -11,10 +11,12 @@
 - **元数据沉淀**：生成的 Schema 将携带来源 API、版本、协议与使用频次等元数据，便于后续治理。
 - **多语言融合**：读取 `overrides/i18n/` 中的翻译文件，自动生成中英文对照的 `x-i18n` 字段，兼顾国际化与本地化需求。
 - **保留模型原名**：输出文件沿用官方组件完整名称（如 `PermissionSet_Update`），同时对域推断与翻译支持“原名/规范名”双重匹配，避免 `_Update` 等后缀覆盖主模型。
+- **版本筛选**：通过 `processing.allowed_major_versions` 控制参与构建的主版本，默认聚焦 v4/v5 以降低旧版本差异导致的噪声，需扩展时可在配置中增减。
+- **TMF 校验友好**：构建过程中会把 `discriminator` 统一转为字符串、补齐缺失的 `type`，并在校验副本里去除 `nullable`、`oneOf` 等 Meta-Schema 不允许的键，便于快速通过官方校验。
 
 ## 使用步骤
 
-1. 将官方规范复制或同步至 `sources/tmf-official/API-v*/` 对应版本目录：
+1. 将官方规范复制或同步至 `sources/tmf-official/API-v*/` 对应版本目录（默认仅处理 v4/v5 主版本，若需包含 v1~v3 可在 `pipeline.config.yaml` 中调整 `allowed_major_versions`）：
    - `openapi/` 子目录放置 `*.oas.yaml` 等 REST 定义。
    - `asyncapi/` 子目录放置 `*.asyncapi.json`/`*.asyncapi.yaml` 等事件接口。
 2. 如有额外参考源，可放入 `sources/external/`。
@@ -35,7 +37,7 @@
    python tools/pipeline/build_schemas.py --clean
    ```
 
-7. 生成的企业级 schema 将按照域分类输出到 `dist/json/`，若提供了翻译文件，会在 `x-i18n` 中展示可用语种列表；同时会在 `dist/validation/` 目录生成自动剥离 `x-*` 扩展字段（含 `x-metadata`、`x-i18n` 等）的严格版本，便于通过 TMF 官方校验。
+7. 生成的企业级 schema 将按照域分类输出到 `dist/json/`，若提供了翻译文件，会在 `x-i18n` 中展示可用语种列表；同时会在 `dist/validation/` 目录生成自动剥离 `x-*` 扩展字段（含 `x-metadata`、`x-i18n` 等）且去掉 `nullable`、`oneOf` 等受限关键字的严格版本，便于通过 TMF 官方校验。
 
 ## 翻译配置常见问答
 
@@ -71,7 +73,7 @@
 
 3. 若需要手动指定目录，可使用参数：`python tools/pipeline/run_validation.py --schemas dist/json`。
 
-> 提示：日志中如仅提示 `x-metadata`、`x-i18n` 等扩展被禁止，可认定为企业定制能力；关于 `type`、`discriminator` 等基础字段的报错则代表真实规范问题，需要回溯源文件或企业自定义改动。
+> 提示：日志中如仅提示 `x-metadata`、`x-i18n` 等扩展被禁止，可认定为企业定制能力；若看到缺少 `type`、`discriminator` 或 `nullable` 未被允许等提示，则需回溯源文件或企业自定义改动。当前流水线已自动补齐 `type`、转换 `discriminator` 并在校验副本中清除 `nullable`，如仍出现类似报错，请检查是否来自手工修改或外部文件。
 
 ## 后续扩展建议
 

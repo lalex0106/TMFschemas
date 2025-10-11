@@ -65,6 +65,7 @@ class PipelineConfig:
     filename_pattern: re.Pattern[str]
     prefer_existing_domains: bool
     default_domain: str
+    allowed_major_versions: Tuple[str, ...]
     output_root: Path
     output_docs: Path
     output_yaml: Path
@@ -126,6 +127,12 @@ class PipelineConfig:
             else None
         )
 
+        allowed_versions = tuple(
+            str(item).strip().lower()
+            for item in processing.get("allowed_major_versions", [])
+            if str(item).strip()
+        )
+
         return cls(
             tmf_official=Path(sources.get("tmf_official", "sources/tmf-official")),
             external=Path(sources.get("external", "sources/external")),
@@ -135,6 +142,7 @@ class PipelineConfig:
             filename_pattern=re.compile(processing.get("filename_regex", r"^(TMF\\d+)")),
             prefer_existing_domains=bool(processing.get("prefer_existing_domains", True)),
             default_domain=str(processing.get("default_domain", "Unclassified")),
+            allowed_major_versions=allowed_versions,
             output_root=Path(output.get("root", "dist/json")),
             output_docs=Path(output.get("docs", "dist/docs")),
             output_yaml=Path(output.get("yaml", "dist/yaml")),
@@ -784,18 +792,53 @@ def _should_strip_key(key: str, strip_keys: Tuple[str, ...]) -> bool:
     return False
 
 
+ALLOWED_DEFINITION_KEYS = {
+    "$id",
+    "type",
+    "description",
+    "allOf",
+    "properties",
+    "enum",
+    "required",
+    "dependencies",
+    "discriminator",
+}
+
+
 def sanitize_for_validation(
-    payload: object, strip_keys: Tuple[str, ...]
+    payload: object,
+    strip_keys: Tuple[str, ...],
+    *,
+    context: str = "root",
 ) -> object:
     if isinstance(payload, dict):
         sanitized: Dict[str, object] = {}
+        if context == "definitions" and payload:
+            for def_name, def_value in payload.items():
+                if not isinstance(def_value, Mapping):
+                    continue
+                sanitized[def_name] = sanitize_for_validation(
+                    def_value, strip_keys, context="definition"
+                )
+            return sanitized
+
         for key, value in payload.items():
             if _should_strip_key(key, strip_keys):
                 continue
-            sanitized[key] = sanitize_for_validation(value, strip_keys)
+
+            if context == "definition" and key not in ALLOWED_DEFINITION_KEYS:
+                continue
+
+            if key == "definitions" and isinstance(value, Mapping):
+                sanitized[key] = sanitize_for_validation(
+                    value, strip_keys, context="definitions"
+                )
+                continue
+
+            sanitized[key] = sanitize_for_validation(value, strip_keys, context="generic")
         return sanitized
     if isinstance(payload, list):
-        return [sanitize_for_validation(item, strip_keys) for item in payload]
+        return [sanitize_for_validation(item, strip_keys, context="generic") for item in payload]
     return payload
 
 
@@ -848,7 +891,23 @@ def apply_locale_translations(
     return tuple(applied)
 
 
-def analyze_spec_files(spec_files: Iterable[Path], pattern: re.Pattern[str]) -> tuple[list[SpecDocument], Counter]:
+def _extract_major_version(version: Optional[str], path: Path) -> Optional[str]:
+    if version:
+        major = version.split(".")[0].strip()
+        if major:
+            return major.lower()
+    for part in path.parts:
+        lower = part.lower()
+        if lower.startswith("api-v"):
+            return lower.split("-", 1)[-1]
+    return None
+
+
+def analyze_spec_files(
+    spec_files: Iterable[Path],
+    pattern: re.Pattern[str],
+    allowed_major_versions: Tuple[str, ...] = (),
+) -> tuple[list[SpecDocument], Counter]:
     documents: list[SpecDocument] = []
     schema_counts: Counter = Counter()
 
@@ -867,6 +926,13 @@ def analyze_spec_files(spec_files: Iterable[Path], pattern: re.Pattern[str]) -> 
             continue
 
         version = match.group(2) if match.lastindex and match.lastindex >= 2 else None
+        major_version = _extract_major_version(version, spec_file)
+
+        if allowed_major_versions and (
+            major_version is None or major_version not in allowed_major_versions
+        ):
+            continue
+
         document = SpecDocument(
             api_code=match.group(1),
             version=version,
@@ -919,6 +985,55 @@ def resolve_refs(obj: object, current_domain: str, model_domain_map: Mapping[str
     if isinstance(obj, list):
         return [resolve_refs(item, current_domain, model_domain_map) for item in obj]
     return obj
+
+
+def normalize_schema_structure(schema: MutableMapping[str, object]) -> None:
+    stack: list[MutableMapping[str, object]] = [schema]
+    while stack:
+        node = stack.pop()
+
+        discriminator = node.get("discriminator")
+        if isinstance(discriminator, Mapping):
+            property_name = discriminator.get("propertyName")
+            if isinstance(property_name, str) and property_name.strip():
+                node["discriminator"] = property_name.strip()
+            else:
+                node.pop("discriminator", None)
+        elif discriminator is None:
+            node.pop("discriminator", None)
+
+        if "nullable" in node:
+            node.pop("nullable", None)
+
+        if "type" not in node:
+            if any(key in node for key in ("properties", "allOf", "anyOf", "oneOf", "required", "dependencies")):
+                node["type"] = "object"
+
+        for key, value in list(node.items()):
+            if isinstance(value, Mapping):
+                if not isinstance(value, MutableMapping):
+                    mutable_value: MutableMapping[str, object] = dict(value)
+                    node[key] = mutable_value
+                    stack.append(mutable_value)
+                else:
+                    stack.append(value)
+            elif isinstance(value, list):
+                new_list: list[object] = []
+                replaced = False
+                for item in value:
+                    if isinstance(item, Mapping):
+                        if not isinstance(item, MutableMapping):
+                            mutable_item: MutableMapping[str, object] = dict(item)
+                            new_list.append(mutable_item)
+                            stack.append(mutable_item)
+                            replaced = True
+                        else:
+                            new_list.append(item)
+                            stack.append(item)
+                    else:
+                        new_list.append(item)
+                if replaced:
+                    node[key] = new_list
 
 
 def build_schema_document(
@@ -985,7 +1100,11 @@ def run_pipeline(config: PipelineConfig, clean: bool = False) -> None:
     domain_mapping = load_domain_mapping(config.domain_mapping_file)
 
     spec_sources = list(collect_spec_sources([config.tmf_official, config.external]))
-    documents, schema_counts = analyze_spec_files(spec_sources, config.filename_pattern)
+    documents, schema_counts = analyze_spec_files(
+        spec_sources,
+        config.filename_pattern,
+        config.allowed_major_versions,
+    )
     locale_translations = load_all_translations(config.i18n_locales)
 
     if clean and config.output_root.exists():
@@ -1025,18 +1144,24 @@ def run_pipeline(config: PipelineConfig, clean: bool = False) -> None:
                 model_domain_map[canonical_name] = domain
 
             resolved = resolve_refs(deepcopy(schema_def), domain, model_domain_map)
+            prepared_schema = resolved
             applied_locales: Tuple[str, ...] = ()
-            if isinstance(resolved, MutableMapping):
+
+            mutable_schema = _ensure_mutable_mapping(resolved)
+            if mutable_schema is not None:
                 applied_locales = apply_locale_translations(
-                    resolved,
+                    mutable_schema,
                     schema_name,
                     locale_translations,
                     config,
                 )
+                normalize_schema_structure(mutable_schema)
+                prepared_schema = mutable_schema
+
             document_payload = build_schema_document(
                 schema_name,
                 domain,
-                resolved,
+                prepared_schema,
                 config,
                 document,
                 schema_counts.get(canonical_name, 0),

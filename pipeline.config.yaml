@@ -9,6 +9,9 @@ processing:
   filename_regex: '^(TMF\d+).*?(v\d+\.\d+\.\d+)'
   prefer_existing_domains: true
   default_domain: Unclassified
+  allowed_major_versions:
+    - v4
+    - v5
 output:
   root: dist/json
   docs: dist/docs

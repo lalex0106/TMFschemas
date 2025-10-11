@@ -4,6 +4,7 @@
 
 1. **版本分层**：
    - 将官方仓库中 `API-v1` ~ `API-v5` 等目录逐一映射到本仓库同名子目录。
+   - 流水线默认仅消费 v4/v5 主版本以避免早期版本差异带来的验证噪声，若需要同时处理 v1~v3，请在 `pipeline.config.yaml` 的 `processing.allowed_major_versions` 中追加对应主版本标识（例如 `v3`）。
    - 若未来新增版本，例如 `API-v6`，可直接在本目录下创建对应文件夹并沿用相同结构。
 2. **协议类型拆分**：
    - `openapi/`：存放 REST/OpenAPI 规范文件，沿用官方的 `*.oas.yaml` 命名，例如 `TMF622-ProductOrdering-v5.0.0.oas.yaml`。

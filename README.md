@@ -28,10 +28,12 @@
 - 全部 Schema 遵循 JSON Schema draft-07，并逐步补充企业级 `x-metadata` 描述；流水线会额外输出去除 `x-*`（含 `x-i18n`、`x-metadata`）扩展字段的校验副本。
 - 目录命名与文件命名保持与官方一致，方便进行差异比对与自动化同步。
 - 详细的计划与落地步骤见 `docs/` 目录中的配套文档。
+- 流水线默认仅处理 v4/v5 主版本的官方规范，减少早期版本导致的结构差异；若需扩大范围，可在 `pipeline.config.yaml` 中调整 `processing.allowed_major_versions`。
+- 输出时会同时提供带企业增强信息的正式版本与剥离 `x-*` 扩展、移除 `nullable` 等受限关键字的校验副本，确保兼顾内部使用体验与 TMF 官方验证。
 
 ## 快速开始
 
-1. 按照 `sources/tmf-official/README.md` 指引同步官方 API 规范文件。
+1. 按照 `sources/tmf-official/README.md` 指引同步官方 API 规范文件（默认聚焦 v4/v5 主版本，若需包含 v1~v3，请调整 `pipeline.config.yaml`）。
 2. 根据需要更新 `config/domain_mapping.yaml` 与 `config/name_mapping.json`，统一域归属与命名映射。
 3. （可选）在 `overrides/i18n/<locale>/` 下补充翻译文件。推荐使用 Excel 维护并导出 `Schemas_ZH.csv`、`Properties_ZH.csv` 等 CSV。   其中 `Properties_ZH.csv` 可仅保留 `Property,Descriptions,中文名称,新描述` 四列，流水线会自动把中文名称/描述应用到所有同名属性；若发现不同模型下同名属性含义不一，可新增一行写入 `Schema` 列（或直接在 `Property` 中写成 `模型.属性`），为指定模型设置专属翻译，避免被全局配置覆盖。
 4. 执行流水线原型：
