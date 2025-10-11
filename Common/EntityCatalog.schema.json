@@ -41,7 +41,7 @@
           "type": "array",
           "description": "The parties who are involved or have an interest in this catalog",
           "items": {
-            "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+            "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
           }
         },
         "category": {

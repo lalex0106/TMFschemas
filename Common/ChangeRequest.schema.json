@@ -139,7 +139,7 @@
         "relatedParty": {
           "type": "array",
           "items": {
-            "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+            "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
           },
           "description": "The parties involved in the change request"
         },
@@ -149,7 +149,7 @@
         "sla": {
           "type": "array",
           "items": {
-            "$ref": "../EngagedParty/SLARef.schema.json#SLARef"
+            "$ref": "../BusinessPartner/SLARef.schema.json#SLARef"
           }
         },
         "relateChangeRequest": {

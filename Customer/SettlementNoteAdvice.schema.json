@@ -64,7 +64,7 @@
           "$ref": "../Customer/SettlementNoteImage.schema.json#SettlementNoteImage"
         },
         "receiver": {
-          "$ref": "../EngagedParty/PartyRef.schema.json#PartyRef"
+          "$ref": "../BusinessPartner/PartyRef.schema.json#PartyRef"
         },
         "taxItem": {
           "type": "array",
@@ -73,7 +73,7 @@
           }
         },
         "issuer": {
-          "$ref": "../EngagedParty/PartyRef.schema.json#PartyRef"
+          "$ref": "../BusinessPartner/PartyRef.schema.json#PartyRef"
         },
         "settlementNoteItem": {
           "type": "array",
