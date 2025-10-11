@@ -1,0 +1,4647 @@
+openapi: 3.0.1
+info:
+  title: Cost Management
+  description: >-
+    The Cost Management API provides standardised mechnasim for creating cost instance with all the
+    necessary cost attributes. The API consists of a simple set of operations that can interact with
+    various systems in the ODA Core Commerce Management (CCM) and Production functional blocks.
+    There are two types of costs defined in the Cost Management API; actual costs and projected
+    costs.
+  version: 5.0.0
+  x-generation-tooling-version: v8.5.8
+  x-generation-data-model-version: unknown
+servers:
+  - url: '{apiRoot}/tmf-api/costManagement/v5'
+    variables:
+      apiRoot:
+        default: 'https://serverRoot'
+        enum:
+          - 'https://serverRoot'
+tags:
+  - name: actualCost
+    description: Operations for ActualCost Resource
+  - name: projectedCost
+    description: Operations for ProjectedCost Resource
+  - name: notification listener
+    description: Notifications for Resource Lifecycle and event notifications
+  - name: events subscription
+    description: Endpoints to register and terminate an Event Listener
+paths:
+  /actualCost:
+    get:
+      tags:
+        - actualCost
+      summary: List or find ActualCost objects
+      description: List or find ActualCost objects
+      operationId: listActualCost
+      parameters:
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Before'
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Filter'
+      responses:
+        '200':
+          $ref: '#/components/responses/200ActualCostArray'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+    post:
+      tags:
+        - actualCost
+      summary: Creates a ActualCost
+      description: This operation creates a ActualCost entity.
+      operationId: createActualCost
+      parameters:
+        - $ref: '#/components/parameters/Fields'
+      requestBody:
+        $ref: '#/components/requestBodies/ActualCost_FVO'
+      responses:
+        '201':
+          $ref: '#/components/responses/201ActualCost'
+        '202':
+          description: Accepted
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+  '/actualCost/{id}':
+    get:
+      tags:
+        - actualCost
+      summary: Retrieves a ActualCost by ID
+      description: >-
+        This operation retrieves a ActualCost entity. Attribute selection enabled for all first
+        level attributes.
+      operationId: retrieveActualCost
+      parameters:
+        - $ref: '#/components/parameters/Id'
+        - $ref: '#/components/parameters/Fields'
+      responses:
+        '200':
+          $ref: '#/components/responses/200ActualCost_Get'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+    patch:
+      tags:
+        - actualCost
+      summary: Updates partially a ActualCost
+      description: This operation updates partially a ActualCost entity.
+      operationId: patchActualCost
+      parameters:
+        - $ref: '#/components/parameters/Id'
+        - $ref: '#/components/parameters/Fields'
+      requestBody:
+        $ref: '#/components/requestBodies/ActualCost_MVO'
+      responses:
+        '200':
+          $ref: '#/components/responses/200ActualCost_Patch'
+        '202':
+          description: Accepted
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+    delete:
+      tags:
+        - actualCost
+      summary: Deletes a ActualCost
+      description: This operation deletes a ActualCost entity.
+      operationId: deleteActualCost
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '202':
+          $ref: '#/components/responses/202'
+        '204':
+          $ref: '#/components/responses/204'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+  /hub:
+    post:
+      operationId: createHub
+      summary: Create a subscription (hub) to receive Events
+      description: Sets the communication endpoint to receive Events.
+      tags:
+        - events subscription
+      requestBody:
+        $ref: '#/components/requestBodies/Hub_FVO'
+      responses:
+        '201':
+          $ref: '#/components/responses/Hub'
+        default:
+          $ref: '#/components/responses/Error'
+  '/hub/{id}':
+    get:
+      operationId: hubGet
+      summary: Retrieve a subscription (hub)
+      description: This operation retrieves the subscription to receive Events.
+      tags:
+        - events subscription
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          $ref: '#/components/responses/Hub'
+        default:
+          $ref: '#/components/responses/Error'
+    delete:
+      operationId: hubDelete
+      summary: Remove a subscription (hub) to receive Events
+      description: This operation removes the subscription to receive Events.
+      tags:
+        - events subscription
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Deleted
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/actualCostAttributeValueChangeEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity ActualCostAttributeValueChangeEvent
+      description: >-
+        Example of a client listener for receiving the notification
+        ActualCostAttributeValueChangeEvent
+      operationId: actualCostAttributeValueChangeEvent
+      requestBody:
+        $ref: '#/components/requestBodies/ActualCostAttributeValueChangeEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/actualCostCreateEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity ActualCostCreateEvent
+      description: Example of a client listener for receiving the notification ActualCostCreateEvent
+      operationId: actualCostCreateEvent
+      requestBody:
+        $ref: '#/components/requestBodies/ActualCostCreateEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/actualCostDeleteEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity ActualCostDeleteEvent
+      description: Example of a client listener for receiving the notification ActualCostDeleteEvent
+      operationId: actualCostDeleteEvent
+      requestBody:
+        $ref: '#/components/requestBodies/ActualCostDeleteEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/actualCostStateChangeEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity ActualCostStateChangeEvent
+      description: Example of a client listener for receiving the notification ActualCostStateChangeEvent
+      operationId: actualCostStateChangeEvent
+      requestBody:
+        $ref: '#/components/requestBodies/ActualCostStateChangeEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/projectedCostAttributeValueChangeEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity ProjectedCostAttributeValueChangeEvent
+      description: >-
+        Example of a client listener for receiving the notification
+        ProjectedCostAttributeValueChangeEvent
+      operationId: projectedCostAttributeValueChangeEvent
+      requestBody:
+        $ref: '#/components/requestBodies/ProjectedCostAttributeValueChangeEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/projectedCostCreateEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity ProjectedCostCreateEvent
+      description: Example of a client listener for receiving the notification ProjectedCostCreateEvent
+      operationId: projectedCostCreateEvent
+      requestBody:
+        $ref: '#/components/requestBodies/ProjectedCostCreateEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/projectedCostDeleteEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity ProjectedCostDeleteEvent
+      description: Example of a client listener for receiving the notification ProjectedCostDeleteEvent
+      operationId: projectedCostDeleteEvent
+      requestBody:
+        $ref: '#/components/requestBodies/ProjectedCostDeleteEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/projectedCostStateChangeEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity ProjectedCostStateChangeEvent
+      description: Example of a client listener for receiving the notification ProjectedCostStateChangeEvent
+      operationId: projectedCostStateChangeEvent
+      requestBody:
+        $ref: '#/components/requestBodies/ProjectedCostStateChangeEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /projectedCost:
+    get:
+      tags:
+        - projectedCost
+      summary: List or find ProjectedCost objects
+      description: List or find ProjectedCost objects
+      operationId: listProjectedCost
+      parameters:
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Before'
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Filter'
+      responses:
+        '200':
+          $ref: '#/components/responses/200ProjectedCostArray'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+    post:
+      tags:
+        - projectedCost
+      summary: Creates a ProjectedCost
+      description: This operation creates a ProjectedCost entity.
+      operationId: createProjectedCost
+      parameters:
+        - $ref: '#/components/parameters/Fields'
+      requestBody:
+        $ref: '#/components/requestBodies/ProjectedCost_FVO'
+      responses:
+        '201':
+          $ref: '#/components/responses/201ProjectedCost'
+        '202':
+          description: Accepted
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+  '/projectedCost/{id}':
+    get:
+      tags:
+        - projectedCost
+      summary: Retrieves a ProjectedCost by ID
+      description: >-
+        This operation retrieves a ProjectedCost entity. Attribute selection enabled for all first
+        level attributes.
+      operationId: retrieveProjectedCost
+      parameters:
+        - $ref: '#/components/parameters/Id'
+        - $ref: '#/components/parameters/Fields'
+      responses:
+        '200':
+          $ref: '#/components/responses/200ProjectedCost_Get'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+    patch:
+      tags:
+        - projectedCost
+      summary: Updates partially a ProjectedCost
+      description: This operation updates partially a ProjectedCost entity.
+      operationId: patchProjectedCost
+      parameters:
+        - $ref: '#/components/parameters/Id'
+        - $ref: '#/components/parameters/Fields'
+      requestBody:
+        $ref: '#/components/requestBodies/ProjectedCost_MVO'
+      responses:
+        '200':
+          $ref: '#/components/responses/200ProjectedCost_Patch'
+        '202':
+          description: Accepted
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+    delete:
+      tags:
+        - projectedCost
+      summary: Deletes a ProjectedCost
+      description: This operation deletes a ProjectedCost entity.
+      operationId: deleteProjectedCost
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '202':
+          $ref: '#/components/responses/202'
+        '204':
+          $ref: '#/components/responses/204'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+components:
+  schemas:
+    ActualCost:
+      allOf:
+        - $ref: '#/components/schemas/Cost'
+        - type: object
+          description: 'Concrete implementation of Cost, as ActualCost'
+          properties:
+            state:
+              $ref: '#/components/schemas/ActualCostStateType'
+            period:
+              $ref: '#/components/schemas/TimePeriod'
+            actualCostItem:
+              type: array
+              description: A list of Actual Cost Items items which are part of the overall Actual cost
+              items:
+                $ref: '#/components/schemas/ActualCostItem'
+    ActualCost_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Cost_FVO'
+        - type: object
+          description: 'Concrete implementation of Cost, as ActualCost'
+          properties:
+            state:
+              $ref: '#/components/schemas/ActualCostStateType'
+            period:
+              $ref: '#/components/schemas/TimePeriod'
+            actualCostItem:
+              type: array
+              description: A list of Actual Cost Items items which are part of the overall Actual cost
+              items:
+                $ref: '#/components/schemas/ActualCostItem_FVO'
+          required:
+            - actualCostItem
+    ActualCost_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Cost_MVO'
+        - type: object
+          description: 'Concrete implementation of Cost, as ActualCost'
+          properties:
+            state:
+              $ref: '#/components/schemas/ActualCostStateType'
+            period:
+              $ref: '#/components/schemas/TimePeriod'
+            actualCostItem:
+              type: array
+              description: A list of Actual Cost Items items which are part of the overall Actual cost
+              items:
+                $ref: '#/components/schemas/ActualCostItem'
+          required:
+            - actualCostItem
+    ActualCost_RES:
+      type: object
+      description: Response object for ActualCost
+      allOf:
+        - $ref: '#/components/schemas/ActualCost'
+      required:
+        - id
+        - href
+    ActualCostAttributeValueChangeEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: ActualCostAttributeValueChangeEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/ActualCostAttributeValueChangeEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ActualCostAttributeValueChangeEvent: '#/components/schemas/ActualCostAttributeValueChangeEvent'
+    ActualCostAttributeValueChangeEventPayload:
+      type: object
+      description: ActualCostAttributeValueChangeEventPayload generic structure
+      properties:
+        actualCost:
+          $ref: '#/components/schemas/ActualCost'
+    ActualCostCreateEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: ActualCostCreateEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/ActualCostCreateEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ActualCostCreateEvent: '#/components/schemas/ActualCostCreateEvent'
+    ActualCostCreateEventPayload:
+      type: object
+      description: ActualCostCreateEventPayload generic structure
+      properties:
+        actualCost:
+          $ref: '#/components/schemas/ActualCost'
+    ActualCostDeleteEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: ActualCostDeleteEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/ActualCostDeleteEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ActualCostDeleteEvent: '#/components/schemas/ActualCostDeleteEvent'
+    ActualCostDeleteEventPayload:
+      type: object
+      description: ActualCostDeleteEventPayload generic structure
+      properties:
+        actualCost:
+          $ref: '#/components/schemas/ActualCost'
+    ActualCostItem:
+      allOf:
+        - $ref: '#/components/schemas/CostItem'
+        - type: object
+          description: 'Concrete implementation of CostItem, as ActualCostItem'
+          properties:
+            state:
+              $ref: '#/components/schemas/ActualCostItemStateType'
+            period:
+              $ref: '#/components/schemas/TimePeriod'
+    ActualCostItem_FVO:
+      allOf:
+        - $ref: '#/components/schemas/CostItem_FVO'
+        - type: object
+          description: 'Concrete implementation of CostItem, as ActualCostItem'
+          properties:
+            state:
+              $ref: '#/components/schemas/ActualCostItemStateType'
+            period:
+              $ref: '#/components/schemas/TimePeriod'
+          required:
+            - name
+    ActualCostItemStateType:
+      enum:
+        - incurred
+        - disputed
+        - verified
+        - allocated
+        - cancelled
+      type: string
+      description: Possible values for the state of the actual cost item.
+    ActualCostStateChangeEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: ActualCostStateChangeEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/ActualCostStateChangeEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ActualCostStateChangeEvent: '#/components/schemas/ActualCostStateChangeEvent'
+    ActualCostStateChangeEventPayload:
+      type: object
+      description: ActualCostStateChangeEventPayload generic structure
+      properties:
+        actualCost:
+          $ref: '#/components/schemas/ActualCost'
+    ActualCostStateType:
+      enum:
+        - inProgress
+        - pendingAllocation
+        - allocated
+        - cancelled
+      type: string
+      description: Possible values for the state of the actual cost.
+    Addressable:
+      type: object
+      description: Base schema for addressable entities
+      properties:
+        href:
+          type: string
+          description: Hyperlink reference
+        id:
+          type: string
+          description: unique identifier
+    Attachment:
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - type: object
+          description: >-
+            Complements the description of an element (for instance a product) through video,
+            pictures...
+          properties:
+            name:
+              type: string
+              description: The name of the attachment
+            description:
+              type: string
+              description: A narrative text describing the content of the attachment
+              example: Photograph of the Product
+            url:
+              type: string
+              description: 'Uniform Resource Locator, is a web page address (a subset of URI)'
+              example: 'https://host/Content/4aafacbd-11ff-4dc8-b445-305f2215715f'
+            content:
+              type: string
+              format: base64
+              description: 'The actual contents of the attachment object, if embedded, encoded as base64'
+            size:
+              $ref: '#/components/schemas/Quantity'
+            validFor:
+              $ref: '#/components/schemas/TimePeriod'
+            attachmentType:
+              type: string
+              description: >-
+                a business characterization of the purpose of the attachment, for example logo,
+                instructionManual, contractCopy
+            mimeType:
+              type: string
+              description: a technical characterization of the attachment content format using IETF Mime Types
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Attachment: '#/components/schemas/Attachment'
+    Attachment_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - type: object
+          description: >-
+            Complements the description of an element (for instance a product) through video,
+            pictures...
+          properties:
+            name:
+              type: string
+              description: The name of the attachment
+            description:
+              type: string
+              description: A narrative text describing the content of the attachment
+              example: Photograph of the Product
+            url:
+              type: string
+              description: 'Uniform Resource Locator, is a web page address (a subset of URI)'
+              example: 'https://host/Content/4aafacbd-11ff-4dc8-b445-305f2215715f'
+            content:
+              type: string
+              format: base64
+              description: 'The actual contents of the attachment object, if embedded, encoded as base64'
+            size:
+              $ref: '#/components/schemas/Quantity'
+            validFor:
+              $ref: '#/components/schemas/TimePeriod'
+            attachmentType:
+              type: string
+              description: >-
+                a business characterization of the purpose of the attachment, for example logo,
+                instructionManual, contractCopy
+            mimeType:
+              type: string
+              description: a technical characterization of the attachment content format using IETF Mime Types
+          required:
+            - attachmentType
+            - mimeType
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Attachment: '#/components/schemas/Attachment_FVO'
+    AttachmentRef:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+        - type: object
+          description: >-
+            Attachment reference. An attachment complements the description of an element (for
+            instance a product) through video, pictures
+          properties:
+            description:
+              type: string
+              description: A narrative text describing the content of the attachment
+            url:
+              description: Link to the attachment media/content
+              type: string
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          AttachmentRef: '#/components/schemas/AttachmentRef'
+    AttachmentRefOrValue:
+      type: object
+      description: >-
+        The polymorphic attributes @type, @schemaLocation & @referredType are related to the
+        Attachment entity and not the AttachmentRefOrValue class itself
+      oneOf:
+        - $ref: '#/components/schemas/Attachment'
+        - $ref: '#/components/schemas/AttachmentRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Attachment: '#/components/schemas/Attachment'
+          AttachmentRef: '#/components/schemas/AttachmentRef'
+    AttachmentRefOrValue_FVO:
+      type: object
+      description: >-
+        The polymorphic attributes @type, @schemaLocation & @referredType are related to the
+        Attachment entity and not the AttachmentRefOrValue class itself
+      oneOf:
+        - $ref: '#/components/schemas/Attachment_FVO'
+        - $ref: '#/components/schemas/AttachmentRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Attachment: '#/components/schemas/Attachment_FVO'
+          AttachmentRef: '#/components/schemas/AttachmentRef'
+    BaseEvent:
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - type: object
+          description: Base event with common attributes.
+          properties:
+            event:
+              type: object
+              description: The event linked to the involved resource object
+            eventId:
+              type: string
+              description: The identifier of the notification.
+            eventTime:
+              type: string
+              format: date-time
+              description: Time of the event occurrence.
+            eventType:
+              type: string
+              description: The type of the notification.
+            correlationId:
+              type: string
+              description: The correlation id for this event.
+            domain:
+              type: string
+              description: The domain of the event.
+            title:
+              type: string
+              description: The title of the event.
+            description:
+              type: string
+              description: An explanatory of the event.
+            priority:
+              type: string
+              description: A priority.
+            timeOcurred:
+              type: string
+              format: date-time
+              description: The time the event occurred.
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          BaseEvent: '#/components/schemas/BaseEvent'
+    BooleanArrayCharacteristic:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic'
+        - type: object
+          description: A characteristic which value is an array of Boolean(s).
+          properties:
+            value:
+              type: array
+              description: A characteristic which value is an array of Boolean(s).
+              items:
+                type: boolean
+                description: Characteristic item boolean value
+    BooleanArrayCharacteristic_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic_FVO'
+        - type: object
+          description: A characteristic which value is an array of Boolean(s).
+          properties:
+            value:
+              type: array
+              description: A characteristic which value is an array of Boolean(s).
+              items:
+                type: boolean
+                description: Characteristic item boolean value
+          required:
+            - value
+    BooleanCharacteristic:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic'
+        - type: object
+          description: A characteristic which value is a Boolean.
+          properties:
+            value:
+              type: boolean
+              description: Value of the characteristic
+    BooleanCharacteristic_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic_FVO'
+        - type: object
+          description: A characteristic which value is a Boolean.
+          properties:
+            value:
+              type: boolean
+              description: Value of the characteristic
+          required:
+            - value
+    Characteristic:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            Describes a given characteristic of an object or entity through a name/value pair. This
+            is an abstract base class, the actual value is in one of the strongly-typed subclasses :
+            StringCharacteristic, ObjectCharacteristic, FloatCharacteristic, BooleanCharacteristic,
+            NumberCharacteristic, IntegerCharacteristic, StringArrayCharacteristic,
+            ObjectArrayCharacteristic, BooleanArrayCharacteristic, NumberArrayCharacteristic,
+            IntegerArrayCharacteristic...
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            name:
+              type: string
+              description: Name of the characteristic
+            valueType:
+              type: string
+              description: Data type of the value of the characteristic
+            characteristicRelationship:
+              type: array
+              description: Collection of characteristic relationships
+              items:
+                $ref: '#/components/schemas/CharacteristicRelationship'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          BooleanArrayCharacteristic: '#/components/schemas/BooleanArrayCharacteristic'
+          BooleanCharacteristic: '#/components/schemas/BooleanCharacteristic'
+          Characteristic: '#/components/schemas/Characteristic'
+          FloatArrayCharacteristic: '#/components/schemas/FloatArrayCharacteristic'
+          FloatCharacteristic: '#/components/schemas/FloatCharacteristic'
+          IntegerArrayCharacteristic: '#/components/schemas/IntegerArrayCharacteristic'
+          IntegerCharacteristic: '#/components/schemas/IntegerCharacteristic'
+          NumberArrayCharacteristic: '#/components/schemas/NumberArrayCharacteristic'
+          NumberCharacteristic: '#/components/schemas/NumberCharacteristic'
+          ObjectArrayCharacteristic: '#/components/schemas/ObjectArrayCharacteristic'
+          ObjectCharacteristic: '#/components/schemas/ObjectCharacteristic'
+          StringArrayCharacteristic: '#/components/schemas/StringArrayCharacteristic'
+          StringCharacteristic: '#/components/schemas/StringCharacteristic'
+    Characteristic_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            Describes a given characteristic of an object or entity through a name/value pair. This
+            is an abstract base class, the actual value is in one of the strongly-typed subclasses :
+            StringCharacteristic, ObjectCharacteristic, FloatCharacteristic, BooleanCharacteristic,
+            NumberCharacteristic, IntegerCharacteristic, StringArrayCharacteristic,
+            ObjectArrayCharacteristic, BooleanArrayCharacteristic, NumberArrayCharacteristic,
+            IntegerArrayCharacteristic...
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            name:
+              type: string
+              description: Name of the characteristic
+            valueType:
+              type: string
+              description: Data type of the value of the characteristic
+            characteristicRelationship:
+              type: array
+              description: Collection of characteristic relationships
+              items:
+                $ref: '#/components/schemas/CharacteristicRelationship_FVO'
+          required:
+            - name
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          BooleanArrayCharacteristic: '#/components/schemas/BooleanArrayCharacteristic_FVO'
+          BooleanCharacteristic: '#/components/schemas/BooleanCharacteristic_FVO'
+          Characteristic: '#/components/schemas/Characteristic_FVO'
+          FloatArrayCharacteristic: '#/components/schemas/FloatArrayCharacteristic_FVO'
+          FloatCharacteristic: '#/components/schemas/FloatCharacteristic_FVO'
+          IntegerArrayCharacteristic: '#/components/schemas/IntegerArrayCharacteristic_FVO'
+          IntegerCharacteristic: '#/components/schemas/IntegerCharacteristic_FVO'
+          NumberArrayCharacteristic: '#/components/schemas/NumberArrayCharacteristic_FVO'
+          NumberCharacteristic: '#/components/schemas/NumberCharacteristic_FVO'
+          ObjectArrayCharacteristic: '#/components/schemas/ObjectArrayCharacteristic_FVO'
+          ObjectCharacteristic: '#/components/schemas/ObjectCharacteristic_FVO'
+          StringArrayCharacteristic: '#/components/schemas/StringArrayCharacteristic_FVO'
+          StringCharacteristic: '#/components/schemas/StringCharacteristic_FVO'
+    CharacteristicRelationship:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Another Characteristic that is related to the current Characteristic;
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            relationshipType:
+              type: string
+              description: The type of relationship
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CharacteristicRelationship: '#/components/schemas/CharacteristicRelationship'
+    CharacteristicRelationship_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Another Characteristic that is related to the current Characteristic;
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            relationshipType:
+              type: string
+              description: The type of relationship
+          required:
+            - id
+            - relationshipType
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CharacteristicRelationship: '#/components/schemas/CharacteristicRelationship_FVO'
+    Cost:
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - type: object
+          description: 'Abstract base class for Cost. Possible subclass include: ActualCost, ProjectedCost.'
+          properties:
+            description:
+              description: Free-text description of the Cost
+              type: string
+            name:
+              description: Name of the Cost
+              type: string
+            version:
+              type: string
+              description: The version of the Cost
+            creationDate:
+              type: string
+              format: date-time
+              description: The date when the cost object is created
+            note:
+              type: array
+              description: A list of notes made on this Cost
+              items:
+                $ref: '#/components/schemas/Note'
+            attachment:
+              type: array
+              items:
+                $ref: '#/components/schemas/AttachmentRefOrValue'
+              description: The attachments pertaining to the cost
+            lastUpdate:
+              type: string
+              format: date-time
+              description: The date when the cost object is last updated
+            relatedParty:
+              type: array
+              description: >-
+                A list of related party references playing a role in this cost object ( e.g. -
+                Project Manager, accountant, Procurement Officer, external vendor etc.)
+              items:
+                $ref: '#/components/schemas/RelatedPartyRefOrPartyRoleRef'
+            relatedEntity:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedEntityRefOrValue'
+              description: A list of related entity in relation to this cost
+            externalIdentifier:
+              type: array
+              description: A list of external identifiers assoicated with this cost
+              items:
+                $ref: '#/components/schemas/ExternalIdentifier'
+            costRelationship:
+              type: array
+              description: >-
+                A list of cost relationships (CostRelationship [*]). Describes links with other
+                cost(s).
+              items:
+                $ref: '#/components/schemas/CostRelationship'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ActualCost: '#/components/schemas/ActualCost'
+          Cost: '#/components/schemas/Cost'
+          ProjectedCost: '#/components/schemas/ProjectedCost'
+    Cost_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - type: object
+          description: 'Abstract base class for Cost. Possible subclass include: ActualCost, ProjectedCost.'
+          properties:
+            description:
+              description: Free-text description of the Cost
+              type: string
+            name:
+              description: Name of the Cost
+              type: string
+            version:
+              type: string
+              description: The version of the Cost
+            note:
+              type: array
+              description: A list of notes made on this Cost
+              items:
+                $ref: '#/components/schemas/Note'
+            attachment:
+              type: array
+              items:
+                $ref: '#/components/schemas/AttachmentRefOrValue_FVO'
+              description: The attachments pertaining to the cost
+            relatedParty:
+              type: array
+              description: >-
+                A list of related party references playing a role in this cost object ( e.g. -
+                Project Manager, accountant, Procurement Officer, external vendor etc.)
+              items:
+                $ref: '#/components/schemas/RelatedPartyRefOrPartyRoleRef_FVO'
+            relatedEntity:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedEntityRefOrValue_FVO'
+              description: A list of related entity in relation to this cost
+            externalIdentifier:
+              type: array
+              description: A list of external identifiers assoicated with this cost
+              items:
+                $ref: '#/components/schemas/ExternalIdentifier_FVO'
+            costRelationship:
+              type: array
+              description: >-
+                A list of cost relationships (CostRelationship [*]). Describes links with other
+                cost(s).
+              items:
+                $ref: '#/components/schemas/CostRelationship_FVO'
+          required:
+            - name
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ActualCost: '#/components/schemas/ActualCost_FVO'
+          Cost: '#/components/schemas/Cost_FVO'
+          ProjectedCost: '#/components/schemas/ProjectedCost_FVO'
+    Cost_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - type: object
+          description: 'Abstract base class for Cost. Possible subclass include: ActualCost, ProjectedCost.'
+          properties:
+            description:
+              description: Free-text description of the Cost
+              type: string
+            name:
+              description: Name of the Cost
+              type: string
+            version:
+              type: string
+              description: The version of the Cost
+            note:
+              type: array
+              description: A list of notes made on this Cost
+              items:
+                $ref: '#/components/schemas/Note'
+            attachment:
+              type: array
+              items:
+                $ref: '#/components/schemas/AttachmentRefOrValue'
+              description: The attachments pertaining to the cost
+            relatedParty:
+              type: array
+              description: >-
+                A list of related party references playing a role in this cost object ( e.g. -
+                Project Manager, accountant, Procurement Officer, external vendor etc.)
+              items:
+                $ref: '#/components/schemas/RelatedPartyRefOrPartyRoleRef'
+            relatedEntity:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedEntityRefOrValue'
+              description: A list of related entity in relation to this cost
+            externalIdentifier:
+              type: array
+              description: A list of external identifiers assoicated with this cost
+              items:
+                $ref: '#/components/schemas/ExternalIdentifier'
+            costRelationship:
+              type: array
+              description: >-
+                A list of cost relationships (CostRelationship [*]). Describes links with other
+                cost(s).
+              items:
+                $ref: '#/components/schemas/CostRelationship'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ActualCost: '#/components/schemas/ActualCost_MVO'
+          Cost: '#/components/schemas/Cost_MVO'
+          ProjectedCost: '#/components/schemas/ProjectedCost_MVO'
+    CostItem:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            Abstract base class for Cost Item. Possible subclass include: ActualCostItem,
+            ProjectedCostItem.
+          properties:
+            id:
+              description: a locally unique identifier for the cost item within the list of items
+              type: string
+            description:
+              description: Free-text description of the Cost Item
+              type: string
+            name:
+              description: Name of the Cost Item
+              type: string
+            version:
+              type: string
+              description: The version of the Cost Item
+            creationDate:
+              type: string
+              format: date-time
+              description: The date when the cost item object is created
+            lastUpdate:
+              type: string
+              format: date-time
+              description: The date when the cost item object is last updated
+            isTaxIncluded:
+              type: boolean
+              default: false
+              description: Indicates whether cost amount includes taxes.
+            costItemType:
+              $ref: '#/components/schemas/CostItemType'
+            costItemAllocation:
+              $ref: '#/components/schemas/CostItemAllocation'
+            tax:
+              type: array
+              items:
+                $ref: '#/components/schemas/TaxItem'
+              description: An amount of money levied on the cost by a legislative body.
+            note:
+              type: array
+              description: Extra-information about the cost item
+              items:
+                $ref: '#/components/schemas/Note'
+            costItemAmount:
+              $ref: '#/components/schemas/CostRate'
+            costItemRelationship:
+              type: array
+              description: >-
+                A list of cost item relationships (CostRelationship [*]). Describes links with other
+                cost item(s).
+              items:
+                $ref: '#/components/schemas/CostItemRelationship'
+            relatedEntity:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedEntityRefOrValue'
+              description: A list of related entity in relation to this cost item
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ActualCostItem: '#/components/schemas/ActualCostItem'
+          CostItem: '#/components/schemas/CostItem'
+          ProjectedCostItem: '#/components/schemas/ProjectedCostItem'
+    CostItem_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            Abstract base class for Cost Item. Possible subclass include: ActualCostItem,
+            ProjectedCostItem.
+          properties:
+            id:
+              description: a locally unique identifier for the cost item within the list of items
+              type: string
+            description:
+              description: Free-text description of the Cost Item
+              type: string
+            name:
+              description: Name of the Cost Item
+              type: string
+            version:
+              type: string
+              description: The version of the Cost Item
+            creationDate:
+              type: string
+              format: date-time
+              description: The date when the cost item object is created
+            lastUpdate:
+              type: string
+              format: date-time
+              description: The date when the cost item object is last updated
+            isTaxIncluded:
+              type: boolean
+              default: false
+              description: Indicates whether cost amount includes taxes.
+            costItemType:
+              $ref: '#/components/schemas/CostItemType'
+            costItemAllocation:
+              $ref: '#/components/schemas/CostItemAllocation_FVO'
+            tax:
+              type: array
+              items:
+                $ref: '#/components/schemas/TaxItem'
+              description: An amount of money levied on the cost by a legislative body.
+            note:
+              type: array
+              description: Extra-information about the cost item
+              items:
+                $ref: '#/components/schemas/Note'
+            costItemAmount:
+              $ref: '#/components/schemas/CostRate'
+            costItemRelationship:
+              type: array
+              description: >-
+                A list of cost item relationships (CostRelationship [*]). Describes links with other
+                cost item(s).
+              items:
+                $ref: '#/components/schemas/CostItemRelationship_FVO'
+            relatedEntity:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedEntityRefOrValue_FVO'
+              description: A list of related entity in relation to this cost item
+          required:
+            - name
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ActualCostItem: '#/components/schemas/ActualCostItem_FVO'
+          CostItem: '#/components/schemas/CostItem_FVO'
+          ProjectedCostItem: '#/components/schemas/ProjectedCostItem_FVO'
+    CostItemAllocation:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            To indicate under which accounting category the cost item is recorded in the
+            organization
+          properties:
+            accountingCategory:
+              type: string
+              description: >-
+                the accounting category within the organization under which the cost item is
+                recorded. This refers to the classification used within the organization to
+                categorize and track cost (e.g.: Cost Centre, Business Unit, etc.)
+              example: Cost Centre
+            code:
+              type: string
+              description: >-
+                The code for the accounting category within the organization where the cost is
+                tracked (e.g., code for Cost Centre, Business Unit, etc.).
+              example: '#CC594'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CostItemAllocation: '#/components/schemas/CostItemAllocation'
+    CostItemAllocation_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            To indicate under which accounting category the cost item is recorded in the
+            organization
+          properties:
+            accountingCategory:
+              type: string
+              description: >-
+                the accounting category within the organization under which the cost item is
+                recorded. This refers to the classification used within the organization to
+                categorize and track cost (e.g.: Cost Centre, Business Unit, etc.)
+              example: Cost Centre
+            code:
+              type: string
+              description: >-
+                The code for the accounting category within the organization where the cost is
+                tracked (e.g., code for Cost Centre, Business Unit, etc.).
+              example: '#CC594'
+          required:
+            - accountingCategory
+            - code
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CostItemAllocation: '#/components/schemas/CostItemAllocation_FVO'
+    CostItemRef:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Reference to a CostItem
+          properties:
+            '@referredType':
+              type: string
+              description: The actual type of the target instance when needed for disambiguation.
+            itemId:
+              type: string
+              description: Identifier of the cost item within its parent Cost entity
+            costHref:
+              type: string
+              format: uri
+              description: Navigable reference to the cost to which this cost item belongs to
+            costId:
+              type: string
+              description: Identifier of the cost that contains the referred cost item
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CostItemRef: '#/components/schemas/CostItemRef'
+    CostItemRelationship:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: A relationship between two Cost Items.
+          properties:
+            costItemRelationshipCharacteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic'
+              description: A list of characteristics of the Cost Item relationship
+            costItem:
+              $ref: '#/components/schemas/CostItemRef'
+            relationshipType:
+              type: string
+              description: 'Relationship type as relies on, bundles, etc...'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CostItemRelationship: '#/components/schemas/CostItemRelationship'
+    CostItemRelationship_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: A relationship between two Cost Items.
+          properties:
+            costItemRelationshipCharacteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic_FVO'
+              description: A list of characteristics of the Cost Item relationship
+            costItem:
+              $ref: '#/components/schemas/CostItemRef'
+            relationshipType:
+              type: string
+              description: 'Relationship type as relies on, bundles, etc...'
+          required:
+            - relationshipType
+            - costItem
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CostItemRelationship: '#/components/schemas/CostItemRelationship_FVO'
+    CostItemType:
+      enum:
+        - oneTime
+        - recurring
+        - consumptionBased
+      type: string
+      description: Possible values for the cost item.
+    CostRate:
+      type: object
+      description: 'To represent a cost per unit. e.g. $10/hr, 33 pence/min'
+      properties:
+        quantity:
+          $ref: '#/components/schemas/Quantity'
+        amount:
+          $ref: '#/components/schemas/Money'
+    CostRef:
+      type: object
+      description: Reference to a Cost entity
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CostRef: '#/components/schemas/CostRef'
+    CostRelationship:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: A relationship between two Cost objects.
+          properties:
+            costRelationshipCharacteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic'
+              description: A list of characteristics of the Cost relationship
+            cost:
+              $ref: '#/components/schemas/CostRef'
+            relationshipType:
+              type: string
+              description: 'Relationship type as relies on, bundles, etc...'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CostRelationship: '#/components/schemas/CostRelationship'
+    CostRelationship_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: A relationship between two Cost objects.
+          properties:
+            costRelationshipCharacteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic_FVO'
+              description: A list of characteristics of the Cost relationship
+            cost:
+              $ref: '#/components/schemas/CostRef'
+            relationshipType:
+              type: string
+              description: 'Relationship type as relies on, bundles, etc...'
+          required:
+            - relationshipType
+            - cost
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CostRelationship: '#/components/schemas/CostRelationship_FVO'
+    Entity:
+      type: object
+      description: Base entity schema for use in TMForum Open-APIs. Property.
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/Addressable'
+    EntityRef:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/Addressable'
+        - type: object
+          description: Entity reference schema to be use for all entityRef class.
+          properties:
+            id:
+              type: string
+              description: The identifier of the referred entity.
+            href:
+              type: string
+              description: The URI of the referred entity.
+            name:
+              type: string
+              description: Name of the referred entity.
+            '@referredType':
+              type: string
+              description: The actual type of the target instance when needed for disambiguation.
+          required:
+            - id
+    EntityRefOrValue:
+      type: object
+      description: ''
+      oneOf:
+        - $ref: '#/components/schemas/Entity'
+        - $ref: '#/components/schemas/EntityRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Entity: '#/components/schemas/Entity'
+          EntityRef: '#/components/schemas/EntityRef'
+          PartyRoleRef: '#/components/schemas/PartyRoleRef'
+          PartyRef: '#/components/schemas/PartyRef'
+          CostRef: '#/components/schemas/CostRef'
+          AttachmentRef: '#/components/schemas/AttachmentRef'
+    Event:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: event with common attributes.
+          properties:
+            href:
+              type: string
+              description: Hyperlink reference
+            id:
+              type: string
+              description: unique identifier
+            correlationId:
+              type: string
+              description: The correlation id for this event.
+            domain:
+              type: string
+              description: The domain of the event.
+            title:
+              type: string
+              description: The title of the event.
+            description:
+              type: string
+              description: An explanation of the event.
+            priority:
+              type: string
+              description: A priority.
+            timeOccurred:
+              type: string
+              format: date-time
+              description: The time the event occurred.
+            source:
+              $ref: '#/components/schemas/EntityRef'
+            reportingSystem:
+              $ref: '#/components/schemas/EntityRef'
+            relatedParty:
+              type: array
+              description: Collection of related parties
+              items:
+                $ref: '#/components/schemas/RelatedPartyRefOrPartyRoleRef'
+            analyticCharacteristic:
+              type: array
+              description: Collection of analytic characteristics
+              items:
+                $ref: '#/components/schemas/Characteristic'
+            eventId:
+              type: string
+              description: The identifier of the notification.
+            eventTime:
+              type: string
+              format: date-time
+              description: Time of the event occurrence.
+            eventType:
+              type: string
+              description: The type of the notification.
+            event:
+              description: The event linked to the involved resource object
+              type: object
+    Extensible:
+      type: object
+      description: >-
+        Base Extensible schema for use in TMForum Open-APIs - When used for in a schema it means
+        that the Entity described by the schema  MUST be extended with the @type
+      properties:
+        '@type':
+          type: string
+          description: 'When sub-classing, this defines the sub-class Extensible name'
+        '@baseType':
+          type: string
+          description: 'When sub-classing, this defines the super-class'
+        '@schemaLocation':
+          type: string
+          description: A URI to a JSON-Schema file that defines additional attributes and relationships
+      required:
+        - '@type'
+    ExternalIdentifier:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            An identification of an entity that is owned by or originates in a software system
+            different from the current system, for example a ProductOrder handed off from a commerce
+            platform into an order handling system. The structure identifies the system itself, the
+            nature of the entity within the system (e.g. class name) and the unique ID of the entity
+            within the system. It is anticipated that multiple external IDs can be held for a single
+            entity, e.g. if the entity passed through multiple systems on the way to the current
+            system. In this case the consumer is expected to sequence the IDs in the array in
+            reverse order of provenance, i.e. most recent system first in the list.
+          properties:
+            owner:
+              type: string
+              description: Name of the external system that owns the entity.
+              example: MagentoCommerce
+            externalIdentifierType:
+              type: string
+              description: >-
+                Type of the identification, typically would be the type of the entity within the
+                external system
+              example: ProductOrder
+            id:
+              type: string
+              description: identification of the entity within the external system.
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ExternalIdentifier: '#/components/schemas/ExternalIdentifier'
+    ExternalIdentifier_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            An identification of an entity that is owned by or originates in a software system
+            different from the current system, for example a ProductOrder handed off from a commerce
+            platform into an order handling system. The structure identifies the system itself, the
+            nature of the entity within the system (e.g. class name) and the unique ID of the entity
+            within the system. It is anticipated that multiple external IDs can be held for a single
+            entity, e.g. if the entity passed through multiple systems on the way to the current
+            system. In this case the consumer is expected to sequence the IDs in the array in
+            reverse order of provenance, i.e. most recent system first in the list.
+          properties:
+            owner:
+              type: string
+              description: Name of the external system that owns the entity.
+              example: MagentoCommerce
+            externalIdentifierType:
+              type: string
+              description: >-
+                Type of the identification, typically would be the type of the entity within the
+                external system
+              example: ProductOrder
+            id:
+              type: string
+              description: identification of the entity within the external system.
+          required:
+            - id
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ExternalIdentifier: '#/components/schemas/ExternalIdentifier_FVO'
+    FloatArrayCharacteristic:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic'
+        - type: object
+          description: A characteristic which value is an array of Float(s).
+          properties:
+            value:
+              type: array
+              description: A characteristic which value is an array of Float(s).
+              items:
+                type: number
+                format: float
+                description: Characteristic value
+    FloatArrayCharacteristic_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic_FVO'
+        - type: object
+          description: A characteristic which value is an array of Float(s).
+          properties:
+            value:
+              type: array
+              description: A characteristic which value is an array of Float(s).
+              items:
+                type: number
+                format: float
+                description: Characteristic value
+          required:
+            - value
+    FloatCharacteristic:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic'
+        - type: object
+          description: A characteristic which value is a Float.
+          properties:
+            value:
+              type: number
+              format: float
+              description: Value of the characteristic
+    FloatCharacteristic_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic_FVO'
+        - type: object
+          description: A characteristic which value is a Float.
+          properties:
+            value:
+              type: number
+              format: float
+              description: Value of the characteristic
+          required:
+            - value
+    IntegerArrayCharacteristic:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic'
+        - type: object
+          description: A characteristic which value is an array of Integer(s).
+          properties:
+            value:
+              type: array
+              description: A characteristic which value is an array of Integer(s).
+              items:
+                type: integer
+                description: Characteristic value
+    IntegerArrayCharacteristic_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic_FVO'
+        - type: object
+          description: A characteristic which value is an array of Integer(s).
+          properties:
+            value:
+              type: array
+              description: A characteristic which value is an array of Integer(s).
+              items:
+                type: integer
+                description: Characteristic value
+          required:
+            - value
+    IntegerCharacteristic:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic'
+        - type: object
+          description: A characteristic which value is a Integer.
+          properties:
+            value:
+              type: integer
+              description: Value of the characteristic
+    IntegerCharacteristic_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic_FVO'
+        - type: object
+          description: A characteristic which value is a Integer.
+          properties:
+            value:
+              type: integer
+              description: Value of the characteristic
+          required:
+            - value
+    Money:
+      type: object
+      description: A base / value business entity used to represent money
+      properties:
+        unit:
+          type: string
+          description: Currency (ISO4217 norm uses 3 letters to define the currency)
+        value:
+          type: number
+          format: float
+          description: >-
+            A signed floating point number, the meaning of the sign is according to the context of
+            the API that uses this Data type
+    Note:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Extra information about a given entity
+          properties:
+            id:
+              type: string
+              description: Identifier of the note within its containing entity
+              example: afa9-3d90aaa8da0f
+            author:
+              type: string
+              description: Author of the note
+              example: Mr. N. Bene
+            date:
+              type: string
+              format: date-time
+              description: Date of the note
+              example: '2020-11-20T08:00:00Z'
+            text:
+              type: string
+              description: Text of the note
+              example: This is important
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Note: '#/components/schemas/Note'
+    NumberArrayCharacteristic:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic'
+        - type: object
+          description: A characteristic which value is an array of Number(s).
+          properties:
+            value:
+              type: array
+              description: A characteristic which value is an array of Number(s).
+              items:
+                type: number
+                description: Characteristic value
+    NumberArrayCharacteristic_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic_FVO'
+        - type: object
+          description: A characteristic which value is an array of Number(s).
+          properties:
+            value:
+              type: array
+              description: A characteristic which value is an array of Number(s).
+              items:
+                type: number
+                description: Characteristic value
+          required:
+            - value
+    NumberCharacteristic:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic'
+        - type: object
+          description: A characteristic which value is a Number.
+          properties:
+            value:
+              type: number
+              description: Value of the characteristic
+    NumberCharacteristic_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic_FVO'
+        - type: object
+          description: A characteristic which value is a Number.
+          properties:
+            value:
+              type: number
+              description: Value of the characteristic
+          required:
+            - value
+    ObjectArrayCharacteristic:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic'
+        - type: object
+          description: A characteristic which value is an array of Object(s).
+          properties:
+            value:
+              type: array
+              description: Collection of characteristic values
+              items:
+                type: object
+                description: Characteristic value
+    ObjectArrayCharacteristic_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic_FVO'
+        - type: object
+          description: A characteristic which value is an array of Object(s).
+          properties:
+            value:
+              type: array
+              description: Collection of characteristic values
+              items:
+                type: object
+                description: Characteristic value
+          required:
+            - value
+    ObjectCharacteristic:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic'
+        - type: object
+          description: A characteristic which value is a Object.
+          properties:
+            value:
+              type: object
+              description: Value of the characteristic
+    ObjectCharacteristic_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic_FVO'
+        - type: object
+          description: A characteristic which value is a Object.
+          properties:
+            value:
+              type: object
+              description: Value of the characteristic
+          required:
+            - value
+    PartyRef:
+      type: object
+      description: A Party reference
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PartyRef: '#/components/schemas/PartyRef'
+    PartyRefOrPartyRoleRef:
+      type: object
+      description: ''
+      oneOf:
+        - $ref: '#/components/schemas/PartyRef'
+        - $ref: '#/components/schemas/PartyRoleRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PartyRef: '#/components/schemas/PartyRef'
+          PartyRoleRef: '#/components/schemas/PartyRoleRef'
+    PartyRoleRef:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+        - type: object
+          description: >-
+            Party role reference. A party role represents the part played by a party in a given
+            context.
+          properties:
+            partyId:
+              type: string
+              description: The identifier of the engaged party that is linked to the PartyRole object.
+            partyName:
+              type: string
+              description: The name of the engaged party that is linked to the PartyRole object.
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PartyRoleRef: '#/components/schemas/PartyRoleRef'
+    ProjectedCost:
+      allOf:
+        - $ref: '#/components/schemas/Cost'
+        - type: object
+          description: 'Concrete implementation of Cost, as ProjectedCost'
+          properties:
+            state:
+              $ref: '#/components/schemas/ProjectedCostStateType'
+            certaintyLevel:
+              type: string
+              description: >-
+                Indicates the extent of confidence in the accuracy and reliability of the projected
+                cost estimates. Example values can be - 'Indicative cost' an early-stage estimate
+                used to provide a preliminary idea of potential costs. 'Firm cost' also known as
+                fixed cost or committed cost: represents a cost estimate that has undergone detailed
+                analysis, validation, and approval. It is considered highly reliable and stable.
+            validFor:
+              $ref: '#/components/schemas/TimePeriod'
+            projectedCostItem:
+              type: array
+              description: A list of Projected Cost Items items which are part of the overall projected cost
+              items:
+                $ref: '#/components/schemas/ProjectedCostItem'
+    ProjectedCost_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Cost_FVO'
+        - type: object
+          description: 'Concrete implementation of Cost, as ProjectedCost'
+          properties:
+            state:
+              $ref: '#/components/schemas/ProjectedCostStateType'
+            certaintyLevel:
+              type: string
+              description: >-
+                Indicates the extent of confidence in the accuracy and reliability of the projected
+                cost estimates. Example values can be - 'Indicative cost' an early-stage estimate
+                used to provide a preliminary idea of potential costs. 'Firm cost' also known as
+                fixed cost or committed cost: represents a cost estimate that has undergone detailed
+                analysis, validation, and approval. It is considered highly reliable and stable.
+            validFor:
+              $ref: '#/components/schemas/TimePeriod'
+            projectedCostItem:
+              type: array
+              description: A list of Projected Cost Items items which are part of the overall projected cost
+              items:
+                $ref: '#/components/schemas/ProjectedCostItem_FVO'
+          required:
+            - projectedCostItem
+    ProjectedCost_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Cost_MVO'
+        - type: object
+          description: 'Concrete implementation of Cost, as ProjectedCost'
+          properties:
+            state:
+              $ref: '#/components/schemas/ProjectedCostStateType'
+            certaintyLevel:
+              type: string
+              description: >-
+                Indicates the extent of confidence in the accuracy and reliability of the projected
+                cost estimates. Example values can be - 'Indicative cost' an early-stage estimate
+                used to provide a preliminary idea of potential costs. 'Firm cost' also known as
+                fixed cost or committed cost: represents a cost estimate that has undergone detailed
+                analysis, validation, and approval. It is considered highly reliable and stable.
+            validFor:
+              $ref: '#/components/schemas/TimePeriod'
+            projectedCostItem:
+              type: array
+              description: A list of Projected Cost Items items which are part of the overall projected cost
+              items:
+                $ref: '#/components/schemas/ProjectedCostItem'
+    ProjectedCost_RES:
+      type: object
+      description: Response object for ProjectedCost
+      allOf:
+        - $ref: '#/components/schemas/ProjectedCost'
+      required:
+        - id
+        - href
+    ProjectedCostAttributeValueChangeEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: ProjectedCostAttributeValueChangeEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/ProjectedCostAttributeValueChangeEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ProjectedCostAttributeValueChangeEvent: '#/components/schemas/ProjectedCostAttributeValueChangeEvent'
+    ProjectedCostAttributeValueChangeEventPayload:
+      type: object
+      description: ProjectedCostAttributeValueChangeEventPayload generic structure
+      properties:
+        projectedCost:
+          $ref: '#/components/schemas/ProjectedCost'
+    ProjectedCostCreateEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: ProjectedCostCreateEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/ProjectedCostCreateEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ProjectedCostCreateEvent: '#/components/schemas/ProjectedCostCreateEvent'
+    ProjectedCostCreateEventPayload:
+      type: object
+      description: ProjectedCostCreateEventPayload generic structure
+      properties:
+        projectedCost:
+          $ref: '#/components/schemas/ProjectedCost'
+    ProjectedCostDeleteEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: ProjectedCostDeleteEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/ProjectedCostDeleteEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ProjectedCostDeleteEvent: '#/components/schemas/ProjectedCostDeleteEvent'
+    ProjectedCostDeleteEventPayload:
+      type: object
+      description: ProjectedCostDeleteEventPayload generic structure
+      properties:
+        projectedCost:
+          $ref: '#/components/schemas/ProjectedCost'
+    ProjectedCostItem:
+      allOf:
+        - $ref: '#/components/schemas/CostItem'
+        - type: object
+          description: 'Concrete implementation of CostItem, as ProjectedCostItem'
+          properties:
+            state:
+              $ref: '#/components/schemas/ProjectedCostItemStateType'
+            validFor:
+              $ref: '#/components/schemas/TimePeriod'
+            isDiscretionary:
+              type: boolean
+              default: false
+              description: >-
+                This indicates discretion or choice to incur the cost item based on preferences,
+                needs, or other constraints. Only discretionary cost could be rejected
+    ProjectedCostItem_FVO:
+      allOf:
+        - $ref: '#/components/schemas/CostItem_FVO'
+        - type: object
+          description: 'Concrete implementation of CostItem, as ProjectedCostItem'
+          properties:
+            state:
+              $ref: '#/components/schemas/ProjectedCostItemStateType'
+            validFor:
+              $ref: '#/components/schemas/TimePeriod'
+            isDiscretionary:
+              type: boolean
+              default: false
+              description: >-
+                This indicates discretion or choice to incur the cost item based on preferences,
+                needs, or other constraints. Only discretionary cost could be rejected
+          required:
+            - name
+    ProjectedCostItemStateType:
+      enum:
+        - estimated
+        - reviewed
+        - approved
+        - rejected
+        - cancelled
+        - expired
+      type: string
+      description: Possible values for the state of the projected cost item.
+    ProjectedCostStateChangeEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: ProjectedCostStateChangeEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/ProjectedCostStateChangeEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ProjectedCostStateChangeEvent: '#/components/schemas/ProjectedCostStateChangeEvent'
+    ProjectedCostStateChangeEventPayload:
+      type: object
+      description: ProjectedCostStateChangeEventPayload generic structure
+      properties:
+        projectedCost:
+          $ref: '#/components/schemas/ProjectedCost'
+    ProjectedCostStateType:
+      enum:
+        - inProgress
+        - pendingApproval
+        - approved
+        - cancelled
+      type: string
+      description: Possible values for the state of the projected cost.
+    Quantity:
+      type: object
+      description: An amount in a given unit
+      properties:
+        amount:
+          type: number
+          format: float
+          default: 1
+          description: Numeric value in a given unit
+        units:
+          type: string
+          description: Unit
+    RelatedEntityRefOrValue:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            A reference to an entity, where the type of the entity is not known in advance. A
+            related entity defines a entity described by reference or by value linked to a specific
+            entity. The polymorphic attributes @type, @schemaLocation & @referredType are related to
+            the Entity and not the RelatedEntityRefOrValue class itself
+          properties:
+            role:
+              type: string
+            entity:
+              $ref: '#/components/schemas/EntityRefOrValue'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedEntityRefOrValue: '#/components/schemas/RelatedEntityRefOrValue'
+    RelatedEntityRefOrValue_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            A reference to an entity, where the type of the entity is not known in advance. A
+            related entity defines a entity described by reference or by value linked to a specific
+            entity. The polymorphic attributes @type, @schemaLocation & @referredType are related to
+            the Entity and not the RelatedEntityRefOrValue class itself
+          properties:
+            role:
+              type: string
+            entity:
+              $ref: '#/components/schemas/EntityRefOrValue'
+          required:
+            - role
+            - entity
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedEntityRefOrValue: '#/components/schemas/RelatedEntityRefOrValue_FVO'
+    RelatedPartyRefOrPartyRoleRef:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            RelatedParty reference. A related party defines party or party role or its reference,
+            linked to a specific entity
+          properties:
+            role:
+              description: >-
+                Role played by the related party or party role in the context of the specific entity
+                it is linked to. Such as 'initiator', 'customer',  'salesAgent', 'user'
+              type: string
+            partyOrPartyRole:
+              $ref: '#/components/schemas/PartyRefOrPartyRoleRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedPartyRefOrPartyRoleRef: '#/components/schemas/RelatedPartyRefOrPartyRoleRef'
+    RelatedPartyRefOrPartyRoleRef_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            RelatedParty reference. A related party defines party or party role or its reference,
+            linked to a specific entity
+          properties:
+            role:
+              description: >-
+                Role played by the related party or party role in the context of the specific entity
+                it is linked to. Such as 'initiator', 'customer',  'salesAgent', 'user'
+              type: string
+            partyOrPartyRole:
+              $ref: '#/components/schemas/PartyRefOrPartyRoleRef'
+          required:
+            - role
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedPartyRefOrPartyRoleRef: '#/components/schemas/RelatedPartyRefOrPartyRoleRef_FVO'
+    StringArrayCharacteristic:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic'
+        - type: object
+          description: A characteristic which value is an array of String(s).
+          properties:
+            value:
+              type: array
+              description: Collection of string characteristics
+              items:
+                type: string
+                description: Characteristic value
+    StringArrayCharacteristic_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic_FVO'
+        - type: object
+          description: A characteristic which value is an array of String(s).
+          properties:
+            value:
+              type: array
+              description: Collection of string characteristics
+              items:
+                type: string
+                description: Characteristic value
+          required:
+            - value
+    StringCharacteristic:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic'
+        - type: object
+          description: A characteristic which value is a String.
+          properties:
+            value:
+              type: string
+              description: Value of the characteristic
+    StringCharacteristic_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Characteristic_FVO'
+        - type: object
+          description: A characteristic which value is a String.
+          properties:
+            value:
+              type: string
+              description: Value of the characteristic
+          required:
+            - value
+    TaxItem:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: A tax item is created for each tax rate and tax type used in the bill.
+          properties:
+            taxAmount:
+              $ref: '#/components/schemas/Money'
+            taxCategory:
+              type: string
+              description: Tax category
+            taxRate:
+              type: number
+              format: float
+              description: Applied rate of the tax
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          TaxItem: '#/components/schemas/TaxItem'
+    TimePeriod:
+      type: object
+      description: 'A period of time, either as a deadline (endDateTime only) a startDateTime only, or both'
+      properties:
+        startDateTime:
+          description: 'Start of the time period, using IETC-RFC-3339 format'
+          type: string
+          format: date-time
+          example: '1985-04-12T23:20:50.52Z'
+        endDateTime:
+          description: 'End of the time period, using IETC-RFC-3339 format'
+          type: string
+          format: date-time
+          example: '1985-04-12T23:20:50.52Z'
+    Error:
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Error: '#/components/schemas/Error'
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          required:
+            - code
+            - reason
+          properties:
+            code:
+              type: string
+              description: 'Application relevant detail, defined in the API or a common list.'
+            reason:
+              type: string
+              description: Explanation of the reason for the error which can be shown to a client user.
+            message:
+              type: string
+              description: >-
+                More details and corrective actions related to the error which can be shown to a
+                client user.
+            status:
+              type: string
+              description: HTTP Error code extension
+            referenceError:
+              type: string
+              description: URI of documentation describing the error.
+      description: 'Used when an API throws an Error, typically with a HTTP error response-code (3xx, 4xx, 5xx)'
+    Hub_FVO:
+      type: object
+      description: >-
+        Sets the communication endpoint address the service instance must use to deliver
+        notification information
+      required:
+        - callback
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - properties:
+            callback:
+              type: string
+              description: The callback being registered.
+            query:
+              type: string
+              description: additional data to be passed
+    Hub:
+      type: object
+      description: >-
+        Sets the communication endpoint address the service instance must use to deliver
+        notification information
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - properties:
+            id:
+              type: string
+              description: Id of the listener
+            callback:
+              type: string
+              description: The callback being registered.
+            query:
+              type: string
+              description: additional data to be passed
+          required:
+            - callback
+    JsonPatch:
+      type: object
+      description: A JSONPatch document as defined by RFC 6902
+      required:
+        - op
+        - path
+      properties:
+        op:
+          type: string
+          description: The operation to be performed
+          enum:
+            - add
+            - remove
+            - replace
+            - move
+            - copy
+            - test
+        path:
+          type: string
+          description: A JSON-Pointer
+        value:
+          description: The value to be used within the operations.
+        from:
+          type: string
+          description: A string containing a JSON Pointer value.
+    JsonPatchOperations:
+      description: JSONPatch Operations document as defined by RFC 6902
+      type: array
+      items:
+        $ref: '#/components/schemas/JsonPatch'
+  parameters:
+    Id:
+      name: id
+      required: true
+      schema:
+        type: string
+      in: path
+      description: Identifier of the Resource
+    Fields:
+      name: fields
+      in: query
+      description: Comma-separated properties to be provided in response
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: Requested index for start of resources to be provided in response
+      schema:
+        type: integer
+    Limit:
+      name: limit
+      in: query
+      description: Requested number of resources to be provided in response
+      schema:
+        type: integer
+    Before:
+      name: before
+      in: query
+      description: An opaque string value representing the page results before the cursor value
+      schema:
+        type: string
+    After:
+      name: after
+      in: query
+      description: An opaque string value representing the page results after the cursor value
+      schema:
+        type: string
+    Sort:
+      name: sort
+      in: query
+      description: >-
+        The default direction is Ascending order, the use of the modifier in front of the sort field
+        name, “-“, changes the sort order direction.
+      schema:
+        type: string
+    Filter:
+      name: filter
+      in: query
+      description: Filter a collection using JSONPath
+      schema:
+        type: string
+        example: 'attachment[?(@size==300)]'
+  requestBodies:
+    ActualCost_FVO:
+      description: The ActualCost to be created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ActualCost_FVO'
+          examples:
+            ActualCost_create_example:
+              $ref: '#/components/examples/ActualCost_create_example_request'
+      required: true
+    ActualCost_MVO:
+      description: The ActualCost to be patched
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ActualCost_MVO'
+          examples:
+            ActualCost_partialupdate_example_01:
+              $ref: '#/components/examples/ActualCost_partialupdate_example_01_request'
+        application/merge-patch+json:
+          schema:
+            $ref: '#/components/schemas/ActualCost_MVO'
+          examples:
+            ActualCost_partialupdate_example_02:
+              $ref: '#/components/examples/ActualCost_partialupdate_example_02_request'
+        application/json-patch+json:
+          schema:
+            $ref: '#/components/schemas/JsonPatchOperations'
+          examples:
+            ActualCost_partialupdate_example_11:
+              $ref: '#/components/examples/ActualCost_partialupdate_example_11_request'
+        application/json-patch-query+json:
+          schema:
+            $ref: '#/components/schemas/JsonPatchOperations'
+          examples:
+            ActualCost_partialupdate_example_22:
+              $ref: '#/components/examples/ActualCost_partialupdate_example_22_request'
+      required: true
+    ActualCostCreateEvent:
+      description: ActualCost create Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ActualCostCreateEvent'
+          examples:
+            Create:
+              $ref: '#/components/examples/Create_request'
+      required: true
+    ActualCostAttributeValueChangeEvent:
+      description: ActualCost attributeValueChange Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ActualCostAttributeValueChangeEvent'
+          examples:
+            AttributeValueChange:
+              $ref: '#/components/examples/AttributeValueChange_request'
+      required: true
+    ActualCostStateChangeEvent:
+      description: ActualCost stateChange Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ActualCostStateChangeEvent'
+          examples:
+            StateChange:
+              $ref: '#/components/examples/StateChange_request'
+      required: true
+    ActualCostDeleteEvent:
+      description: ActualCost delete Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ActualCostDeleteEvent'
+          examples:
+            Delete:
+              $ref: '#/components/examples/Delete_request'
+      required: true
+    ProjectedCost_FVO:
+      description: The ProjectedCost to be created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProjectedCost_FVO'
+          examples:
+            ProjectedCost_create_example:
+              $ref: '#/components/examples/ProjectedCost_create_example_request'
+      required: true
+    ProjectedCost_MVO:
+      description: The ProjectedCost to be patched
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProjectedCost_MVO'
+          examples:
+            ProjectedCost_partialupdate_example_01:
+              $ref: '#/components/examples/ProjectedCost_partialupdate_example_01_request'
+        application/merge-patch+json:
+          schema:
+            $ref: '#/components/schemas/ProjectedCost_MVO'
+          examples:
+            ProjectedCost_partialupdate_example_02:
+              $ref: '#/components/examples/ProjectedCost_partialupdate_example_02_request'
+        application/json-patch+json:
+          schema:
+            $ref: '#/components/schemas/JsonPatchOperations'
+          examples:
+            ProjectedCost_partialupdate_example_03:
+              $ref: '#/components/examples/ProjectedCost_partialupdate_example_03_request'
+        application/json-patch-query+json:
+          schema:
+            $ref: '#/components/schemas/JsonPatchOperations'
+          examples:
+            ProjectedCost_partialupdate_example_04:
+              $ref: '#/components/examples/ProjectedCost_partialupdate_example_04_request'
+      required: true
+    ProjectedCostCreateEvent:
+      description: ProjectedCost Create Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProjectedCostCreateEvent'
+          examples:
+            ProjectedCostCreate:
+              $ref: '#/components/examples/ProjectedCostCreate_request'
+      required: true
+    ProjectedCostAttributeValueChangeEvent:
+      description: ProjectedCost AttributeValueChange Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProjectedCostAttributeValueChangeEvent'
+          examples:
+            ProjectedCostAttributeValueChange:
+              $ref: '#/components/examples/ProjectedCostAttributeValueChange_request'
+      required: true
+    ProjectedCostStateChangeEvent:
+      description: ProjectedCost StateChange Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProjectedCostStateChangeEvent'
+          examples:
+            ProjectedCostStateChange:
+              $ref: '#/components/examples/ProjectedCostStateChange_request'
+      required: true
+    ProjectedCostDeleteEvent:
+      description: ProjectedCost Delete Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProjectedCostDeleteEvent'
+          examples:
+            ProjectedCostDelete:
+              $ref: '#/components/examples/ProjectedCostDelete_request'
+      required: true
+    Hub_FVO:
+      description: Data containing the callback endpoint to deliver the information
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Hub_FVO'
+          examples:
+            Basic Hub Example Request:
+              value:
+                '@type': Hub
+                callback: 'https://host/tmf-api/specificAPIName/v5/listener/specificEventListener'
+                query: data
+      required: true
+  responses:
+    '200':
+      description: OK
+    '202':
+      description: Accepted
+    '204':
+      description: Deleted
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            basic:
+              summary: Bad Request Error
+              value:
+                '@type': Error
+                code: ERR400
+                reason: Bad Request
+                message: >-
+                  The server could not understand the request due to invalid syntax. Please correct
+                  the syntax and try again.
+                referenceError: 'https://host/errors'
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            basic:
+              summary: Unauthorized Error
+              value:
+                '@type': Error
+                code: ERR401
+                reason: Unauthorized
+                message: >-
+                  You are not authorized to access the requested resource. Please provide the
+                  correct credentials.
+                referenceError: 'https://host/errors'
+    '403':
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            basic:
+              summary: Forbidden Error
+              value:
+                '@type': Error
+                code: ERR403
+                reason: Forbidden
+                message: >-
+                  You don't have the permission to access the requested resource. It is either
+                  read-protected or not readable by the server.
+                referenceError: 'https://host/errors'
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            basic:
+              summary: Not Found Error
+              value:
+                '@type': Error
+                code: ERR404
+                reason: Not Found
+                message: The requested URL was not found on the server.
+                referenceError: 'https://host/errors'
+    '405':
+      description: Method Not allowed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            basic:
+              summary: Method Not allowed Error
+              value:
+                '@type': Error
+                code: ERR405
+                reason: Method Not allowed
+                message: The method is not allowed for the requested URL.
+                referenceError: 'https://host/errors'
+    '409':
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            basic:
+              summary: Conflict Error
+              value:
+                '@type': Error
+                code: ERR409
+                reason: Conflict
+                message: >-
+                  The request could not be completed due to a conflict with the current state of the
+                  target resource.
+                referenceError: 'https://host/errors'
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            basic:
+              summary: Internal Server Error example
+              value:
+                '@type': Error
+                code: ERR500
+                reason: Internal Server Error
+                message: The server encountered an internal error. Please contact the system administrator.
+                referenceError: 'https://host/errors'
+    '501':
+      description: Not Implemented
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            basic:
+              summary: Not Implemented Error
+              value:
+                '@type': Error
+                code: ERR501
+                reason: The requested operation is not implemented
+                message: >-
+                  The requested operation is not implemented. Please contact the system
+                  administrator.
+                referenceError: 'https://host/errors'
+    '503':
+      description: Service Unavailable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            basic:
+              summary: Service Unavailable Error
+              value:
+                '@type': Error
+                code: ERR503
+                reason: Service Unavailable
+                message: The service is currently unavailable. Please try again later.
+                referenceError: 'https://host/errors'
+    200ActualCostArray:
+      description: Success
+      headers:
+        X-Total-Count:
+          $ref: '#/components/headers/X-Total-Count'
+        X-Result-Count:
+          $ref: '#/components/headers/X-Result-Count'
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/ActualCost_RES'
+          examples:
+            ActualCost_list_example:
+              $ref: '#/components/examples/ActualCost_list_example_response'
+    200ActualCost_Get:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ActualCost_RES'
+          examples:
+            ActualCost_retrieve_example:
+              $ref: '#/components/examples/ActualCost_retrieve_example_response'
+    200ActualCost_Patch:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ActualCost_RES'
+          examples:
+            ActualCost_partialupdate_example_01:
+              $ref: '#/components/examples/ActualCost_partialupdate_example_01_response'
+    201ActualCost:
+      description: OK/Created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ActualCost_RES'
+          examples:
+            ActualCost_create_example:
+              $ref: '#/components/examples/ActualCost_create_example_response'
+    200ProjectedCostArray:
+      description: Success
+      headers:
+        X-Total-Count:
+          $ref: '#/components/headers/X-Total-Count'
+        X-Result-Count:
+          $ref: '#/components/headers/X-Result-Count'
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/ProjectedCost_RES'
+          examples:
+            ProjectedCost_list_example:
+              $ref: '#/components/examples/ProjectedCost_list_example_response'
+    200ProjectedCost_Get:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProjectedCost_RES'
+          examples:
+            ProjectedCost_retrieve_example:
+              $ref: '#/components/examples/ProjectedCost_retrieve_example_response'
+    200ProjectedCost_Patch:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProjectedCost_RES'
+          examples:
+            ProjectedCost_partialupdate_example_01:
+              $ref: '#/components/examples/ProjectedCost_partialupdate_example_01_response'
+    201ProjectedCost:
+      description: OK/Created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProjectedCost_RES'
+          examples:
+            ProjectedCost_create_example:
+              $ref: '#/components/examples/ProjectedCost_create_example_response'
+    Error:
+      description: Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            basic:
+              summary: Error example
+              value:
+                '@type': Error
+                code: ERR001
+                reason: Missing information
+                message: Please provide the additional example information
+                referenceError: 'https://host/errors'
+    Hub:
+      description: Notified
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Hub'
+          examples:
+            basic:
+              summary: Hub example
+              value:
+                '@type': Hub
+                callback: 'https://host/tmf-api/specificAPIName/v5/listener/specificEventListener'
+  headers:
+    X-Total-Count:
+      description: Total number of items matching criteria
+      schema:
+        type: integer
+    X-Result-Count:
+      description: Actual number of items returned in the response body
+      schema:
+        type: integer
+  securitySchemes: {}
+  examples:
+    ActualCost_list_example_response:
+      value:
+        - name: Actual Cost
+          id: 19d72f32-13b8-4711-a805-12850ea1ce19
+          href: >-
+            https://mycsp.com:8080/tmf-api/costManagement/v5/actualCost/19d72f32-13b8-4711-a805-12850ea1ce19
+          state: allocated
+          '@type': ActualCost
+        - name: Actual Cost
+          id: 19d72f32-13b8-4711-a805-12850ea89890
+          href: >-
+            https://mycsp.com:8080/tmf-api/costManagement/v5/actualCost/19d72f32-13b8-4711-a805-12850ea89890
+          state: allocated
+          '@type': ActualCost
+      description: >-
+        Here's an example of a request for retrieving multiple actual cost instances, in this
+        example allocated actual cost instances are filtered and id, href, name and state fields
+        need to be returned
+    ActualCost_retrieve_example_response:
+      value:
+        '@type': ActualCost
+        '@baseType': Cost
+        href: >-
+          https://mycsp.com:8080/tmf-api/costManagement/v5/actualCost/19d72f32-13b8-4711-a805-12850ea1ce19
+        id: 19d72f32-13b8-4711-a805-12850ea1ce19
+        name: Actual Cost
+        description: Costs incurred for Service Order 3f845e07-73d8-469b-949f-fe95e52ab5ab
+        creationDate: '2023-11-14T11:03:08.176Z'
+        lastUpdate: '2024-08-14T11:03:08.176Z'
+        state: allocated
+        relatedParty:
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: Supplier
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/456'
+              id: '456'
+              name: NetCo Pty Ltd
+              '@referredType': Organization
+        relatedEntity:
+          - '@type': RelatedEntityRefOrValue
+            role: initiator
+            entity:
+              id: 3f845e07-73d8-469b-949f-fe95e52ab5ab
+              href: >-
+                https://mycsp.com:8080/tmf-api/serviceOrdering/v5/serviceOrder/3f845e07-73d8-469b-949f-fe95e52ab5ab
+              '@type': EntityRef
+              '@referredType': ServiceOrder
+        period:
+          startDateTime: '2023-11-14T11:03:08.176Z'
+          endDateTime: '2024-08-14T11:03:08.176Z'
+        actualCostItem:
+          - '@type': ActualCostItem
+            id: '636363'
+            description: E-line connectivity service
+            name: E-line
+            creationDate: '2024-07-14T11:03:08.178Z'
+            lastUpdate: '2024-08-14T11:03:08.178Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 1
+                units: month
+              amount:
+                unit: AUD
+                value: 500
+            tax:
+              - taxCategory: GST
+                taxRate: 0.1
+                '@type': TaxItem
+            state: incurred
+            period:
+              startDateTime: '2024-07-14T11:03:08.176Z'
+              endDateTime: '2024-08-14T11:03:08.176Z'
+            costItemRelationship:
+              - '@type': CostItemRelationship
+                '@baseType': CostItemRelationship
+                '@schemaLocation': 'http://my.schemas/CostItemRelationship.schema.json'
+                costItemRelationshipCharacteristic: []
+                costItem:
+                  '@type': CostItemRef
+                  '@baseType': CostItemRef
+                  '@schemaLocation': 'http://my.schemas/CostItemRef.schema.json'
+                  '@referredType': projectedCostItem
+                  itemId: '898989'
+                  costHref: >-
+                    https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+                  costId: 19d72f32-13b8-4711-a805-12850ea1ce20
+                relationshipType: projectedBy
+          - '@type': ActualCostItem
+            id: '123456'
+            description: The actual cost of the fibre optic cable
+            name: Fiber Optic Cable
+            creationDate: '2024-06-14T11:03:08.178Z'
+            lastUpdate: '2024-07-14T11:03:08.178Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 10
+                units: km
+              amount:
+                unit: AUD
+                value: 50000
+            tax:
+              - taxCategory: GST
+                taxRate: 0.1
+                '@type': TaxItem
+            costItemType: oneTime
+            state: allocated
+            costItemRelationship:
+              - '@type': CostItemRelationship
+                '@baseType': CostItemRelationship
+                '@schemaLocation': 'http://my.schemas/CostItemRelationship.schema.json'
+                costItemRelationshipCharacteristic: []
+                costItem:
+                  '@type': CostItemRef
+                  '@baseType': CostItemRef
+                  '@schemaLocation': 'http://my.schemas/CostItemRef.schema.json'
+                  '@referredType': projectedCostItem
+                  itemId: '111000'
+                  costHref: >-
+                    https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+                  costId: 19d72f32-13b8-4711-a805-12850ea1ce20
+                relationshipType: projectedBy
+          - '@type': ActualCostItem
+            id: '234567'
+            description: The actual cost of the Electricity and Power Consumption
+            name: Electricity and Power Consumption
+            creationDate: '2024-07-14T11:03:08.178Z'
+            lastUpdate: '2024-08-14T11:03:08.178Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 20000
+                units: kWh
+              amount:
+                unit: AUD
+                value: 4000
+            tax:
+              - taxCategory: GST
+                taxRate: 0.1
+                '@type': TaxItem
+            costItemType: consumptionBased
+            state: incurred
+            period:
+              startDateTime: '2024-07-14T11:03:08.176Z'
+              endDateTime: '2024-08-14T11:03:08.176Z'
+            costItemRelationship:
+              - '@type': CostItemRelationship
+                '@baseType': CostItemRelationship
+                '@schemaLocation': 'http://my.schemas/CostItemRelationship.schema.json'
+                costItemRelationshipCharacteristic: []
+                costItem:
+                  '@type': CostItemRef
+                  '@baseType': CostItemRef
+                  '@schemaLocation': 'http://my.schemas/CostItemRef.schema.json'
+                  '@referredType': projectedCostItem
+                  itemId: '456456'
+                  costHref: >-
+                    https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+                  costId: 19d72f32-13b8-4711-a805-12850ea1ce20
+                relationshipType: projectedBy
+          - '@type': ActualCostItem
+            id: '234569'
+            description: Maintenance and support
+            name: Maintenance and support
+            creationDate: '2024-07-14T11:03:08.178Z'
+            lastUpdate: '2024-08-14T11:03:08.178Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 1
+                units: month
+              amount:
+                unit: AUD
+                value: 200
+            tax:
+              - taxCategory: GST
+                taxRate: 0.1
+                '@type': TaxItem
+            state: incurred
+            period:
+              startDateTime: '2024-07-14T11:03:08.176Z'
+              endDateTime: '2024-08-14T11:03:08.176Z'
+            costItemRelationship:
+              - '@type': CostItemRelationship
+                '@baseType': CostItemRelationship
+                '@schemaLocation': 'http://my.schemas/CostItemRelationship.schema.json'
+                costItemRelationshipCharacteristic: []
+                costItem:
+                  '@type': CostItemRef
+                  '@baseType': CostItemRef
+                  '@schemaLocation': 'http://my.schemas/CostItemRef.schema.json'
+                  '@referredType': projectedCostItem
+                  itemId: '456458'
+                  costHref: >-
+                    https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+                  costId: 19d72f32-13b8-4711-a805-12850ea1ce20
+                relationshipType: projectedBy
+      description: Here's an example of a request for retrieving a specific actual cost instance.
+    ProjectedCost_list_example_response:
+      value:
+        - name: Projected Cost
+          id: 096d29a9-7bcc-4fca-8402-1c10c4d15cbb
+          href: >-
+            https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/096d29a9-7bcc-4fca-8402-1c10c4d15cbb
+          state: approved
+          '@type': ProjectedCost
+        - name: Projected Cost
+          id: 3e0d5949-c928-4b64-b4e8-1723f3364fa4
+          href: >-
+            https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/3e0d5949-c928-4b64-b4e8-1723f3364fa4
+          state: approved
+          '@type': ProjectedCost
+      description: >-
+        Here's an example of a request for retrieving multiple projected cost instances, in this
+        example approved projected cost cost instances are filtered and id, href, name and state
+        fields need to be returned
+    ProjectedCost_retrieve_example_response:
+      value:
+        '@type': ProjectedCost
+        '@baseType': Cost
+        href: >-
+          https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+        id: 19d72f32-13b8-4711-a805-12850ea1ce20
+        description: Cost projection for Service Order 3f845e07-73d8-469b-949f-fe95e52ab5ab
+        name: Projected Cost
+        creationDate: '2024-08-15T14:20:34.396Z'
+        lastUpdate: '2024-08-15T14:20:34.396Z'
+        state: pendingApproval
+        relatedParty:
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: Supplier
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/456'
+              id: '456'
+              name: NetCo Pty Ltd
+              '@referredType': Organization
+        relatedEntity:
+          - '@type': RelatedEntityRefOrValue
+            role: initiator
+            entity:
+              id: 3f845e07-73d8-469b-949f-fe95e52ab5ab
+              href: >-
+                https://mycsp.com:8080/tmf-api/serviceOrdering/v5/serviceOrder/3f845e07-73d8-469b-949f-fe95e52ab5ab
+              '@type': EntityRef
+              '@referredType': ServiceOrder
+        certaintyLevel: Firm cost
+        validFor:
+          startDateTime: '2024-08-15T14:20:34.396Z'
+          endDateTime: '2024-09-15T14:20:34.396Z'
+        projectedCostItem:
+          - '@type': ProjectedCostItem
+            id: '898989'
+            description: E-line connectivity service
+            name: E-line
+            creationDate: '2024-08-15T14:20:34.396Z'
+            lastUpdate: '2024-08-15T14:20:34.396Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 1
+                units: month
+              amount:
+                unit: AUD
+                value: 500
+            tax:
+              - taxCategory: GST
+                taxRate: 0.1
+                '@type': TaxItem
+            state: estimated
+            validFor:
+              startDateTime: '2024-08-15T14:20:34.396Z'
+              endDateTime: '2024-09-15T14:20:34.396Z'
+            costItemType: recurring
+          - '@type': ProjectedCostItem
+            id: '111000'
+            description: The projected cost of the fibre optic cable
+            name: Fiber Optic Cable
+            creationDate: '2024-08-15T14:20:34.396Z'
+            lastUpdate: '2024-08-15T14:20:34.396Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 10
+                units: km
+              amount:
+                unit: AUD
+                value: 50000
+            tax:
+              - taxCategory: GST
+                taxRate: 0.1
+                '@type': TaxItem
+            state: estimated
+            validFor:
+              startDateTime: '2024-08-15T23:20:50.52Z'
+              endDateTime: '2024-09-15T23:20:50.52Z'
+            costItemType: oneTime
+          - '@type': ProjectedCostItem
+            id: '456456'
+            description: The projected cost of the Electricity and Power Consumption
+            name: Electricity and Power Consumption
+            creationDate: '2024-08-15T14:20:34.396Z'
+            lastUpdate: '2024-08-15T14:20:34.396Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 10000
+                units: kWh
+              amount:
+                unit: AUD
+                value: 2000
+            tax:
+              - taxCategory: GST
+                taxRate: 0.1
+                '@type': TaxItem
+            state: estimated
+            validFor:
+              startDateTime: '2024-08-15T14:20:34.396Z'
+              endDateTime: '2024-09-15T14:20:34.396Z'
+            costItemType: consumptionBased
+          - '@type': ProjectedCostItem
+            id: '456458'
+            description: Maintenance and support
+            name: Maintenance and support
+            creationDate: '2024-08-15T14:20:34.396Z'
+            lastUpdate: '2024-08-15T14:20:34.396Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 1
+                units: month
+              amount:
+                unit: AUD
+                value: 200
+            tax:
+              - taxCategory: GST
+                taxRate: 0.1
+                '@type': TaxItem
+            state: estimated
+            validFor:
+              startDateTime: '2024-08-15T14:20:34.396Z'
+              endDateTime: '2024-09-15T14:20:34.396Z'
+            costItemType: recurring
+      description: Here's an example of a request for retrieving a specific projected cost instance.
+    ActualCost_create_example_request:
+      value:
+        '@type': ActualCost
+        '@baseType': Cost
+        name: Actual Cost
+        relatedParty:
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: Supplier
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/456'
+              id: '456'
+              name: NetCo Pty Ltd
+              '@referredType': Organization
+        relatedEntity:
+          - '@type': RelatedEntityRefOrValue
+            role: initiator
+            entity:
+              id: 3f845e07-73d8-469b-949f-fe95e52ab5ab
+              href: >-
+                https://mycsp.com:8080/tmf-api/serviceOrdering/v5/serviceOrder/3f845e07-73d8-469b-949f-fe95e52ab5ab
+              '@type': EntityRef
+              '@referredType': ServiceOrder
+        period:
+          startDateTime: '2023-11-14T11:03:08.176Z'
+          endDateTime: '2024-08-14T11:03:08.176Z'
+        actualCostItem:
+          - '@type': ActualCostItem
+            id: '123456'
+            description: The actual cost of the fibre optic cable
+            name: Fiber Optic Cable
+            creationDate: '2024-06-14T11:03:08.178Z'
+            lastUpdate: '2024-07-14T11:03:08.178Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 10
+                units: km
+              amount:
+                unit: AUD
+                value: 50000
+            state: incurred
+            costItemRelationship:
+              - '@type': CostItemRelationship
+                '@baseType': CostItemRelationship
+                '@schemaLocation': 'http://my.schemas/CostItemRelationship.schema.json'
+                costItemRelationshipCharacteristic: []
+                costItem:
+                  '@type': CostItemRef
+                  '@baseType': CostItemRef
+                  '@schemaLocation': 'http://my.schemas/CostItemRef.schema.json'
+                  '@referredType': projectedCostItem
+                  itemId: '111000'
+                  costHref: >-
+                    https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+                  costId: 19d72f32-13b8-4711-a805-12850ea1ce20
+                relationshipType: projectedBy
+      description: Here's an example of a request for creating an actual cost
+    ActualCost_create_example_response:
+      value:
+        '@type': ActualCost
+        '@baseType': Cost
+        id: 19d72f32-13b8-4711-a805-12850ea1ce19
+        href: >-
+          https://mycsp.com:8080/tmf-api/costManagement/v5/actualCost/19d72f32-13b8-4711-a805-12850ea1ce19
+        name: Actual Cost
+        creationDate: '2023-11-14T11:03:08.176Z'
+        lastUpdate: '2023-11-14T11:03:08.176Z'
+        state: inProgress
+        relatedParty:
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: Supplier
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/456'
+              id: '456'
+              name: NetCo Pty Ltd
+              '@referredType': Organization
+        relatedEntity:
+          - '@type': RelatedEntityRefOrValue
+            role: initiator
+            entity:
+              id: 3f845e07-73d8-469b-949f-fe95e52ab5ab
+              href: >-
+                https://mycsp.com:8080/tmf-api/serviceOrdering/v5/serviceOrder/3f845e07-73d8-469b-949f-fe95e52ab5ab
+              '@type': EntityRef
+              '@referredType': ServiceOrder
+        period:
+          startDateTime: '2023-11-14T11:03:08.176Z'
+          endDateTime: '2024-08-14T11:03:08.176Z'
+        actualCostItem:
+          - '@type': ActualCostItem
+            id: '123456'
+            description: The actual cost of the fibre optic cable
+            name: Fiber Optic Cable
+            creationDate: '2024-06-14T11:03:08.178Z'
+            lastUpdate: '2024-07-14T11:03:08.178Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 10
+                units: km
+              amount:
+                unit: AUD
+                value: 50000
+            state: incurred
+            costItemRelationship:
+              - '@type': CostItemRelationship
+                '@baseType': CostItemRelationship
+                '@schemaLocation': 'http://my.schemas/CostItemRelationship.schema.json'
+                costItemRelationshipCharacteristic: []
+                costItem:
+                  '@type': CostItemRef
+                  '@baseType': CostItemRef
+                  '@schemaLocation': 'http://my.schemas/CostItemRef.schema.json'
+                  '@referredType': projectedCostItem
+                  itemId: '111000'
+                  costHref: >-
+                    https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+                  costId: 19d72f32-13b8-4711-a805-12850ea1ce20
+                relationshipType: projectedBy
+    ProjectedCost_create_example_request:
+      value:
+        '@type': ProjectedCost
+        '@baseType': Cost
+        description: Fibre cost projection for Service Order SO1
+        name: Projected Cost
+        relatedParty:
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: Supplier
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/456'
+              id: '456'
+              name: NetCo Pty Ltd
+              '@referredType': Organization
+        relatedEntity:
+          - '@type': RelatedEntityRefOrValue
+            role: initiator
+            entity:
+              id: 3f845e07-73d8-469b-949f-fe95e52ab5ab
+              href: >-
+                https://mycsp.com:8080/tmf-api/serviceOrdering/v5/serviceOrder/3f845e07-73d8-469b-949f-fe95e52ab5ab
+              '@type': EntityRef
+              '@referredType': ServiceOrder
+        certaintyLevel: Firm cost
+        validFor:
+          startDateTime: '2024-08-15T14:20:34.396Z'
+          endDateTime: '2024-09-15T14:20:34.396Z'
+        projectedCostItem:
+          - '@type': ProjectedCostItem
+            id: '111000'
+            description: The projected cost of the fibre optic cable
+            name: Fiber Optic Cable
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 10
+                units: km
+              amount:
+                unit: AUD
+                value: 50000
+            state: estimated
+            validFor:
+              startDateTime: '2024-08-15T14:20:34.396Z'
+              endDateTime: '2024-09-15T14:20:34.396Z'
+            costItemType: oneTime
+          - '@type': ProjectedCostItem
+            id: '456456'
+            description: The projected cost of the Electricity and Power Consumption
+            name: Electricity and Power Consumption
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 10000
+                units: kWh
+              amount:
+                unit: AUD
+                value: 2000
+            state: estimated
+            validFor:
+              startDateTime: '2024-08-15T14:20:34.396Z'
+              endDateTime: '2024-09-15T14:20:34.396Z'
+            costItemType: consumptionBased
+      description: Here's an example of a request for creating an projected cost
+    ProjectedCost_create_example_response:
+      value:
+        '@type': ProjectedCost
+        '@baseType': Cost
+        href: >-
+          https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+        id: 19d72f32-13b8-4711-a805-12850ea1ce20
+        description: Fibre cost projection for Service Order SO1
+        name: Projected Cost
+        creationDate: '2024-08-15T14:20:34.396Z'
+        lastUpdate: '2024-08-15T14:20:34.396Z'
+        state: inProgress
+        relatedParty:
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: Supplier
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/456'
+              id: '456'
+              name: NetCo Pty Ltd
+              '@referredType': Organization
+        relatedEntity:
+          - '@type': RelatedEntityRefOrValue
+            role: initiator
+            entity:
+              id: 3f845e07-73d8-469b-949f-fe95e52ab5ab
+              href: >-
+                https://mycsp.com:8080/tmf-api/serviceOrdering/v5/serviceOrder/3f845e07-73d8-469b-949f-fe95e52ab5ab
+              '@type': EntityRef
+              '@referredType': ServiceOrder
+        certaintyLevel: Firm cost
+        validFor:
+          startDateTime: '2024-08-15T14:20:34.396Z'
+          endDateTime: '2024-09-15T14:20:34.396Z'
+        projectedCostItem:
+          - '@type': ProjectedCostItem
+            id: '111000'
+            description: The projected cost of the fibre optic cable
+            name: Fiber Optic Cable
+            creationDate: '2024-08-15T14:20:34.396Z'
+            lastUpdate: '2024-08-15T14:20:34.396Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 10
+                units: km
+              amount:
+                unit: AUD
+                value: 50000
+            state: estimated
+            validFor:
+              startDateTime: '2024-08-15T14:20:34.396Z'
+              endDateTime: '2024-09-15T14:20:34.396Z'
+            costItemType: oneTime
+          - '@type': ProjectedCostItem
+            id: '456456'
+            description: The projected cost of the Electricity and Power Consumption
+            name: Electricity and Power Consumption
+            creationDate: '2024-08-15T14:20:34.396Z'
+            lastUpdate: '2024-08-15T14:20:34.396Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 10000
+                units: kWh
+              amount:
+                unit: AUD
+                value: 2000
+            state: estimated
+            validFor:
+              startDateTime: '2024-08-15T14:20:34.396Z'
+              endDateTime: '2024-09-15T14:20:34.396Z'
+            costItemType: consumptionBased
+    ActualCost_partialupdate_example_01_request:
+      value:
+        description: Costs incurred for Service Order 3f845e07-73d8-469b-949f-fe95e52ab5ab
+        '@type': ActualCost
+        '@baseType': Cost
+      description: >-
+        Here's an example of a request for patching an actual cost. In this example, a new
+        description is set.
+    ActualCost_partialupdate_example_01_response:
+      value:
+        '@type': ActualCost
+        '@baseType': Cost
+        href: >-
+          https://mycsp.com:8080/tmf-api/costManagement/v5/actualCost/19d72f32-13b8-4711-a805-12850ea1ce19
+        id: 19d72f32-13b8-4711-a805-12850ea1ce19
+        name: Actual Cost
+        description: Costs incurred for Service Order 3f845e07-73d8-469b-949f-fe95e52ab5ab
+        creationDate: '2023-11-14T11:03:08.176Z'
+        lastUpdate: '2024-08-14T11:03:08.176Z'
+        state: inProgress
+        relatedParty:
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: Supplier
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/456'
+              id: '456'
+              name: NetCo Pty Ltd
+              '@referredType': Organization
+        relatedEntity:
+          - '@type': RelatedEntityRefOrValue
+            role: initiator
+            entity:
+              id: 3f845e07-73d8-469b-949f-fe95e52ab5ab
+              href: >-
+                https://mycsp.com:8080/tmf-api/serviceOrdering/v5/serviceOrder/3f845e07-73d8-469b-949f-fe95e52ab5ab
+              '@type': EntityRef
+              '@referredType': ServiceOrder
+        period:
+          startDateTime: '2023-11-14T11:03:08.176Z'
+          endDateTime: '2024-08-14T11:03:08.176Z'
+        actualCostItem:
+          - '@type': ActualCostItem
+            id: '123456'
+            description: The actual cost of the fibre optic cable
+            name: Fiber Optic Cable
+            creationDate: '2024-06-14T11:03:08.178Z'
+            lastUpdate: '2024-07-14T11:03:08.178Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 10
+                units: km
+              amount:
+                unit: AUD
+                value: 50000
+            state: allocated
+            costItemRelationship:
+              - '@type': CostItemRelationship
+                '@baseType': CostItemRelationship
+                '@schemaLocation': 'http://my.schemas/CostItemRelationship.schema.json'
+                costItemRelationshipCharacteristic: []
+                costItem:
+                  '@type': CostItemRef
+                  '@baseType': CostItemRef
+                  '@schemaLocation': 'http://my.schemas/CostItemRef.schema.json'
+                  '@referredType': projectedCostItem
+                  itemId: '111000'
+                  costHref: >-
+                    https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+                  costId: 19d72f32-13b8-4711-a805-12850ea1ce20
+                relationshipType: projectedBy
+          - '@type': ActualCostItem
+            id: '234567'
+            description: The actual cost of the Electricity and Power Consumption
+            name: Electricity and Power Consumption
+            creationDate: '2024-07-14T11:03:08.178Z'
+            lastUpdate: '2024-08-14T11:03:08.178Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 20000
+                units: kWh
+              amount:
+                unit: AUD
+                value: 4000
+            state: incurred
+            period:
+              startDateTime: '2024-07-14T11:03:08.176Z'
+              endDateTime: '2024-08-14T11:03:08.176Z'
+            costItemRelationship:
+              - '@type': CostItemRelationship
+                '@baseType': CostItemRelationship
+                '@schemaLocation': 'http://my.schemas/CostItemRelationship.schema.json'
+                costItemRelationshipCharacteristic: []
+                costItem:
+                  '@type': CostItemRef
+                  '@baseType': CostItemRef
+                  '@schemaLocation': 'http://my.schemas/CostItemRef.schema.json'
+                  '@referredType': projectedCostItem
+                  itemId: '456456'
+                  costHref: >-
+                    https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+                  costId: 19d72f32-13b8-4711-a805-12850ea1ce20
+                relationshipType: projectedBy
+      description: Response message
+    ActualCost_partialupdate_example_02_request:
+      value:
+        description: Costs incurred for Service Order 3f845e07-73d8-469b-949f-fe95e52ab5ab
+        '@type': ActualCost
+        '@baseType': Cost
+      description: >-
+        Here's an example of a request for patching an actual cost. In this example, a new
+        description is set.
+    ActualCost_partialupdate_example_02_response:
+      value:
+        '@type': ActualCost
+        '@baseType': Cost
+        href: >-
+          https://mycsp.com:8080/tmf-api/costManagement/v5/actualCost/19d72f32-13b8-4711-a805-12850ea1ce19
+        id: 19d72f32-13b8-4711-a805-12850ea1ce19
+        name: Actual Cost
+        description: Costs incurred for Service Order 3f845e07-73d8-469b-949f-fe95e52ab5ab
+        creationDate: '2023-11-14T11:03:08.176Z'
+        lastUpdate: '2024-08-14T11:03:08.176Z'
+        state: inProgress
+        relatedParty:
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: Supplier
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/456'
+              id: '456'
+              name: NetCo Pty Ltd
+              '@referredType': Organization
+        relatedEntity:
+          - '@type': RelatedEntityRefOrValue
+            role: initiator
+            entity:
+              id: 3f845e07-73d8-469b-949f-fe95e52ab5ab
+              href: >-
+                https://mycsp.com:8080/tmf-api/serviceOrdering/v5/serviceOrder/3f845e07-73d8-469b-949f-fe95e52ab5ab
+              '@type': EntityRef
+              '@referredType': ServiceOrder
+        period:
+          startDateTime: '2023-11-14T11:03:08.176Z'
+          endDateTime: '2024-08-14T11:03:08.176Z'
+        actualCostItem:
+          - '@type': ActualCostItem
+            id: '123456'
+            description: The actual cost of the fibre optic cable
+            name: Fiber Optic Cable
+            creationDate: '2024-06-14T11:03:08.178Z'
+            lastUpdate: '2024-07-14T11:03:08.178Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 10
+                units: km
+              amount:
+                unit: AUD
+                value: 50000
+            state: allocated
+            costItemRelationship:
+              - '@type': CostItemRelationship
+                '@baseType': CostItemRelationship
+                '@schemaLocation': 'http://my.schemas/CostItemRelationship.schema.json'
+                costItemRelationshipCharacteristic: []
+                costItem:
+                  '@type': CostItemRef
+                  '@baseType': CostItemRef
+                  '@schemaLocation': 'http://my.schemas/CostItemRef.schema.json'
+                  '@referredType': projectedCostItem
+                  itemId: '111000'
+                  costHref: >-
+                    https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+                  costId: 19d72f32-13b8-4711-a805-12850ea1ce20
+                relationshipType: projectedBy
+          - '@type': ActualCostItem
+            id: '234567'
+            description: The actual cost of the Electricity and Power Consumption
+            name: Electricity and Power Consumption
+            creationDate: '2024-07-14T11:03:08.178Z'
+            lastUpdate: '2024-08-14T11:03:08.178Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 20000
+                units: kWh
+              amount:
+                unit: AUD
+                value: 4000
+            state: incurred
+            period:
+              startDateTime: '2024-07-14T11:03:08.176Z'
+              endDateTime: '2024-08-14T11:03:08.176Z'
+            costItemRelationship:
+              - '@type': CostItemRelationship
+                '@baseType': CostItemRelationship
+                '@schemaLocation': 'http://my.schemas/CostItemRelationship.schema.json'
+                costItemRelationshipCharacteristic: []
+                costItem:
+                  '@type': CostItemRef
+                  '@baseType': CostItemRef
+                  '@schemaLocation': 'http://my.schemas/CostItemRef.schema.json'
+                  '@referredType': projectedCostItem
+                  itemId: '456456'
+                  costHref: >-
+                    https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+                  costId: 19d72f32-13b8-4711-a805-12850ea1ce20
+                relationshipType: projectedBy
+      description: Response message
+    ActualCost_partialupdate_example_11_request:
+      value:
+        - op: add
+          path: /externalIdentifier
+          value:
+            id: FIN-12345
+            externalIdentifierType: Auditing Report
+            '@type': ExternalIdentifier
+      description: >-
+        Here's an example of a request for patching an actual cost. In this example, an external
+        identifier is added.
+    ActualCost_partialupdate_example_11_response:
+      value:
+        '@type': ActualCost
+        '@baseType': Cost
+        href: >-
+          https://mycsp.com:8080/tmf-api/costManagement/v5/actualCost/19d72f32-13b8-4711-a805-12850ea1ce19
+        id: 19d72f32-13b8-4711-a805-12850ea1ce19
+        name: Actual Cost
+        creationDate: '2023-11-14T11:03:08.176Z'
+        lastUpdate: '2024-08-14T11:03:08.176Z'
+        state: inProgress
+        externalIdentifier:
+          - id: FIN-12345
+            externalIdentifierType: Auditing Report
+            '@type': ExternalIdentifier
+        relatedParty:
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: Supplier
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/456'
+              id: '456'
+              name: NetCo Pty Ltd
+              '@referredType': Organization
+        relatedEntity:
+          - '@type': RelatedEntityRefOrValue
+            role: initiator
+            entity:
+              id: 3f845e07-73d8-469b-949f-fe95e52ab5ab
+              href: >-
+                https://mycsp.com:8080/tmf-api/serviceOrdering/v5/serviceOrder/3f845e07-73d8-469b-949f-fe95e52ab5ab
+              '@type': EntityRef
+              '@referredType': ServiceOrder
+        period:
+          startDateTime: '2023-11-14T11:03:08.176Z'
+          endDateTime: '2024-08-14T11:03:08.176Z'
+        actualCostItem:
+          - '@type': ActualCostItem
+            id: '123456'
+            description: The actual cost of the fibre optic cable
+            name: Fiber Optic Cable
+            creationDate: '2024-06-14T11:03:08.178Z'
+            lastUpdate: '2024-07-14T11:03:08.178Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 10
+                units: km
+              amount:
+                unit: AUD
+                value: 50000
+            state: allocated
+            costItemRelationship:
+              - '@type': CostItemRelationship
+                '@baseType': CostItemRelationship
+                '@schemaLocation': 'http://my.schemas/CostItemRelationship.schema.json'
+                costItemRelationshipCharacteristic: []
+                costItem:
+                  '@type': CostItemRef
+                  '@baseType': CostItemRef
+                  '@schemaLocation': 'http://my.schemas/CostItemRef.schema.json'
+                  '@referredType': projectedCostItem
+                  itemId: '111000'
+                  costHref: >-
+                    https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+                  costId: 19d72f32-13b8-4711-a805-12850ea1ce20
+                relationshipType: projectedBy
+          - '@type': ActualCostItem
+            id: '234567'
+            description: The actual cost of the Electricity and Power Consumption
+            name: Electricity and Power Consumption
+            creationDate: '2024-07-14T11:03:08.178Z'
+            lastUpdate: '2024-08-14T11:03:08.178Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 20000
+                units: kWh
+              amount:
+                unit: AUD
+                value: 4000
+            state: incurred
+            period:
+              startDateTime: '2024-07-14T11:03:08.176Z'
+              endDateTime: '2024-08-14T11:03:08.176Z'
+            costItemRelationship:
+              - '@type': CostItemRelationship
+                '@baseType': CostItemRelationship
+                '@schemaLocation': 'http://my.schemas/CostItemRelationship.schema.json'
+                costItemRelationshipCharacteristic: []
+                costItem:
+                  '@type': CostItemRef
+                  '@baseType': CostItemRef
+                  '@schemaLocation': 'http://my.schemas/CostItemRef.schema.json'
+                  '@referredType': projectedCostItem
+                  itemId: '456456'
+                  costHref: >-
+                    https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+                  costId: 19d72f32-13b8-4711-a805-12850ea1ce20
+                relationshipType: projectedBy
+      description: Response message
+    ActualCost_partialupdate_example_22_request:
+      value:
+        - op: replace
+          path: /actualCostItem/state?actualCostItem.id=123456
+          value: verified
+      description: >-
+        Here's an example of a request for patching an actual cost. In this example, the state is
+        updated for acutalCostItem.id=123456
+    ActualCost_partialupdate_example_22_response:
+      value:
+        '@type': ActualCost
+        '@baseType': Cost
+        id: 19d72f32-13b8-4711-a805-12850ea1ce19
+        href: >-
+          https://mycsp.com:8080/tmf-api/costManagement/v5/actualCost/19d72f32-13b8-4711-a805-12850ea1ce19
+        name: Actual Cost
+        creationDate: '2023-11-14T11:03:08.176Z'
+        lastUpdate: '2024-08-14T11:03:08.176Z'
+        state: inProgress
+        relatedParty:
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: Supplier
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/456'
+              id: '456'
+              name: NetCo Pty Ltd
+              '@referredType': Organization
+        relatedEntity:
+          - '@type': RelatedEntityRefOrValue
+            role: initiator
+            entity:
+              id: 3f845e07-73d8-469b-949f-fe95e52ab5ab
+              href: >-
+                https://mycsp.com:8080/tmf-api/serviceOrdering/v5/serviceOrder/3f845e07-73d8-469b-949f-fe95e52ab5ab
+              '@type': EntityRef
+              '@referredType': ServiceOrder
+        period:
+          startDateTime: '2023-11-14T11:03:08.176Z'
+          endDateTime: '2024-08-14T11:03:08.176Z'
+        actualCostItem:
+          - '@type': ActualCostItem
+            id: '123456'
+            description: The actual cost of the fibre optic cable
+            name: Fiber Optic Cable
+            creationDate: '2024-06-14T11:03:08.178Z'
+            lastUpdate: '2024-07-14T11:03:08.178Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 10
+                units: km
+              amount:
+                unit: AUD
+                value: 50000
+            state: verified
+            costItemRelationship:
+              - '@type': CostItemRelationship
+                '@baseType': CostItemRelationship
+                '@schemaLocation': 'http://my.schemas/CostItemRelationship.schema.json'
+                costItemRelationshipCharacteristic: []
+                costItem:
+                  '@type': CostItemRef
+                  '@baseType': CostItemRef
+                  '@schemaLocation': 'http://my.schemas/CostItemRef.schema.json'
+                  '@referredType': projectedCostItem
+                  itemId: '111000'
+                  costHref: >-
+                    https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+                  costId: 19d72f32-13b8-4711-a805-12850ea1ce20
+                relationshipType: projectedBy
+      description: Response message
+    ProjectedCost_partialupdate_example_01_request:
+      value:
+        description: Projected costs for Service Order 3f845e07-73d8-469b-949f-fe95e52ab5ab
+        '@type': ProjectedCost
+        '@baseType': Cost
+      description: >-
+        Here's an example of a request for patching an projected cost. In this example, a new
+        description is set.
+    ProjectedCost_partialupdate_example_01_response:
+      value:
+        '@type': ProjectedCost
+        '@baseType': Cost
+        href: >-
+          https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+        id: 19d72f32-13b8-4711-a805-12850ea1ce20
+        description: Projected costs for Service Order 3f845e07-73d8-469b-949f-fe95e52ab5ab
+        name: Projected Cost
+        creationDate: '2024-08-15T14:20:34.396Z'
+        lastUpdate: '2024-08-15T14:20:34.396Z'
+        state: inProgress
+        relatedParty:
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: Supplier
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/456'
+              id: '456'
+              name: NetCo Pty Ltd
+              '@referredType': Organization
+        relatedEntity:
+          - '@type': RelatedEntityRefOrValue
+            role: initiator
+            entity:
+              id: 3f845e07-73d8-469b-949f-fe95e52ab5ab
+              href: >-
+                https://mycsp.com:8080/tmf-api/serviceOrdering/v5/serviceOrder/3f845e07-73d8-469b-949f-fe95e52ab5ab
+              '@type': EntityRef
+              '@referredType': ServiceOrder
+        certaintyLevel: Firm cost
+        validFor:
+          startDateTime: '2024-08-15T14:20:34.396Z'
+          endDateTime: '2024-09-15T14:20:34.396Z'
+        projectedCostItem:
+          - '@type': ProjectedCostItem
+            id: '111000'
+            description: The projected cost of the fibre optic cable
+            name: Fiber Optic Cable
+            creationDate: '2024-08-15T14:20:34.396Z'
+            lastUpdate: '2024-08-15T14:20:34.396Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 10
+                units: km
+              amount:
+                unit: AUD
+                value: 50000
+            state: approved
+            validFor:
+              startDateTime: '2024-08-15T14:20:34.396Z'
+              endDateTime: '2024-09-15T14:20:34.396Z'
+            costItemType: oneTime
+          - '@type': ProjectedCostItem
+            id: '456456'
+            description: The projected cost of the Electricity and Power Consumption
+            name: Electricity and Power Consumption
+            creationDate: '2024-08-15T14:20:34.396Z'
+            lastUpdate: '2024-08-15T14:20:34.396Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 10000
+                units: kWh
+              amount:
+                unit: AUD
+                value: 2000
+            state: approved
+            validFor:
+              startDateTime: '2024-08-15T14:20:34.396Z'
+              endDateTime: '2024-09-15T14:20:34.396Z'
+            costItemType: consumptionBased
+      description: Response message
+    ProjectedCost_partialupdate_example_02_request:
+      value:
+        description: Projected costs for Service Order 3f845e07-73d8-469b-949f-fe95e52ab5ab
+        '@type': ProjectedCost
+        '@baseType': Cost
+      description: >-
+        Here's an example of a request for patching an projected cost. In this example, a new
+        description is set.
+    ProjectedCost_partialupdate_example_02_response:
+      value:
+        '@type': ProjectedCost
+        '@baseType': Cost
+        href: >-
+          https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+        id: 19d72f32-13b8-4711-a805-12850ea1ce20
+        description: Projected costs for Service Order 3f845e07-73d8-469b-949f-fe95e52ab5ab
+        name: Projected Cost
+        creationDate: '2024-08-15T14:20:34.396Z'
+        lastUpdate: '2024-08-15T14:20:34.396Z'
+        state: inProgress
+        relatedParty:
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: Supplier
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/456'
+              id: '456'
+              name: NetCo Pty Ltd
+              '@referredType': Organization
+        relatedEntity:
+          - '@type': RelatedEntityRefOrValue
+            role: initiator
+            entity:
+              id: 3f845e07-73d8-469b-949f-fe95e52ab5ab
+              href: >-
+                https://mycsp.com:8080/tmf-api/serviceOrdering/v5/serviceOrder/3f845e07-73d8-469b-949f-fe95e52ab5ab
+              '@type': EntityRef
+              '@referredType': ServiceOrder
+        certaintyLevel: Firm cost
+        validFor:
+          startDateTime: '2024-08-15T14:20:34.396Z'
+          endDateTime: '2024-09-15T14:20:34.396Z'
+        projectedCostItem:
+          - '@type': ProjectedCostItem
+            id: '111000'
+            description: The projected cost of the fibre optic cable
+            name: Fiber Optic Cable
+            creationDate: '2024-08-15T14:20:34.396Z'
+            lastUpdate: '2024-08-15T14:20:34.396Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 10
+                units: km
+              amount:
+                unit: AUD
+                value: 50000
+            state: approved
+            validFor:
+              startDateTime: '2024-08-15T14:20:34.396Z'
+              endDateTime: '2024-09-15T14:20:34.396Z'
+            costItemType: oneTime
+          - '@type': ProjectedCostItem
+            id: '456456'
+            description: The projected cost of the Electricity and Power Consumption
+            name: Electricity and Power Consumption
+            creationDate: '2024-08-15T14:20:34.396Z'
+            lastUpdate: '2024-08-15T14:20:34.396Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 10000
+                units: kWh
+              amount:
+                unit: AUD
+                value: 2000
+            state: approved
+            validFor:
+              startDateTime: '2024-08-15T14:20:34.396Z'
+              endDateTime: '2024-09-15T14:20:34.396Z'
+            costItemType: consumptionBased
+      description: Response message
+    ProjectedCost_partialupdate_example_03_request:
+      value:
+        - op: add
+          path: /externalIdentifier
+          value:
+            id: FIN-12345
+            externalIdentifierType: Auditing Report
+            '@type': ExternalIdentifier
+      description: >-
+        Here's an example of a request for patching an projected cost. In this example, an external
+        identifier is added.
+    ProjectedCost_partialupdate_example_03_response:
+      value:
+        '@type': ProjectedCost
+        '@baseType': Cost
+        href: >-
+          https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+        id: 19d72f32-13b8-4711-a805-12850ea1ce20
+        description: Fibre cost projection for Service Order SO1
+        name: Projected Cost
+        creationDate: '2024-08-15T14:20:34.396Z'
+        lastUpdate: '2024-08-15T14:20:34.396Z'
+        state: inProgress
+        relatedParty:
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: Supplier
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/456'
+              id: '456'
+              name: NetCo Pty Ltd
+              '@referredType': Organization
+        relatedEntity:
+          - '@type': RelatedEntityRefOrValue
+            role: initiator
+            entity:
+              id: 3f845e07-73d8-469b-949f-fe95e52ab5ab
+              href: >-
+                https://mycsp.com:8080/tmf-api/serviceOrdering/v5/serviceOrder/3f845e07-73d8-469b-949f-fe95e52ab5ab
+              '@type': EntityRef
+              '@referredType': ServiceOrder
+        externalIdentifier:
+          - id: FIN-12345
+            externalIdentifierType: Auditing Report
+            '@type': ExternalIdentifier
+        certaintyLevel: Firm cost
+        validFor:
+          startDateTime: '2024-08-15T14:20:34.396Z'
+          endDateTime: '2024-09-15T14:20:34.396Z'
+        projectedCostItem:
+          - '@type': ProjectedCostItem
+            id: '111000'
+            description: The projected cost of the fibre optic cable
+            name: Fiber Optic Cable
+            creationDate: '2024-08-15T14:20:34.396Z'
+            lastUpdate: '2024-08-15T14:20:34.396Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 10
+                units: km
+              amount:
+                unit: AUD
+                value: 50000
+            state: approved
+            validFor:
+              startDateTime: '2024-08-15T14:20:34.396Z'
+              endDateTime: '2024-09-15T14:20:34.396Z'
+            costItemType: oneTime
+          - '@type': ProjectedCostItem
+            id: '456456'
+            description: The projected cost of the Electricity and Power Consumption
+            name: Electricity and Power Consumption
+            creationDate: '2024-08-15T14:20:34.396Z'
+            lastUpdate: '2024-08-15T14:20:34.396Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 10000
+                units: kWh
+              amount:
+                unit: AUD
+                value: 2000
+            state: approved
+            validFor:
+              startDateTime: '2024-08-15T14:20:34.396Z'
+              endDateTime: '2024-09-15T14:20:34.396Z'
+            costItemType: consumptionBased
+      description: Response message
+    ProjectedCost_partialupdate_example_04_request:
+      value:
+        - op: replace
+          path: /actualCostItem/state?actualCostItem.id=111000
+          value: approved
+      description: >-
+        Here's an example of a request for patching an projected cost. In this example, the state is
+        updated for acutalCostItem.id=111000
+    ProjectedCost_partialupdate_example_04_response:
+      value:
+        '@type': ProjectedCost
+        '@baseType': Cost
+        href: >-
+          https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+        id: 19d72f32-13b8-4711-a805-12850ea1ce20
+        description: Fibre cost projection for Service Order SO1
+        name: Projected Cost
+        creationDate: '2024-08-15T14:20:34.396Z'
+        lastUpdate: '2024-08-15T14:20:34.396Z'
+        state: inProgress
+        relatedParty:
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: Supplier
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/456'
+              id: '456'
+              name: NetCo Pty Ltd
+              '@referredType': Organization
+        relatedEntity:
+          - '@type': RelatedEntityRefOrValue
+            role: initiator
+            entity:
+              id: 3f845e07-73d8-469b-949f-fe95e52ab5ab
+              href: >-
+                https://mycsp.com:8080/tmf-api/serviceOrdering/v5/serviceOrder/3f845e07-73d8-469b-949f-fe95e52ab5ab
+              '@type': EntityRef
+              '@referredType': ServiceOrder
+        certaintyLevel: Firm cost
+        validFor:
+          startDateTime: '2024-08-15T14:20:34.396Z'
+          endDateTime: '2024-09-15T14:20:34.396Z'
+        projectedCostItem:
+          - '@type': ProjectedCostItem
+            id: '111000'
+            description: The projected cost of the fibre optic cable
+            name: Fiber Optic Cable
+            creationDate: '2024-08-15T14:20:34.396Z'
+            lastUpdate: '2024-08-15T14:20:34.396Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 10
+                units: km
+              amount:
+                unit: AUD
+                value: 50000
+            state: approved
+            validFor:
+              startDateTime: '2024-08-15T14:20:34.396Z'
+              endDateTime: '2024-09-15T14:20:34.396Z'
+            costItemType: oneTime
+          - '@type': ProjectedCostItem
+            id: '456456'
+            description: The projected cost of the Electricity and Power Consumption
+            name: Electricity and Power Consumption
+            creationDate: '2024-08-15T14:20:34.396Z'
+            lastUpdate: '2024-08-15T14:20:34.396Z'
+            isTaxIncluded: true
+            costItemAmount:
+              quantity:
+                amount: 10000
+                units: kWh
+              amount:
+                unit: AUD
+                value: 2000
+            state: estimated
+            validFor:
+              startDateTime: '2024-08-15T14:20:34.396Z'
+              endDateTime: '2024-09-15T14:20:34.396Z'
+            costItemType: consumptionBased
+      description: Response message
+    Create_request:
+      value:
+        correlationId: 2cdbfa6e-6756
+        description: ActualCostCreateEvent illustration
+        domain: Commercial
+        eventId: 41af-bb8d-b056f61b8696
+        eventTime: '2024-08-14T11:03:08.176Z'
+        eventType: ActualCostCreateEvent
+        priority: '5'
+        timeOccurred: '2024-08-14T11:03:08.176Z'
+        title: ActualCostCreateEvent
+        event:
+          actualCost:
+            '@type': ActualCost
+            href: >-
+              https://mycsp.com:8080/tmf-api/costManagement/v5/actualCost/19d72f32-13b8-4711-a805-12850ea1ce19
+            id: 19d72f32-13b8-4711-a805-12850ea1ce19
+            name: Actual Cost
+            creationDate: '2023-11-14T11:03:08.176Z'
+            lastUpdate: '2023-11-14T11:03:08.176Z'
+            state: inProgress
+            relatedParty:
+              - '@type': RelatedPartyRefOrPartyRoleRef
+                role: Supplier
+                partyOrPartyRole:
+                  '@type': PartyRef
+                  href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/456'
+                  id: '456'
+                  name: NetCo Pty Ltd
+                  '@referredType': Organization
+            relatedEntity:
+              - '@type': RelatedEntityRefOrValue
+                role: initiator
+                entity:
+                  id: 3f845e07-73d8-469b-949f-fe95e52ab5ab
+                  href: >-
+                    https://mycsp.com:8080/tmf-api/serviceOrdering/v5/serviceOrder/3f845e07-73d8-469b-949f-fe95e52ab5ab
+                  '@type': EntityRef
+                  '@referredType': ServiceOrder
+            period:
+              startDateTime: '2023-11-14T11:03:08.176Z'
+              endDateTime: '2024-08-14T11:03:08.176Z'
+            actualCostItem:
+              - '@type': ActualCostItem
+                id: '123456'
+                description: The actual cost of the fibre optic cable
+                name: Fiber Optic Cable
+                creationDate: '2024-06-14T11:03:08.178Z'
+                lastUpdate: '2024-07-14T11:03:08.178Z'
+                isTaxIncluded: true
+                costItemAmount:
+                  quantity:
+                    amount: 10
+                    units: km
+                  amount:
+                    unit: AUD
+                    value: 50000
+                state: incurred
+                costItemRelationship:
+                  - '@type': CostItemRelationship
+                    '@baseType': CostItemRelationship
+                    '@schemaLocation': 'http://my.schemas/CostItemRelationship.schema.json'
+                    costItemRelationshipCharacteristic: []
+                    costItem:
+                      '@type': CostItemRef
+                      '@baseType': CostItemRef
+                      '@schemaLocation': 'http://my.schemas/CostItemRef.schema.json'
+                      '@referredType': projectedCostItem
+                      itemId: '898989'
+                      costHref: >-
+                        https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+                      costId: 19d72f32-13b8-4711-a805-12850ea1ce20
+                    relationshipType: projectedBy
+        reportingSystem:
+          id: '819'
+          name: APP-913
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        source:
+          id: '152'
+          name: APP-335
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        '@baseType': Event
+        '@type': ActualCostCreateEvent
+      description: Message example for ActualCostCreateEvent event
+    AttributeValueChange_request:
+      value:
+        correlationId: b1995ca7-9d12
+        description: ActualCostAttributeValueChangeEvent illustration
+        domain: Commercial
+        eventId: 4f3f-849c-c2ad0d10fbe1
+        eventTime: '2024-08-14T11:03:08.176Z'
+        eventType: AcutalCostAttributeValueChangeEvent
+        priority: '2'
+        timeOccurred: '2024-08-14T11:03:08.176Z'
+        title: ActualCostAttributeValueChangeEvent
+        event:
+          actualCost:
+            '@type': ActualCost
+            href: >-
+              https://mycsp.com:8080/tmf-api/costManagement/v5/actualCost/19d72f32-13b8-4711-a805-12850ea1ce19
+            id: 19d72f32-13b8-4711-a805-12850ea1ce19
+            externalIdentifier:
+              - '@type': ExternalIdentifier
+                '@baseType': ExternalIdentifier
+                '@schemaLocation': 'http://my.schemas/ExternalIdentifier.schema.json'
+                id: FIN-12345
+                owner: AuditManagement
+                externalIdentifierType: Auditing Report
+        reportingSystem:
+          id: '819'
+          name: APP-913
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        source:
+          id: '152'
+          name: APP-335
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        '@baseType': Event
+        '@type': ActualCostAttributeValueChangeEvent
+      description: Message example for ActualCostAttributeValueChangeEvent event
+    StateChange_request:
+      value:
+        correlationId: b1995ca7-9d12
+        description: ActualCostStateChangeEvent illustration
+        domain: Commercial
+        eventId: 4f3f-849c-c2ad0d10fbe1
+        eventTime: '2024-08-14T11:03:08.176Z'
+        eventType: AcutalCostStateChangeEvent
+        priority: '2'
+        timeOccurred: '2024-08-14T11:03:08.176Z'
+        title: ActualCostStateChangeEvent
+        event:
+          actualCost:
+            '@type': ActualCost
+            href: >-
+              https://mycsp.com:8080/tmf-api/costManagement/v5/actualCost/19d72f32-13b8-4711-a805-12850ea1ce19
+            id: 19d72f32-13b8-4711-a805-12850ea1ce19
+            state: pendingAllocation
+        reportingSystem:
+          id: '819'
+          name: APP-913
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        source:
+          id: '152'
+          name: APP-335
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        '@baseType': Event
+        '@type': ActualCostStateChangeEvent
+      description: Message example for ActualCostStateChangeEvent event
+    Delete_request:
+      value:
+        correlationId: 36af9e61-4a51
+        description: ActualCostDeleteEvent illustration
+        domain: Commercial
+        eventId: 4154-a76e-bf08c4bccb2e
+        eventTime: '2024-08-14T11:03:08.176Z'
+        eventType: ActualCostDeleteEvent
+        priority: '1'
+        timeOccurred: '2024-08-14T11:03:08.176Z'
+        title: ActualCostDeleteEvent
+        event:
+          actualCost:
+            id: 19d72f32-13b8-4711-a805-12850ea1ce19
+            href: >-
+              https://mycsp.com:8080/tmf-api/costManagement/v5/actualCost/19d72f32-13b8-4711-a805-12850ea1ce19
+            '@type': ActualCostDeleteEvent
+        reportingSystem:
+          id: '819'
+          name: APP-913
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        source:
+          id: '152'
+          name: APP-335
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        '@baseType': Event
+        '@type': ActualCostDeleteEvent
+      description: Message example for ActualCostDeleteEvent event
+    ProjectedCostCreate_request:
+      value:
+        correlationId: 2cdbfa6e-6756
+        description: ProjectedCostCreateEvent illustration
+        domain: Commercial
+        eventId: 41af-bb8d-b056f61b8696
+        eventTime: '2024-08-14T11:03:08.176Z'
+        eventType: ProjectedCostCreateEvent
+        priority: '5'
+        timeOccurred: '2024-08-14T11:03:08.176Z'
+        title: ProjectedCostCreateEvent
+        event:
+          projectedCost:
+            '@type': ProjectedCost
+            href: >-
+              https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+            id: 19d72f32-13b8-4711-a805-12850ea1ce20
+            description: Cost projection for Service Order SO1
+            name: Projected Cost
+            creationDate: '2024-08-15T14:20:34.396Z'
+            lastUpdate: '2024-08-15T14:20:34.396Z'
+            state: inProgress
+            relatedParty:
+              - '@type': RelatedPartyRefOrPartyRoleRef
+                role: Supplier
+                partyOrPartyRole:
+                  '@type': PartyRef
+                  href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/456'
+                  id: '456'
+                  name: NetCo Pty Ltd
+                  '@referredType': Organization
+            relatedEntity:
+              - '@type': RelatedEntityRefOrValue
+                role: initiator
+                entity:
+                  id: 3f845e07-73d8-469b-949f-fe95e52ab5ab
+                  href: >-
+                    https://mycsp.com:8080/tmf-api/serviceOrdering/v5/serviceOrder/3f845e07-73d8-469b-949f-fe95e52ab5ab
+                  '@type': EntityRef
+                  '@referredType': servoceOrder
+            certaintyLevel: Firm cost
+            validFor:
+              startDateTime: '2024-08-15T14:20:34.396Z'
+              endDateTime: '2024-09-15T14:20:34.396Z'
+            projectedCostItem:
+              - '@type': ProjectedCostItem
+                id: '111000'
+                description: The projected cost of the fibre optic cable
+                name: Fiber Optic Cable
+                creationDate: '2024-08-15T14:20:34.396Z'
+                lastUpdate: '2024-08-15T14:20:34.396Z'
+                isTaxIncluded: true
+                costItemAmount:
+                  quantity:
+                    amount: 10
+                    units: km
+                  amount:
+                    unit: AUD
+                    value: 50000
+                state: estimated
+                validFor:
+                  startDateTime: '2024-08-15T23:20:50.52Z'
+                  endDateTime: '2024-09-15T23:20:50.52Z'
+                costItemType: consumptionBased
+              - '@type': ProjectedCostItem
+                id: '456456'
+                description: The projected cost of the Electricity and Power Consumption
+                name: Electricity and Power Consumption
+                creationDate: '2024-08-15T14:20:34.396Z'
+                lastUpdate: '2024-08-15T14:20:34.396Z'
+                isTaxIncluded: true
+                costItemAmount:
+                  quantity:
+                    amount: 10000
+                    units: kWh
+                  amount:
+                    unit: AUD
+                    value: 2000
+                state: estimated
+                validFor:
+                  startDateTime: '2024-08-15T14:20:34.396Z'
+                  endDateTime: '2024-09-15T14:20:34.396Z'
+                costItemType: recurring
+        reportingSystem:
+          id: '819'
+          name: APP-913
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        source:
+          id: '152'
+          name: APP-335
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        '@baseType': Event
+        '@type': ProjectedCostCreateEvent
+      description: Message example for ProjectedCostCreateEvent event
+    ProjectedCostAttributeValueChange_request:
+      value:
+        correlationId: 2cdbfa6e-6756
+        description: ProjectedCostAttributeValueChangeEvent illustration
+        domain: Commercial
+        eventId: 41af-bb8d-b056f61b8696
+        eventTime: '2024-08-14T11:03:08.176Z'
+        eventType: ProjectedCostAttributeValueChangeEvent
+        priority: '5'
+        timeOccurred: '2024-08-14T11:03:08.176Z'
+        title: ProjectedCostAttributeValueChangeEvent
+        event:
+          projectedCost:
+            '@type': ProjectedCost
+            href: >-
+              https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+            id: 19d72f32-13b8-4711-a805-12850ea1ce20
+            externalIdentifier:
+              - id: FIN-12345
+                externalIdentifierType: Auditing Report
+                '@type': ExternalIdentifier
+                '@baseType': ExternalIdentifier
+                '@schemaLocation': 'http://my.schemas/ExternalIdentifier.schema.json'
+        reportingSystem:
+          id: '819'
+          name: APP-913
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        source:
+          id: '152'
+          name: APP-335
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        '@baseType': Event
+        '@type': ProjectedCostAttributeValueChangeEvent
+      description: Message example for ProjectedCostAttributeValueChangeEvent event
+    ProjectedCostStateChange_request:
+      value:
+        correlationId: 2cdbfa6e-6756
+        description: ProjectedCostStateChangeEvent illustration
+        domain: Commercial
+        eventId: 41af-bb8d-b056f61b8696
+        eventTime: '2024-08-14T11:03:08.176Z'
+        eventType: ProjectedCostStateChangeEvent
+        priority: '5'
+        timeOccurred: '2024-08-14T11:03:08.176Z'
+        title: ProjectedCostStateChangeEvent
+        event:
+          projectedCost:
+            '@type': ProjectedCost
+            href: >-
+              https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+            id: 19d72f32-13b8-4711-a805-12850ea1ce20
+            state: approved
+        reportingSystem:
+          id: '819'
+          name: APP-913
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        source:
+          id: '152'
+          name: APP-335
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        '@baseType': Event
+        '@type': ProjectedCostStateChangeEvent
+      description: Message example for ProjectedCostStateChangeEvent event
+    ProjectedCostDelete_request:
+      value:
+        correlationId: 36af9e61-4a51
+        description: ProjectedCostDeleteEvent illustration
+        domain: Commercial
+        eventId: 4154-a76e-bf08c4bccb2e
+        eventTime: '2024-08-14T11:03:08.176Z'
+        eventType: ProjectedCostDeleteEvent
+        priority: '1'
+        timeOccurred: '2024-08-14T11:03:08.176Z'
+        title: ProjectedCostDeleteEvent
+        event:
+          projectedCost:
+            id: 19d72f32-13b8-4711-a805-12850ea1ce20
+            href: >-
+              https://mycsp.com:8080/tmf-api/costManagement/v5/projectedCost/19d72f32-13b8-4711-a805-12850ea1ce20
+            '@type': ProjectedCostDeleteEvent
+        reportingSystem:
+          id: '819'
+          name: APP-913
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        source:
+          id: '152'
+          name: APP-335
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        '@baseType': Event
+        '@type': ProjectedCostDeleteEvent
+      description: Message example for ProjectedCostDeleteEvent event
