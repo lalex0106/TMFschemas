@@ -31,6 +31,17 @@ except ImportError as exc:  # pragma: no cover - 仅在缺失依赖时执行
 
 
 @dataclass
+class SpecDocument:
+    """封装单个规范文件的解析结果。"""
+
+    api_code: str
+    version: Optional[str]
+    protocol: str
+    file: Path
+    schemas: Mapping[str, object]
+
+
+@dataclass
 class PipelineConfig:
     """结构化后的配置对象。"""
 
@@ -110,34 +121,80 @@ def scan_ground_truth(directory: Path, name_mapping: Mapping[str, str]) -> Mappi
     return ground_truth_map
 
 
-def collect_yaml_sources(paths: Iterable[Path]) -> Iterable[Path]:
+def collect_spec_sources(paths: Iterable[Path]) -> Iterable[Path]:
+    suffixes = {".yaml", ".yml", ".json"}
     for base in paths:
         if not base.exists():
             continue
-        yield from base.rglob("*.yaml")
+        for file in base.rglob("*"):
+            if file.is_file() and file.suffix.lower() in suffixes:
+                yield file
 
 
-def analyze_oas_files(yaml_files: Iterable[Path], pattern: re.Pattern[str]) -> tuple[dict, Counter]:
-    schemas_cache: Dict[str, dict] = {}
+def load_spec_file(path: Path) -> Optional[Mapping[str, object]]:
+    loader = json.load if path.suffix.lower() == ".json" else yaml.safe_load
+    try:
+        with path.open("r", encoding="utf-8") as fh:
+            data = loader(fh) or {}
+    except (yaml.YAMLError, json.JSONDecodeError) as exc:
+        print(f"⚠️  解析失败 {path}: {exc}")
+        return None
+    return data if isinstance(data, Mapping) else None
+
+
+def detect_protocol(path: Path) -> str:
+    name = path.name.lower()
+    if "asyncapi" in name:
+        return "asyncapi"
+    if "openapi" in name or "oas" in name:
+        return "openapi"
+    for parent in path.parts:
+        lower = parent.lower()
+        if lower in {"asyncapi", "openapi"}:
+            return lower
+    return "unknown"
+
+
+PROTOCOL_PRIORITY: Mapping[str, int] = {
+    "openapi": 0,
+    "asyncapi": 1,
+    "unknown": 5,
+}
+
+
+def analyze_spec_files(spec_files: Iterable[Path], pattern: re.Pattern[str]) -> tuple[list[SpecDocument], Counter]:
+    documents: list[SpecDocument] = []
     schema_counts: Counter = Counter()
 
-    for yaml_file in yaml_files:
-        match = pattern.match(yaml_file.stem)
+    for spec_file in sorted(spec_files):
+        match = pattern.match(spec_file.stem)
         if not match:
             continue
-        api_code = match.group(1)
-        with yaml_file.open("r", encoding="utf-8") as fh:
-            try:
-                oas = yaml.safe_load(fh) or {}
-            except yaml.YAMLError as exc:
-                print(f"⚠️  解析失败 {yaml_file}: {exc}")
-                continue
-        schemas = (oas.get("components") or {}).get("schemas") or {}
-        schemas_cache[api_code] = {"file": yaml_file, "schemas": schemas}
+
+        payload = load_spec_file(spec_file)
+        if payload is None:
+            continue
+
+        components = (payload.get("components") if isinstance(payload, Mapping) else None) or {}
+        schemas = components.get("schemas") or {}
+        if not isinstance(schemas, Mapping) or not schemas:
+            continue
+
+        version = match.group(2) if match.lastindex and match.lastindex >= 2 else None
+        document = SpecDocument(
+            api_code=match.group(1),
+            version=version,
+            protocol=detect_protocol(spec_file),
+            file=spec_file,
+            schemas=schemas,
+        )
+
+        documents.append(document)
 
         unique_names = {name.split("_")[0] for name in schemas.keys()}
         schema_counts.update(unique_names)
-    return schemas_cache, schema_counts
+
+    return documents, schema_counts
 
 
 def infer_domain(
@@ -174,14 +231,37 @@ def resolve_refs(obj: object, current_domain: str, model_domain_map: Mapping[str
     return obj
 
 
-def build_schema_document(model_name: str, domain: str, schema: Mapping[str, object], config: PipelineConfig) -> dict:
+def build_schema_document(
+    model_name: str,
+    domain: str,
+    schema: Mapping[str, object],
+    config: PipelineConfig,
+    source: SpecDocument,
+    usage_count: int,
+    repo_root: Path,
+) -> dict:
+    try:
+        relative_path = source.file.resolve().relative_to(repo_root)
+    except ValueError:
+        relative_path = source.file.resolve()
+
+    metadata = {
+        "domain": domain,
+        "usage": {"occurrences": usage_count},
+        "source": {
+            "apiCode": source.api_code,
+            "version": source.version,
+            "protocol": source.protocol,
+            "filename": source.file.name,
+            "path": str(relative_path),
+        },
+    }
+
     return {
         "$schema": config.schema_draft,
         "$id": f"{model_name}.schema.json",
         "title": model_name,
-        "x-metadata": {
-            "domain": domain,
-        },
+        "x-metadata": metadata,
         "definitions": {
             model_name: {
                 "$id": f"#{model_name}",
@@ -204,32 +284,54 @@ def run_pipeline(config: PipelineConfig, clean: bool = False) -> None:
     ground_truth_map = scan_ground_truth(config.ground_truth, name_mapping)
     domain_mapping = load_domain_mapping(config.domain_mapping_file)
 
-    yaml_sources = list(collect_yaml_sources([config.tmf_official, config.external]))
-    schemas_cache, schema_counts = analyze_oas_files(yaml_sources, config.filename_pattern)
+    spec_sources = list(collect_spec_sources([config.tmf_official, config.external]))
+    documents, schema_counts = analyze_spec_files(spec_sources, config.filename_pattern)
 
     if clean and config.output_root.exists():
         shutil.rmtree(config.output_root)
 
-    model_domain_map: Dict[str, str] = {}
+    model_domain_map: Dict[str, str] = dict(ground_truth_map)
+    repo_root = Path.cwd()
+    written_models: Dict[str, SpecDocument] = {}
 
-    for api_code, payload in schemas_cache.items():
-        for schema_name, schema_def in (payload.get("schemas") or {}).items():
+    def document_sort_key(doc: SpecDocument) -> tuple[int, str, str, str]:
+        priority = PROTOCOL_PRIORITY.get(doc.protocol, 9)
+        version = doc.version or ""
+        return (priority, doc.api_code, version, doc.file.name)
+
+    for document in sorted(documents, key=document_sort_key):
+        for schema_name, schema_def in document.schemas.items():
             model_name = schema_name.split("_")[0]
             domain = infer_domain(
                 model_name,
                 ground_truth_map,
                 schema_counts,
                 domain_mapping,
-                api_code,
+                document.api_code,
                 config,
             )
+            previous = written_models.get(model_name)
+            if previous is not None:
+                current_priority = PROTOCOL_PRIORITY.get(document.protocol, 9)
+                previous_priority = PROTOCOL_PRIORITY.get(previous.protocol, 9)
+                if current_priority > previous_priority:
+                    continue
+
             model_domain_map[model_name] = domain
-
             resolved = resolve_refs(deepcopy(schema_def), domain, model_domain_map)
-            document = build_schema_document(model_name, domain, resolved, config)
-            write_schema_file(config.output_root, domain, model_name, document)
+            document_payload = build_schema_document(
+                model_name,
+                domain,
+                resolved,
+                config,
+                document,
+                schema_counts.get(model_name, 0),
+                repo_root,
+            )
+            write_schema_file(config.output_root, domain, model_name, document_payload)
+            written_models[model_name] = document
 
-    print(f"✅ 已输出 {len(model_domain_map)} 个模型定义到 {config.output_root}")
+    print(f"✅ 已输出 {len(written_models)} 个模型定义到 {config.output_root}")
 
 
 def parse_args() -> argparse.Namespace:
