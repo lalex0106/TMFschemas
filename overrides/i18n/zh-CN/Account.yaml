@@ -1,0 +1,12 @@
+schema: Account
+translations:
+  title: "账户"
+  description: "通用账户结构，用于描述客户账户与金融账户之间的公共特性。"
+  properties:
+    name:
+      title: "账户名称"
+      description: "账户在界面上展示的名称。"
+    description:
+      description: "客户账户的补充说明，便于业务人员理解账户用途。"
+    creditLimit:
+      description: "账户可以被透支或消费的最高额度。"
