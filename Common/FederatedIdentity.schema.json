@@ -9,7 +9,7 @@
       "description": "#TODO",
       "type": "object",
       "allOf": [{
-        "$ref": "../EngagedParty/PartyRole.schema.json#PartyRole"
+        "$ref": "../BusinessPartner/PartyRole.schema.json#PartyRole"
       }]
     }
   }

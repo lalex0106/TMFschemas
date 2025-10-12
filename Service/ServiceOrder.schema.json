@@ -75,7 +75,7 @@
           "type": "array",
           "description": "A list of parties which are involved in this order and the role they are playing",
           "items": {
-            "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+            "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
           }
         },
         "requestedCompletionDate": {
