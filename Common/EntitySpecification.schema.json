@@ -63,7 +63,7 @@
           "type": "array",
           "description": "Parties who manage or otherwise have an interest in this entity specification",
           "items": {
-            "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+            "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
           }
         },
         "entitySpecRelationship": {
