@@ -31,6 +31,7 @@ import argparse
 import json
 import re
 from collections import deque
+import csv
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Iterable, Mapping, Optional, Sequence, Set, Tuple
@@ -48,6 +49,7 @@ DEFAULT_REPO_CANDIDATES = (
 DEFAULT_SOURCE_ROOT = Path("sources/tmf-official")
 DEFAULT_VERSIONS = ("API-v1", "API-v2", "API-v3", "API-v4", "API-v5")
 DEFAULT_CORE_ENTITIES = ("Product", "Service", "Customer")
+DEFAULT_I18N_ROOT = Path("overrides/i18n")
 DEFAULT_MAX_DEPTH = 2
 HTTP_METHODS = {"get", "post", "put", "patch", "delete", "options", "head"}
 
@@ -57,6 +59,78 @@ def _normalize_name(value: str) -> str:
 
     compact = re.sub(r"[\s_\-]+", "", value)
     return compact.lower()
+
+
+def _select_locale_key(language: Optional[str], available: Iterable[str]) -> Optional[str]:
+    """在现有 locale key 中查找与请求语言最匹配的键。"""
+
+    if not language:
+        return None
+
+    normalized = language.lower()
+    candidates = [normalized]
+    compact = normalized.replace("-", "").replace("_", "")
+    if compact not in candidates:
+        candidates.append(compact)
+    alt_dash = normalized.replace("_", "-")
+    if alt_dash not in candidates:
+        candidates.append(alt_dash)
+    alt_underscore = normalized.replace("-", "_")
+    if alt_underscore not in candidates:
+        candidates.append(alt_underscore)
+    if "-" in normalized:
+        prefix = normalized.split("-", 1)[0]
+        if prefix not in candidates:
+            candidates.append(prefix)
+    if "_" in normalized:
+        prefix = normalized.split("_", 1)[0]
+        if prefix not in candidates:
+            candidates.append(prefix)
+
+    lowered_map = {key.lower(): key for key in available}
+    for candidate in candidates:
+        if candidate in lowered_map:
+            return lowered_map[candidate]
+
+    for candidate in candidates:
+        for key in lowered_map.keys():
+            if key.startswith(candidate):
+                return lowered_map[key]
+
+    return None
+
+
+def _format_localized_label(
+    base: str,
+    primary_label: Optional[str],
+    secondary_label: Optional[str],
+    bilingual: bool,
+    primary_language: Optional[str],
+) -> str:
+    """根据主语言/回退语言组合出最终展示文本。"""
+
+    if bilingual:
+        main = primary_label or base
+        fallback = secondary_label or (base if main != base else None)
+        if fallback and fallback != main:
+            return f"{main} ({fallback})"
+        return main
+
+    if primary_label:
+        if (
+            primary_language
+            and not primary_language.lower().startswith("en")
+            and primary_label != base
+        ):
+            return f"{primary_label} ({base})"
+        return primary_label
+
+    if secondary_label:
+        if secondary_label != base:
+            return f"{secondary_label} ({base})"
+        return secondary_label
+
+    return base
 
 
 @dataclass(frozen=True)
@@ -101,6 +175,15 @@ class SchemaRecord:
 
         return {alias for alias in names if alias}
 
+    def _locale_payload(self, language: Optional[str]) -> Optional[Mapping[str, object]]:
+        """根据语言代码匹配本地化信息。"""
+
+        key = _select_locale_key(language, self.translations.keys())
+        if not key:
+            return None
+        payload = self.translations.get(key)
+        return payload if isinstance(payload, Mapping) else None
+
     def localized_title(
         self,
         primary_language: Optional[str],
@@ -112,36 +195,103 @@ class SchemaRecord:
         base_name = self.title or self.name
 
         def _pick(language: Optional[str]) -> Optional[str]:
-            if not language:
-                return None
-            locale = self.translations.get(language)
-            if isinstance(locale, Mapping):
-                candidate = locale.get("title")
+            payload = self._locale_payload(language)
+            if payload:
+                candidate = payload.get("title")
                 if isinstance(candidate, str) and candidate:
                     return candidate
-            if language.lower().startswith("en"):
+            if language and language.lower().startswith("en"):
                 return base_name
             return None
 
         primary = _pick(primary_language)
-        secondary = _pick(fallback_language) if fallback_language else None
+        secondary = _pick(fallback_language)
 
-        if bilingual:
-            chosen_primary = primary or base_name
-            chosen_secondary = secondary or (base_name if chosen_primary != base_name else self.name)
-            if chosen_primary == chosen_secondary:
-                return chosen_primary
-            return f"{chosen_primary} ({chosen_secondary})"
+        return _format_localized_label(
+            base_name,
+            primary,
+            secondary,
+            bilingual,
+            primary_language,
+        )
 
-        return primary or secondary or base_name
+    def _property_label_for_language(
+        self,
+        repository: "SchemaRepository",
+        prop_name: str,
+        language: Optional[str],
+    ) -> Optional[str]:
+        if not language:
+            return None
+
+        payload = self._locale_payload(language)
+        if payload:
+            props = payload.get("properties")
+            if isinstance(props, Mapping):
+                entry = props.get(prop_name)
+                if isinstance(entry, Mapping):
+                    for key in ("title", "name"):
+                        value = entry.get(key)
+                        if isinstance(value, str) and value:
+                            return value
+                elif isinstance(entry, str) and entry:
+                    return entry
+
+        return repository.lookup_global_property(language, prop_name)
+
+    def property_display_name(
+        self,
+        repository: "SchemaRepository",
+        prop_name: str,
+        primary_language: Optional[str],
+        fallback_language: Optional[str],
+        bilingual: bool,
+    ) -> str:
+        base_name = prop_name
+        primary = self._property_label_for_language(
+            repository, prop_name, primary_language
+        )
+        secondary = self._property_label_for_language(
+            repository, prop_name, fallback_language
+        )
+        return _format_localized_label(
+            base_name,
+            primary,
+            secondary,
+            bilingual,
+            primary_language,
+        )
 
 
 class SchemaRepository:
     """帮助在内存中索引全部 Schema。"""
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        global_property_translations: Optional[
+            Mapping[str, Mapping[str, object]]
+        ] = None,
+    ) -> None:
         self._records: Dict[Tuple[str, str], SchemaRecord] = {}
         self._aliases: Dict[str, Set[Tuple[str, str]]] = {}
+        self._global_properties: Dict[str, Dict[str, Mapping[str, object]]] = {}
+
+        if global_property_translations:
+            for locale, mapping in global_property_translations.items():
+                if not isinstance(mapping, Mapping):
+                    continue
+                entries: Dict[str, Mapping[str, object]] = {}
+                for prop_name, payload in mapping.items():
+                    if isinstance(payload, Mapping):
+                        entries[prop_name] = {
+                            key: value
+                            for key, value in payload.items()
+                            if isinstance(key, str)
+                        }
+                    elif isinstance(payload, str) and payload:
+                        entries[prop_name] = {"title": payload}
+                if entries:
+                    self._global_properties[locale] = entries
 
     def add(self, record: SchemaRecord) -> None:
         key = (record.domain, record.name)
@@ -196,6 +346,31 @@ class SchemaRepository:
     def __len__(self) -> int:  # pragma: no cover - 仅用于提示信息
         return len(self._records)
 
+    def lookup_global_property(
+        self, language: Optional[str], prop_name: str
+    ) -> Optional[str]:
+        if not language or not self._global_properties:
+            return None
+
+        key = _select_locale_key(language, self._global_properties.keys())
+        if not key:
+            return None
+
+        locale_mapping = self._global_properties.get(key)
+        if not isinstance(locale_mapping, Mapping):
+            return None
+
+        entry = locale_mapping.get(prop_name)
+        if isinstance(entry, Mapping):
+            for field in ("title", "name"):
+                value = entry.get(field)
+                if isinstance(value, str) and value:
+                    return value
+        elif isinstance(entry, str) and entry:
+            return entry
+
+        return None
+
 
 def _discover_schema_name(payload: Mapping[str, object], file_path: Path) -> Optional[str]:
     definitions = payload.get("definitions")
@@ -219,11 +394,139 @@ def _extract_translations(payload: Mapping[str, object]) -> Mapping[str, Mapping
     return {}
 
 
-def load_repository(repo_root: Path) -> SchemaRepository:
+def _read_csv_rows(path: Path) -> Iterable[Mapping[str, str]]:
+    try:
+        with path.open("r", encoding="utf-8-sig", newline="") as handle:
+            reader = csv.DictReader(handle)
+            for row in reader:
+                cleaned = {
+                    (key.strip() if isinstance(key, str) else key): (
+                        value.strip() if isinstance(value, str) else value
+                    )
+                    for key, value in row.items()
+                    if key is not None
+                }
+                if any(value for value in cleaned.values() if isinstance(value, str)):
+                    yield cleaned  # type: ignore[misc]
+    except OSError as exc:  # pragma: no cover - 读取异常提示
+        print(f"⚠️  无法读取 {path}: {exc}")
+
+
+def load_translation_overlays(
+    i18n_root: Optional[Path],
+) -> Tuple[
+    Dict[str, Dict[str, Mapping[str, object]]],
+    Dict[str, Dict[str, Mapping[str, object]]],
+]:
+    if not i18n_root or not i18n_root.exists():
+        return {}, {}
+
+    schema_translations: Dict[str, Dict[str, Mapping[str, object]]] = {}
+    global_properties: Dict[str, Dict[str, Mapping[str, object]]] = {}
+
+    for locale_dir in sorted(i18n_root.iterdir()):
+        if not locale_dir.is_dir():
+            continue
+
+        locale_code = locale_dir.name
+
+        for csv_path in sorted(locale_dir.glob("Schemas*.csv")):
+            for row in _read_csv_rows(csv_path):
+                schema_name = row.get("Schema") or row.get("schema")
+                if not isinstance(schema_name, str) or not schema_name.strip():
+                    continue
+                schema_key = schema_name.strip()
+                title = row.get("中文名称") or row.get("Chinese Name")
+                description = row.get("新描述") or row.get("描述")
+                if not (title or description):
+                    continue
+                schema_entry = schema_translations.setdefault(schema_key, {})
+                locale_entry = schema_entry.setdefault(locale_code, {})
+                if title:
+                    locale_entry["title"] = title
+                if description:
+                    locale_entry["description"] = description
+
+        for csv_path in sorted(locale_dir.glob("Properties*.csv")):
+            for row in _read_csv_rows(csv_path):
+                prop_key = row.get("Property") or row.get("property")
+                if not isinstance(prop_key, str) or not prop_key.strip():
+                    continue
+                display_name = row.get("中文名称") or row.get("Chinese Name")
+                description = row.get("新描述") or row.get("描述")
+                if not (display_name or description):
+                    continue
+
+                if "." in prop_key:
+                    schema_name, prop_name = prop_key.split(".", 1)
+                    schema_name = schema_name.strip()
+                    prop_name = prop_name.strip()
+                    if not schema_name or not prop_name:
+                        continue
+                    schema_entry = schema_translations.setdefault(schema_name, {})
+                    locale_entry = schema_entry.setdefault(locale_code, {})
+                    props_entry = locale_entry.setdefault("properties", {})
+                    prop_entry = props_entry.setdefault(prop_name, {})
+                    if display_name:
+                        prop_entry["title"] = display_name
+                    if description:
+                        prop_entry["description"] = description
+                else:
+                    locale_props = global_properties.setdefault(locale_code, {})
+                    prop_entry = locale_props.setdefault(prop_key.strip(), {})
+                    if display_name:
+                        prop_entry["title"] = display_name
+                    if description:
+                        prop_entry["description"] = description
+
+    return schema_translations, global_properties
+
+
+def _merge_translations(
+    base: Mapping[str, Mapping[str, object]],
+    overlay: Mapping[str, Mapping[str, object]],
+) -> Dict[str, Mapping[str, object]]:
+    result: Dict[str, Mapping[str, object]] = {
+        key: dict(value) for key, value in base.items() if isinstance(value, Mapping)
+    }
+
+    for locale, payload in overlay.items():
+        if not isinstance(payload, Mapping):
+            continue
+        merged: Dict[str, object] = dict(result.get(locale, {}))
+        for key, value in payload.items():
+            if key == "properties" and isinstance(value, Mapping):
+                existing_props = merged.get("properties")
+                props: Dict[str, object] = (
+                    dict(existing_props) if isinstance(existing_props, Mapping) else {}
+                )
+                for prop_name, prop_payload in value.items():
+                    if not isinstance(prop_payload, Mapping):
+                        continue
+                    current = props.get(prop_name)
+                    base_mapping = dict(current) if isinstance(current, Mapping) else {}
+                    for prop_key, prop_value in prop_payload.items():
+                        if isinstance(prop_key, str) and isinstance(prop_value, str) and prop_value:
+                            base_mapping[prop_key] = prop_value
+                    if base_mapping:
+                        props[prop_name] = base_mapping
+                if props:
+                    merged["properties"] = props
+            elif isinstance(value, Mapping):
+                merged[key] = dict(value)
+            elif isinstance(value, str) and value:
+                merged[key] = value
+        result[locale] = merged
+
+    return result
+
+
+def load_repository(repo_root: Path, i18n_root: Optional[Path]) -> SchemaRepository:
     if not repo_root.exists():
         raise SystemExit(f"❌ 未找到 Schema 仓库目录：{repo_root}")
 
-    repository = SchemaRepository()
+    overlay_schemas, global_properties = load_translation_overlays(i18n_root)
+    repository = SchemaRepository(global_properties)
     schema_files = sorted(repo_root.rglob("*.schema.json"))
     if not schema_files:
         raise SystemExit("❌ 指定目录下未发现任何 .schema.json 文件，请确认已执行构建流水线。")
@@ -246,6 +549,8 @@ def load_repository(repo_root: Path) -> SchemaRepository:
             continue
 
         translations = _extract_translations(payload)
+        if schema_name in overlay_schemas:
+            translations = _merge_translations(translations, overlay_schemas[schema_name])
         record = SchemaRecord(
             schema_name,
             domain,
@@ -544,12 +849,22 @@ def _extract_ref_from_mapping(prop: Mapping[str, object]) -> Optional[str]:
     return schema_name or None
 
 
-def render_entity_block(record: SchemaRecord) -> str:
+def render_entity_block(
+    record: SchemaRecord,
+    repository: SchemaRepository,
+    display_name: str,
+    primary_language: Optional[str],
+    fallback_language: Optional[str],
+    bilingual: bool,
+) -> str:
     definition = record.definition()
     if not definition:
-        return f'entity "{record.name}" as Missing_{record.name} #red {{\n  .. 未能解析 definition ..\n}}\n'
+        return (
+            f'entity "{display_name}" as Missing_{record.name} #red {{\n'
+            "  .. 未能解析 definition ..\n}\n"
+        )
 
-    lines = [f'entity "{record.name}" as {record.domain}_{record.name} {{']
+    lines = [f'entity "{display_name}" as {record.domain}_{record.name} {{']
     seen: Set[str] = set()
     for prop_name, prop_value in _iter_properties(definition):
         if prop_name in seen:
@@ -564,7 +879,14 @@ def render_entity_block(record: SchemaRecord) -> str:
             display_type = "/".join(str(item) for item in prop_type)
         else:
             display_type = "any"
-        lines.append(f"  + {prop_name}: {display_type}")
+        prop_label = record.property_display_name(
+            repository,
+            prop_name,
+            primary_language,
+            fallback_language,
+            bilingual,
+        )
+        lines.append(f"  + {prop_label}: {display_type}")
     lines.append("}")
     return "\n".join(lines) + "\n"
 
@@ -600,6 +922,43 @@ def discover_relationships(
     return relationships, discovered
 
 
+def discover_inheritance(
+    record: SchemaRecord,
+) -> Set[str]:
+    definition = record.definition()
+    if not definition:
+        return set()
+
+    parents: Set[str] = set()
+    visited: Set[int] = set()
+
+    def _walk(node: Mapping[str, object]) -> None:
+        node_id = id(node)
+        if node_id in visited:
+            return
+        visited.add(node_id)
+
+        for keyword in ("allOf", "anyOf", "oneOf"):
+            compositions = node.get(keyword)
+            if not isinstance(compositions, Sequence):
+                continue
+            for item in compositions:
+                if not isinstance(item, Mapping):
+                    continue
+                ref_name = _extract_ref_from_mapping(item)
+                if ref_name:
+                    has_structural_keys = any(
+                        key in item for key in ("properties", "items")
+                    )
+                    if not has_structural_keys:
+                        parents.add(ref_name)
+                        continue
+                _walk(item)
+
+    _walk(definition)
+    return parents
+
+
 def generate_diagram(
     repository: SchemaRepository,
     start_entities: Sequence[str],
@@ -607,6 +966,8 @@ def generate_diagram(
     primary_language: Optional[str],
     fallback_language: Optional[str],
     bilingual: bool,
+    inheritance_overrides: Mapping[str, Mapping[str, Set[str]]],
+    enable_inheritance: bool,
 ) -> str:
     queue: deque[Tuple[str, int]] = deque((entity, 0) for entity in start_entities)
     processed: Set[str] = set()
@@ -626,9 +987,16 @@ def generate_diagram(
             entity_blocks[entity_name] = placeholder
             continue
 
-        display_name = record.localized_title(primary_language, fallback_language, bilingual)
-        entity_blocks[entity_name] = render_entity_block(record).replace(
-            f'entity "{record.name}"', f'entity "{display_name}"'
+        display_name = record.localized_title(
+            primary_language, fallback_language, bilingual
+        )
+        entity_blocks[entity_name] = render_entity_block(
+            record,
+            repository,
+            display_name,
+            primary_language,
+            fallback_language,
+            bilingual,
         )
 
         relationships, discovered = discover_relationships(record, repository)
@@ -646,14 +1014,49 @@ def generate_diagram(
                 if target_record
                 else target
             )
+            prop_label = record.property_display_name(
+                repository,
+                prop_name,
+                primary_language,
+                fallback_language,
+                bilingual,
+            )
 
             left_card = '"1"'
             right_card = '"0..*"' if is_many else '"0..1"'
             connector = "--{" if is_many else "--"
 
             relationship_lines.add(
-                f'"{source_label}" {left_card} {connector} {right_card} "{target_label}" : {prop_name}'
+                f'"{source_label}" {left_card} {connector} {right_card} "{target_label}" : {prop_label}'
             )
+
+        inheritance_parents: Set[str] = set()
+        if enable_inheritance:
+            inheritance_parents = discover_inheritance(record)
+            override_key = _normalize_name(record.name)
+            config = inheritance_overrides.get(override_key)
+            if config:
+                if "replace" in config:
+                    inheritance_parents = set(config["replace"])
+                else:
+                    inheritance_parents.update(config.get("add", set()))
+                for removed in config.get("remove", set()):
+                    inheritance_parents.discard(removed)
+
+        if inheritance_parents:
+            for parent in sorted(inheritance_parents):
+                parent_record = repository.get(parent)
+                parent_label = (
+                    parent_record.localized_title(
+                        primary_language, fallback_language, bilingual
+                    )
+                    if parent_record
+                    else parent
+                )
+                relationship_lines.add(
+                    f'"{parent_label}" <|-- "{display_name}"'
+                )
+            discovered.update(inheritance_parents)
 
         if current_depth < depth:
             for item in sorted(discovered):
@@ -699,6 +1102,12 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=DEFAULT_SOURCE_ROOT,
         help="官方 API 文档根目录，默认 sources/tmf-official",
+    )
+    parser.add_argument(
+        "--i18n-root",
+        type=Path,
+        default=DEFAULT_I18N_ROOT,
+        help="翻译资源目录，默认读取 overrides/i18n 以加载 CSV/工作簿翻译",
     )
     parser.add_argument(
         "--versions",
@@ -748,6 +1157,16 @@ def parse_args() -> argparse.Namespace:
         "--emit-version-diagrams",
         type=Path,
         help="按版本批量生成默认 ER 图输出目录，例如 dist/puml",
+    )
+    parser.add_argument(
+        "--inheritance-config",
+        type=Path,
+        help="自定义继承关系配置文件（YAML/JSON），可覆盖或新增父类",
+    )
+    parser.add_argument(
+        "--no-inheritance",
+        action="store_true",
+        help="禁用自动识别继承关系，仅展示属性关联",
     )
     return parser.parse_args()
 
@@ -915,6 +1334,86 @@ def export_resource_index(
     print(f"✅ 已导出 API 资源索引：{destination}")
 
 
+def _ensure_string_set(value: object) -> Set[str]:
+    result: Set[str] = set()
+    if isinstance(value, str) and value.strip():
+        result.add(value.strip())
+    elif isinstance(value, Sequence) and not isinstance(value, (str, bytes)):
+        for item in value:
+            if isinstance(item, str) and item.strip():
+                result.add(item.strip())
+    return result
+
+
+def load_inheritance_overrides(
+    config_path: Optional[Path],
+) -> Dict[str, Dict[str, Set[str]]]:
+    overrides: Dict[str, Dict[str, Set[str]]] = {}
+    if not config_path:
+        return overrides
+
+    if not config_path.exists():
+        print(f"⚠️  未找到继承配置文件：{config_path}")
+        return overrides
+
+    try:
+        text = config_path.read_text(encoding="utf-8")
+    except OSError as exc:  # pragma: no cover - I/O 提示
+        print(f"⚠️  无法读取继承配置 {config_path}: {exc}")
+        return overrides
+
+    if not text.strip():
+        return overrides
+
+    try:
+        if config_path.suffix.lower() == ".json":
+            data = json.loads(text)
+        else:
+            if yaml is None:
+                print("⚠️  当前环境未安装 PyYAML，无法解析 YAML 格式的继承配置。")
+                return overrides
+            data = yaml.safe_load(text)  # type: ignore[assignment]
+    except (json.JSONDecodeError, yaml.YAMLError) as exc:  # type: ignore[attr-defined]
+        print(f"⚠️  解析继承配置失败 {config_path}: {exc}")
+        return overrides
+
+    if not isinstance(data, Mapping):
+        return overrides
+
+    for child_name, payload in data.items():
+        if not isinstance(child_name, str) or not child_name.strip():
+            continue
+        normalized = _normalize_name(child_name)
+
+        replace: Set[str] = set()
+        add: Set[str] = set()
+        remove: Set[str] = set()
+
+        if isinstance(payload, Mapping):
+            replace = _ensure_string_set(payload.get("replace"))
+            add = _ensure_string_set(payload.get("add"))
+            remove = _ensure_string_set(payload.get("remove"))
+        elif isinstance(payload, Sequence) and not isinstance(payload, (str, bytes)):
+            replace = _ensure_string_set(payload)
+        elif isinstance(payload, str) and payload.strip():
+            replace = {payload.strip()}
+        else:
+            continue
+
+        entry: Dict[str, Set[str]] = {}
+        if replace:
+            entry["replace"] = replace
+        if add:
+            entry["add"] = add
+        if remove:
+            entry["remove"] = remove
+
+        if entry:
+            overrides[normalized] = entry
+
+    return overrides
+
+
 def emit_version_diagrams(
     documents: Sequence[APIDocument],
     repository: SchemaRepository,
@@ -923,6 +1422,8 @@ def emit_version_diagrams(
     primary_language: str,
     fallback_language: Optional[str],
     bilingual: bool,
+    inheritance_overrides: Mapping[str, Mapping[str, Set[str]]],
+    enable_inheritance: bool,
 ) -> None:
     if not documents:
         print("⚠️  未找到可用于生成 ER 图的 API 文档。")
@@ -953,6 +1454,8 @@ def emit_version_diagrams(
                 primary_language,
                 fallback_language,
                 bilingual,
+                inheritance_overrides,
+                enable_inheritance,
             )
 
             output_path = version_dir / f"{doc.path.stem}.puml"
@@ -964,7 +1467,7 @@ def emit_version_diagrams(
 def main() -> None:
     args = parse_args()
     repo_root = _resolve_repository(args)
-    repository = load_repository(repo_root)
+    repository = load_repository(repo_root, args.i18n_root)
 
     api_documents = discover_api_documents(args.source_root, args.versions)
     chosen_document = _match_api_document(api_documents, args.api) if args.api else None
@@ -998,6 +1501,11 @@ def main() -> None:
 
     primary_language, fallback_language, bilingual = _resolve_languages()
 
+    inheritance_overrides = load_inheritance_overrides(args.inheritance_config)
+    inheritance_enabled = not args.no_inheritance
+    if not inheritance_enabled:
+        inheritance_overrides = {}
+
     dump_target = args.dump_resource_index
     resource_index_path = None if dump_target == "-" else Path(dump_target)
     if resource_index_path:
@@ -1017,6 +1525,8 @@ def main() -> None:
             primary_language,
             fallback_language,
             bilingual,
+            inheritance_overrides,
+            inheritance_enabled,
         )
 
     if args.list:
@@ -1055,6 +1565,8 @@ def main() -> None:
         primary_language,
         fallback_language,
         bilingual,
+        inheritance_overrides,
+        inheritance_enabled,
     )
 
     if args.output:
@@ -1067,4 +1579,3 @@ def main() -> None:
 
 if __name__ == "__main__":  # pragma: no cover - CLI 入口
     main()
-

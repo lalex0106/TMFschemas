@@ -105,6 +105,8 @@
 脚本生成 PlantUML ER 图：
 
 1. **准备数据**：确认已运行 `build_schemas.py`，脚本会优先读取 `dist/json`，若未生成则自动回退到仓库根目录下的业务域文件夹。若要按官方 API 自动选取资源入口，请确保 `sources/tmf-official/API-v1` ~ `API-v5` 已同步对应的 OpenAPI/AsyncAPI 文件（解析 YAML 时需安装 `PyYAML`）。脚本启动时会遍历这些文档，并把解析到的核心资源写入 `dist/docs/api_resources.yaml` 供团队对照；如需跳过该索引输出，可附加 `--dump-resource-index -`。
+
+   脚本会同步读取 `overrides/i18n/` 目录下的 CSV/Excel 翻译文件（如 `Schemas_ZH.csv`、`Properties_ZH.csv`），自动将模型和属性名称映射为中文，在缺省中文时回退到英文。若翻译资产位于其他路径，可通过 `--i18n-root` 指向新的根目录；默认情况下展示文本会带上英文原文，便于团队核对。
 2. **生成概览图**：
 
    ```bash
@@ -114,6 +116,7 @@
    - 当检测到 API 文档并成功解析资源入口后，会自动以这些实体作为默认起点；若未命中，则回退到 `Product`、`Service`、`Customer` 或仓库中最常见的实体；
    - `--depth` 控制探索深度，`--repo` 可改为其它 Schema 根目录；
    - `--language-mode` 可在 `zh`（中文）、`en`（英文）与 `both`（中英文双语）之间快速切换，也可继续使用 `--label-language` / `--fallback-language` / `--bilingual` 精细控制；
+   - 默认会解析 `allOf/anyOf/oneOf` 并绘制继承箭头，若需要追加或重写父类，可在 `config/inheritance_overrides.yaml`（或通过 `--inheritance-config` 指定的文件）中声明；如需隐藏继承关系，可附加 `--no-inheritance`；
    - 需要了解脚本识别到的 API 资源入口，可执行 `python tools/pipeline/generate_puml.py --list-apis`。
 3. **聚焦特定模型或 API 文档**：
 
@@ -131,8 +134,7 @@
    - 可配合 `--list` 快速查看仓库内的实体名称（含中英文别名）；
    - `--api` 支持使用文件名或标题关键字模糊匹配，将该文档的 1~6 个核心资源自动作为起点；
    - `--emit-version-diagrams` 会按版本将默认资源组合输出到指定目录，并沿用当前语言模式生成 `.puml`，适合对照官方文档提供的视图；
-   - 脚本会解析属性中的 `$ref` 并推断基数（一对一/一对多），输出的 `.puml` 可直接交
-     给 PlantUML 渲染 PNG/SVG。对于缺失的实体会以红色占位提醒，便于识别模型空洞。
+   - 脚本会解析属性中的 `$ref` 并推断基数（一对一/一对多），自动将属性名称翻译为中文并附带英文原文，继承链与跨域引用将以箭头呈现。输出的 `.puml` 可直接交给 PlantUML 渲染 PNG/SVG，对于缺失的实体会以红色占位提醒，便于识别模型空洞。
 
 ## 校验生成结果是否符合 TMF 规范
 
