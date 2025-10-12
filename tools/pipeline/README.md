@@ -99,6 +99,29 @@
 
 如需变更工作表名称或输出目录，可通过 `--schema-sheet`、`--property-sheet`、`--output-dir` 参数灵活指定。
 
+## 模型关系可视化（PlantUML）
+
+若需在评审或培训中快速展示模型间的关联，可使用 `tools/pipeline/generate_puml.py`
+脚本生成 PlantUML ER 图：
+
+1. **准备数据**：确认已运行 `build_schemas.py` 并生成 `dist/json` 目录。
+2. **生成概览图**：
+
+   ```bash
+   python tools/pipeline/generate_puml.py -o dist/docs/core_entities.puml
+   ```
+
+   - 默认以 `Product`、`Service`、`Customer` 为起点，广度优先展开两层关联；
+   - `--depth` 控制探索深度，`--repo` 可改为其它 Schema 根目录。
+3. **聚焦特定模型**：
+
+   ```bash
+   python tools/pipeline/generate_puml.py -r Product Catalog Quote --depth 1 -o dist/docs/product_view.puml
+   ```
+
+   脚本会解析属性中的 `$ref` 并推断基数（一对一/一对多），输出的 `.puml` 可直接交
+   给 PlantUML 渲染 PNG/SVG。对于缺失的实体会以红色占位提醒，便于识别模型空洞。
+
 ## 校验生成结果是否符合 TMF 规范
 
 官方仓库附带了基于 JSON Schema Meta-Schema 的校验脚本，本仓库封装了便捷入口：
@@ -120,6 +143,19 @@
 3. 若需要手动指定目录，可使用参数：`python tools/pipeline/run_validation.py --schemas dist/json`。
 
 > 提示：日志中如仅提示 `x-metadata`、`x-i18n` 等扩展被禁止，可认定为企业定制能力；若看到缺少 `type`、`discriminator` 或 `nullable` 未被允许等提示，则需回溯源文件或企业自定义改动。当前流水线已自动补齐 `type`、转换 `discriminator` 并在校验副本中清除 `nullable`，如仍出现类似报错，请检查是否来自手工修改或外部文件。
+
+常见校验报错定位建议：
+
+- **`requires property "type"`**：原始规范缺少 `type` 声明，通常是 `allOf` 嵌套或引用丢失。
+  流水线会在标准化环节补写 `type: object`，若仍报错，请检查源 YAML 是否缺少 `properties`
+  或被外部覆盖文件清空。
+- **`de-reference check: ENOENT/EMFILE`**：引用文件缺失或系统文件句柄不足。前者请确认被引
+  用的模型是否在允许的主版本（默认 v4/v5）内，后者可在运行校验前执行 `ulimit -n 4096`
+  等命令提升句柄上限。
+- **`no description value`**：官方模型未提供描述。流水线会自动写入占位文本，若仍提示，
+  可在 `overrides` 或翻译 CSV 中补齐具体描述。
+- **`should be renamed as ...Ref`**：TMF 规范偏好 `*Ref` 命名，如需完全遵循，可在
+  `config/name_mapping.json` 中配置别名以生成合规文件名。
 
 ## 后续扩展建议
 
