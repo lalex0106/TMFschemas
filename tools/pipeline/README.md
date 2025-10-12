@@ -104,23 +104,31 @@
 若需在评审或培训中快速展示模型间的关联，可使用 `tools/pipeline/generate_puml.py`
 脚本生成 PlantUML ER 图：
 
-1. **准备数据**：确认已运行 `build_schemas.py` 并生成 `dist/json` 目录。
+1. **准备数据**：确认已运行 `build_schemas.py`，脚本会优先读取 `dist/json`，若未生成则自动回退到仓库根目录下的业务域文件夹。若要按官方 API 自动选取资源入口，请确保 `sources/tmf-official/API-v4` 或 `API-v5` 已同步对应的 OpenAPI/AsyncAPI 文件（解析 YAML 时需安装 `PyYAML`）。
 2. **生成概览图**：
 
    ```bash
    python tools/pipeline/generate_puml.py -o dist/docs/core_entities.puml
    ```
 
-   - 默认以 `Product`、`Service`、`Customer` 为起点，广度优先展开两层关联；
-   - `--depth` 控制探索深度，`--repo` 可改为其它 Schema 根目录。
-3. **聚焦特定模型**：
+   - 当检测到 API 文档并成功解析资源入口后，会自动以这些实体作为默认起点；若未命中，则回退到 `Product`、`Service`、`Customer` 或仓库中最常见的实体；
+   - `--depth` 控制探索深度，`--repo` 可改为其它 Schema 根目录；
+   - `--language-mode` 可在 `zh`（中文）、`en`（英文）与 `both`（中英文双语）之间快速切换，也可继续使用 `--label-language` / `--fallback-language` / `--bilingual` 精细控制；
+   - 需要了解脚本识别到的 API 资源入口，可执行 `python tools/pipeline/generate_puml.py --list-apis`。
+3. **聚焦特定模型或 API 文档**：
 
    ```bash
+   # 指定实体列表
    python tools/pipeline/generate_puml.py -r Product Catalog Quote --depth 1 -o dist/docs/product_view.puml
+
+   # 基于某份官方 API 自动选取资源入口
+   python tools/pipeline/generate_puml.py --api TMF622-ProductOrdering --depth 2 -o dist/docs/tmf622_view.puml
    ```
 
-   脚本会解析属性中的 `$ref` 并推断基数（一对一/一对多），输出的 `.puml` 可直接交
-   给 PlantUML 渲染 PNG/SVG。对于缺失的实体会以红色占位提醒，便于识别模型空洞。
+   - 可配合 `--list` 快速查看仓库内的实体名称（含中英文别名）；
+   - `--api` 支持使用文件名或标题关键字模糊匹配，将该文档的 1~6 个核心资源自动作为起点；
+   - 脚本会解析属性中的 `$ref` 并推断基数（一对一/一对多），输出的 `.puml` 可直接交
+     给 PlantUML 渲染 PNG/SVG。对于缺失的实体会以红色占位提醒，便于识别模型空洞。
 
 ## 校验生成结果是否符合 TMF 规范
 
