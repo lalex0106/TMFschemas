@@ -61,7 +61,7 @@
           "description": "Place defines the places where the products are sold or delivered."
         },
         "serviceLevelAgreement": {
-          "$ref": "../EngagedParty/SLARef.schema.json#SLARef",
+          "$ref": "../BusinessPartner/SLARef.schema.json#SLARef",
           "description": "A service level agreement (SLA) is a type of agreement that represents a formal negotiated agreement between two parties designed to create a common understanding about products, services, priorities, responsibilities, and so forth. The SLA is a set of appropriate procedures and targets formally or informally agreed between parties in order to achieve and maintain specified Quality of Service."
         },
         "productSpecification": {
@@ -107,7 +107,7 @@
         "agreement": {
           "type": "array",
           "items": {
-            "$ref": "../EngagedParty/AgreementRef.schema.json#AgreementRef"
+            "$ref": "../BusinessPartner/AgreementRef.schema.json#AgreementRef"
           },
           "description": "An agreement represents a contract or arrangement, either written or verbal and sometimes enforceable by law, such as a service level agreement or a customer price agreement. An agreement involves a number of other business entities, such as products, services, and resources and/or their specifications."
         },
