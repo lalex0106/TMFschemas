@@ -46,7 +46,7 @@ DEFAULT_REPO_CANDIDATES = (
     Path("dist/validation"),
 )
 DEFAULT_SOURCE_ROOT = Path("sources/tmf-official")
-DEFAULT_VERSIONS = ("API-v4", "API-v5")
+DEFAULT_VERSIONS = ("API-v1", "API-v2", "API-v3", "API-v4", "API-v5")
 DEFAULT_CORE_ENTITIES = ("Product", "Service", "Customer")
 DEFAULT_MAX_DEPTH = 2
 HTTP_METHODS = {"get", "post", "put", "patch", "delete", "options", "head"}
@@ -476,12 +476,32 @@ def discover_api_documents(
     return documents
 
 
-def _iter_properties(node: Mapping[str, object]) -> Iterable[Tuple[str, Mapping[str, object]]]:
+def _iter_properties(
+    node: Mapping[str, object],
+    _visited: Optional[Set[int]] = None,
+) -> Iterable[Tuple[str, Mapping[str, object]]]:
+    """遍历节点内的属性声明，自动展开 allOf/anyOf/oneOf。"""
+
+    if _visited is None:
+        _visited = set()
+
+    node_id = id(node)
+    if node_id in _visited:
+        return
+    _visited.add(node_id)
+
     properties = node.get("properties")
     if isinstance(properties, Mapping):
         for prop_name, prop_value in properties.items():
             if isinstance(prop_value, Mapping):
                 yield prop_name, prop_value
+
+    for keyword in ("allOf", "anyOf", "oneOf"):
+        compositions = node.get(keyword)
+        if isinstance(compositions, Sequence):
+            for item in compositions:
+                if isinstance(item, Mapping):
+                    yield from _iter_properties(item, _visited)
 
 
 def _is_relationship(prop: Mapping[str, object]) -> bool:
@@ -530,7 +550,11 @@ def render_entity_block(record: SchemaRecord) -> str:
         return f'entity "{record.name}" as Missing_{record.name} #red {{\n  .. 未能解析 definition ..\n}}\n'
 
     lines = [f'entity "{record.name}" as {record.domain}_{record.name} {{']
+    seen: Set[str] = set()
     for prop_name, prop_value in _iter_properties(definition):
+        if prop_name in seen:
+            continue
+        seen.add(prop_name)
         if _is_relationship(prop_value):
             continue
         prop_type = prop_value.get("type", "any")
@@ -555,7 +579,11 @@ def discover_relationships(
     relationships: Set[Tuple[str, str, bool, str]] = set()
     discovered: Set[str] = set()
 
+    seen: Set[str] = set()
     for prop_name, prop_value in _iter_properties(definition):
+        if prop_name in seen:
+            continue
+        seen.add(prop_name)
         ref_name = _extract_ref_from_mapping(prop_value)
         if not ref_name:
             continue
@@ -710,6 +738,17 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="列出可解析的 API 文档及资源入口并退出",
     )
+    parser.add_argument(
+        "--dump-resource-index",
+        type=str,
+        default="dist/docs/api_resources.yaml",
+        help="将 API 端点资源导出为索引文件，设置为 '-' 可跳过写入",
+    )
+    parser.add_argument(
+        "--emit-version-diagrams",
+        type=Path,
+        help="按版本批量生成默认 ER 图输出目录，例如 dist/puml",
+    )
     return parser.parse_args()
 
 
@@ -830,6 +869,98 @@ def _print_api_documents(documents: Sequence[APIDocument], repository: SchemaRep
         )
 
 
+def _relative_to(path: Path, base: Path) -> str:
+    try:
+        return str(path.relative_to(base))
+    except ValueError:
+        return str(path)
+
+
+def export_resource_index(
+    documents: Sequence[APIDocument],
+    repository: SchemaRepository,
+    destination: Path,
+    source_root: Path,
+) -> None:
+    if not documents:
+        print("⚠️  未找到可导出的 API 文档，跳过资源索引写入。")
+        return
+
+    grouped: Dict[str, list[dict]] = {}
+    for doc in documents:
+        resolved = doc.resolved_resources(repository)
+        entry = {
+            "file": _relative_to(doc.path, source_root),
+            "protocol": doc.protocol,
+            "title": doc.title,
+            "resources": resolved or list(doc.resources),
+        }
+        grouped.setdefault(doc.version, []).append(entry)
+
+    for items in grouped.values():
+        items.sort(key=lambda item: item["file"])
+
+    payload = {"versions": grouped}
+    destination.parent.mkdir(parents=True, exist_ok=True)
+
+    if yaml is not None:
+        with destination.open("w", encoding="utf-8") as fh:
+            yaml.safe_dump(payload, fh, allow_unicode=True, sort_keys=True)
+    else:
+        destination.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+
+    print(f"✅ 已导出 API 资源索引：{destination}")
+
+
+def emit_version_diagrams(
+    documents: Sequence[APIDocument],
+    repository: SchemaRepository,
+    output_root: Path,
+    depth: int,
+    primary_language: str,
+    fallback_language: Optional[str],
+    bilingual: bool,
+) -> None:
+    if not documents:
+        print("⚠️  未找到可用于生成 ER 图的 API 文档。")
+        return
+
+    grouped: Dict[str, list[APIDocument]] = {}
+    for doc in documents:
+        grouped.setdefault(doc.version, []).append(doc)
+
+    for version, docs in grouped.items():
+        version_dir = output_root / version
+        version_dir.mkdir(parents=True, exist_ok=True)
+
+        for doc in sorted(docs, key=lambda item: item.path.stem):
+            start_entities = doc.resolved_resources(repository)
+            if not start_entities:
+                start_entities = list(doc.resources)
+            if not start_entities:
+                print(
+                    f"⚠️  {doc.path.name} 未识别到资源入口，已跳过对应图谱生成。",
+                )
+                continue
+
+            diagram = generate_diagram(
+                repository,
+                start_entities,
+                depth,
+                primary_language,
+                fallback_language,
+                bilingual,
+            )
+
+            output_path = version_dir / f"{doc.path.stem}.puml"
+            output_path.write_text(diagram, encoding="utf-8")
+            print(
+                f"✅ 已生成 {version} / {doc.path.name} 的 ER 图：{output_path}"
+            )
+
 def main() -> None:
     args = parse_args()
     repo_root = _resolve_repository(args)
@@ -866,6 +997,27 @@ def main() -> None:
         return primary, fallback, bilingual
 
     primary_language, fallback_language, bilingual = _resolve_languages()
+
+    dump_target = args.dump_resource_index
+    resource_index_path = None if dump_target == "-" else Path(dump_target)
+    if resource_index_path:
+        export_resource_index(
+            api_documents,
+            repository,
+            resource_index_path,
+            args.source_root,
+        )
+
+    if args.emit_version_diagrams:
+        emit_version_diagrams(
+            api_documents,
+            repository,
+            args.emit_version_diagrams,
+            max(args.depth, 0),
+            primary_language,
+            fallback_language,
+            bilingual,
+        )
 
     if args.list:
         _print_entity_list(

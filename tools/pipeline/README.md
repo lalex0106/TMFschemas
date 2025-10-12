@@ -104,7 +104,7 @@
 若需在评审或培训中快速展示模型间的关联，可使用 `tools/pipeline/generate_puml.py`
 脚本生成 PlantUML ER 图：
 
-1. **准备数据**：确认已运行 `build_schemas.py`，脚本会优先读取 `dist/json`，若未生成则自动回退到仓库根目录下的业务域文件夹。若要按官方 API 自动选取资源入口，请确保 `sources/tmf-official/API-v4` 或 `API-v5` 已同步对应的 OpenAPI/AsyncAPI 文件（解析 YAML 时需安装 `PyYAML`）。
+1. **准备数据**：确认已运行 `build_schemas.py`，脚本会优先读取 `dist/json`，若未生成则自动回退到仓库根目录下的业务域文件夹。若要按官方 API 自动选取资源入口，请确保 `sources/tmf-official/API-v1` ~ `API-v5` 已同步对应的 OpenAPI/AsyncAPI 文件（解析 YAML 时需安装 `PyYAML`）。脚本启动时会遍历这些文档，并把解析到的核心资源写入 `dist/docs/api_resources.yaml` 供团队对照；如需跳过该索引输出，可附加 `--dump-resource-index -`。
 2. **生成概览图**：
 
    ```bash
@@ -123,10 +123,14 @@
 
    # 基于某份官方 API 自动选取资源入口
    python tools/pipeline/generate_puml.py --api TMF622-ProductOrdering --depth 2 -o dist/docs/tmf622_view.puml
+
+   # 按版本批量输出默认图谱
+   python tools/pipeline/generate_puml.py --emit-version-diagrams dist/puml --depth 2
    ```
 
    - 可配合 `--list` 快速查看仓库内的实体名称（含中英文别名）；
    - `--api` 支持使用文件名或标题关键字模糊匹配，将该文档的 1~6 个核心资源自动作为起点；
+   - `--emit-version-diagrams` 会按版本将默认资源组合输出到指定目录，并沿用当前语言模式生成 `.puml`，适合对照官方文档提供的视图；
    - 脚本会解析属性中的 `$ref` 并推断基数（一对一/一对多），输出的 `.puml` 可直接交
      给 PlantUML 渲染 PNG/SVG。对于缺失的实体会以红色占位提醒，便于识别模型空洞。
 
