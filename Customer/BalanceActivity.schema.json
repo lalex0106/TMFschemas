@@ -36,7 +36,7 @@
         },
         "partyAccount": {
           "description": "A reference to the account that owns the bucket impacted by the balance activity",
-          "$ref": "../EngagedParty/PartyAccountRef.schema.json#PartyAccountRef"
+          "$ref": "../BusinessPartner/PartyAccountRef.schema.json#PartyAccountRef"
         },
         "product": {
           "description": "A reference to the product related to the bucket that is impacted by the balance activity",
@@ -45,7 +45,7 @@
         "relatedParty": {
           "type": "array",
           "items": {
-            "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+            "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
           },
           "description": "Used to provide information about any other entity with relation to the balance activity"
         },

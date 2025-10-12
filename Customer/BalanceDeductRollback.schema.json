@@ -30,19 +30,19 @@
           "description": "Status of the rollback deduction operation"
         },
         "relatedParty": {
-          "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+          "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
         },
         "product": {
           "$ref": "../Product/ProductRef.schema.json#ProductRef"
         },
         "partyAccount": {
-          "$ref": "../EngagedParty/PartyAccountRef.schema.json#PartyAccountRef"
+          "$ref": "../BusinessPartner/PartyAccountRef.schema.json#PartyAccountRef"
         },
         "balanceDeduct": {
           "$ref": "../Customer/BalanceDeductRef.schema.json#BalanceDeductRef"
         },
         "requestor": {
-          "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+          "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
         }
       },
       "allOf": [
