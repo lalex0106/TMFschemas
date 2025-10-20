@@ -1163,6 +1163,8 @@ def generate_diagram(
     entity_blocks: Dict[str, str] = {}
     relationship_lines: Set[str] = set()
 
+    relationship_depth_limit = max(depth - 1, 0)
+
     while queue:
         entity_name, current_depth = queue.popleft()
         if entity_name in processed or current_depth > depth:
@@ -1198,35 +1200,36 @@ def generate_diagram(
             repository,
             include_inheritance,
         )
-        for source, target, is_many, prop_name in relationships:
-            source_record = repository.get(source)
-            target_record = repository.get(target)
+        if current_depth <= relationship_depth_limit:
+            for source, target, is_many, prop_name in relationships:
+                source_record = repository.get(source)
+                target_record = repository.get(target)
 
-            source_alias = (
-                f"{source_record.domain}_{source_record.name}"
-                if source_record
-                else source
-            )
-            target_alias = (
-                f"{target_record.domain}_{target_record.name}"
-                if target_record
-                else target
-            )
-            prop_label = record.property_display_name(
-                repository,
-                prop_name,
-                primary_language,
-                fallback_language,
-                bilingual,
-            )
+                source_alias = (
+                    f"{source_record.domain}_{source_record.name}"
+                    if source_record
+                    else source
+                )
+                target_alias = (
+                    f"{target_record.domain}_{target_record.name}"
+                    if target_record
+                    else target
+                )
+                prop_label = record.property_display_name(
+                    repository,
+                    prop_name,
+                    primary_language,
+                    fallback_language,
+                    bilingual,
+                )
 
-            left_card = '"1"'
-            right_card = '"0..*"' if is_many else '"0..1"'
-            connector = "--{" if is_many else "--"
+                left_card = '"1"'
+                right_card = '"0..*"' if is_many else '"0..1"'
+                connector = "--{" if is_many else "--"
 
-            relationship_lines.add(
-                f"{source_alias} {left_card} {connector} {right_card} {target_alias} : {prop_label}"
-            )
+                relationship_lines.add(
+                    f"{source_alias} {left_card} {connector} {right_card} {target_alias} : {prop_label}"
+                )
 
         inheritance_parents: Set[str] = set()
         if include_inheritance:
