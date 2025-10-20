@@ -116,7 +116,7 @@
    - 当检测到 API 文档并成功解析资源入口后，会自动以这些实体作为默认起点；若未命中，则回退到 `Product`、`Service`、`Customer` 或仓库中最常见的实体；
    - `--depth` 控制探索深度，`--repo` 可改为其它 Schema 根目录；
    - `--language-mode` 可在 `zh`（中文）、`en`（英文）与 `both`（中英文双语）之间快速切换，也可继续使用 `--label-language` / `--fallback-language` / `--bilingual` 精细控制；
-   - 默认会解析 `allOf/anyOf/oneOf` 并绘制继承箭头，若需要追加或重写父类，可在 `config/inheritance_overrides.yaml`（或通过 `--inheritance-config` 指定的文件）中声明；如需隐藏继承关系，可附加 `--no-inheritance`；
+   - 默认仅为起始实体展开 `allOf/anyOf/oneOf` 的继承链，关联实体仍保留自身属性，便于聚焦核心模型；如需恢复对所有实体的继承展开，可追加 `--inheritance-scope all`；若需要追加或重写父类，可在 `config/inheritance_overrides.yaml`（或通过 `--inheritance-config` 指定的文件）中声明；如需完全隐藏继承关系，可附加 `--no-inheritance`；
    - 需要了解脚本识别到的 API 资源入口，可执行 `python tools/pipeline/generate_puml.py --list-apis`。
 3. **聚焦特定模型或 API 文档**：
 

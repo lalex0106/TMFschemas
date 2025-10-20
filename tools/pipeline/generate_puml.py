@@ -784,6 +784,7 @@ def discover_api_documents(
 def _iter_properties(
     node: Mapping[str, object],
     repository: "SchemaRepository",
+    include_inheritance: bool = True,
     _visited_nodes: Optional[Set[int]] = None,
     _visited_schemas: Optional[Set[str]] = None,
 ) -> Iterable[Tuple[str, Mapping[str, object]]]:
@@ -815,7 +816,7 @@ def _iter_properties(
                 continue
 
             ref_name = _extract_ref_from_mapping(item)
-            if ref_name:
+            if ref_name and include_inheritance:
                 if ref_name not in _visited_schemas:
                     _visited_schemas.add(ref_name)
                     parent_record = repository.get(ref_name)
@@ -825,28 +826,31 @@ def _iter_properties(
                             yield from _iter_properties(
                                 parent_def,
                                 repository,
+                                include_inheritance,
                                 _visited_nodes,
                                 _visited_schemas,
                             )
 
-                # 若组合节点同时带有结构字段，也继续遍历其余部分
-                if any(
-                    key in item for key in ("properties", "allOf", "anyOf", "oneOf")
-                ):
-                    nested = {
-                        k: v for k, v in item.items() if not (k == "$ref" and isinstance(v, str))
-                    }
-                    if nested:
-                        yield from _iter_properties(
-                            nested,
-                            repository,
-                            _visited_nodes,
-                            _visited_schemas,
-                        )
-            else:
+            # 若组合节点同时带有结构字段，也继续遍历其余部分
+            if any(
+                key in item for key in ("properties", "allOf", "anyOf", "oneOf")
+            ):
+                nested = {
+                    k: v for k, v in item.items() if not (k == "$ref" and isinstance(v, str))
+                }
+                if nested:
+                    yield from _iter_properties(
+                        nested,
+                        repository,
+                        include_inheritance,
+                        _visited_nodes,
+                        _visited_schemas,
+                    )
+            elif not ref_name:
                 yield from _iter_properties(
                     item,
                     repository,
+                    include_inheritance,
                     _visited_nodes,
                     _visited_schemas,
                 )
@@ -855,6 +859,7 @@ def _iter_properties(
 def _collect_enum_values(
     node: Mapping[str, object],
     repository: "SchemaRepository",
+    include_inheritance: bool = True,
     _visited_nodes: Optional[Set[int]] = None,
     _visited_schemas: Optional[Set[str]] = None,
 ) -> Iterable[str]:
@@ -890,7 +895,7 @@ def _collect_enum_values(
                 continue
 
             ref_name = _extract_ref_from_mapping(item)
-            if ref_name and ref_name not in _visited_schemas:
+            if ref_name and include_inheritance and ref_name not in _visited_schemas:
                 _visited_schemas.add(ref_name)
                 parent_record = repository.get(ref_name)
                 if parent_record:
@@ -899,6 +904,7 @@ def _collect_enum_values(
                         yield from _collect_enum_values(
                             parent_def,
                             repository,
+                            include_inheritance,
                             _visited_nodes,
                             _visited_schemas,
                         )
@@ -910,6 +916,7 @@ def _collect_enum_values(
                 yield from _collect_enum_values(
                     nested,
                     repository,
+                    include_inheritance,
                     _visited_nodes,
                     _visited_schemas,
                 )
@@ -962,6 +969,7 @@ def render_entity_block(
     primary_language: Optional[str],
     fallback_language: Optional[str],
     bilingual: bool,
+    include_inheritance: bool,
 ) -> str:
     definition = record.definition()
     if not definition:
@@ -972,7 +980,9 @@ def render_entity_block(
 
     lines = [f'entity "{display_name}" as {record.domain}_{record.name} {{']
     seen: Set[str] = set()
-    for prop_name, prop_value in _iter_properties(definition, repository):
+    for prop_name, prop_value in _iter_properties(
+        definition, repository, include_inheritance
+    ):
         if prop_name in seen:
             continue
         seen.add(prop_name)
@@ -994,7 +1004,15 @@ def render_entity_block(
         )
         lines.append(f"  + {prop_label}: {display_type}")
 
-    enum_values = list(dict.fromkeys(_collect_enum_values(definition, repository)))
+    enum_values = list(
+        dict.fromkeys(
+            _collect_enum_values(
+                definition,
+                repository,
+                include_inheritance,
+            )
+        )
+    )
     if enum_values:
         lines.append("  .. 枚举 ..")
         for value in enum_values:
@@ -1004,7 +1022,9 @@ def render_entity_block(
 
 
 def discover_relationships(
-    record: SchemaRecord, repository: SchemaRepository
+    record: SchemaRecord,
+    repository: SchemaRepository,
+    include_inheritance: bool,
 ) -> Tuple[Set[Tuple[str, str, bool, str]], Set[str]]:
     definition = record.definition()
     if not definition:
@@ -1014,7 +1034,9 @@ def discover_relationships(
     discovered: Set[str] = set()
 
     seen: Set[str] = set()
-    for prop_name, prop_value in _iter_properties(definition, repository):
+    for prop_name, prop_value in _iter_properties(
+        definition, repository, include_inheritance
+    ):
         if prop_name in seen:
             continue
         seen.add(prop_name)
@@ -1080,6 +1102,7 @@ def generate_diagram(
     bilingual: bool,
     inheritance_overrides: Mapping[str, Mapping[str, Set[str]]],
     enable_inheritance: bool,
+    inheritance_scope: Optional[Set[str]] = None,
 ) -> str:
     queue: deque[Tuple[str, int]] = deque((entity, 0) for entity in start_entities)
     processed: Set[str] = set()
@@ -1102,6 +1125,10 @@ def generate_diagram(
         display_name = record.localized_title(
             primary_language, fallback_language, bilingual
         )
+        include_inheritance = enable_inheritance and (
+            inheritance_scope is None or entity_name in inheritance_scope
+        )
+
         entity_blocks[entity_name] = render_entity_block(
             record,
             repository,
@@ -1109,9 +1136,14 @@ def generate_diagram(
             primary_language,
             fallback_language,
             bilingual,
+            include_inheritance,
         )
 
-        relationships, discovered = discover_relationships(record, repository)
+        relationships, discovered = discover_relationships(
+            record,
+            repository,
+            include_inheritance,
+        )
         for source, target, is_many, prop_name in relationships:
             source_record = repository.get(source)
             target_record = repository.get(target)
@@ -1143,7 +1175,7 @@ def generate_diagram(
             )
 
         inheritance_parents: Set[str] = set()
-        if enable_inheritance:
+        if include_inheritance:
             inheritance_parents = discover_inheritance(record)
             override_key = _normalize_name(record.name)
             config = inheritance_overrides.get(override_key)
@@ -1284,6 +1316,12 @@ def parse_args() -> argparse.Namespace:
         "--no-inheritance",
         action="store_true",
         help="禁用自动识别继承关系，仅展示属性关联",
+    )
+    parser.add_argument(
+        "--inheritance-scope",
+        choices=("start", "all"),
+        default="start",
+        help="控制继承展开范围：start=仅针对起始实体，all=对所有实体展开",
     )
     return parser.parse_args()
 
@@ -1541,6 +1579,7 @@ def emit_version_diagrams(
     bilingual: bool,
     inheritance_overrides: Mapping[str, Mapping[str, Set[str]]],
     enable_inheritance: bool,
+    inheritance_scope_mode: str,
 ) -> None:
     if not documents:
         print("⚠️  未找到可用于生成 ER 图的 API 文档。")
@@ -1564,6 +1603,10 @@ def emit_version_diagrams(
                 )
                 continue
 
+            scope = None
+            if enable_inheritance and inheritance_scope_mode == "start":
+                scope = set(start_entities)
+
             diagram = generate_diagram(
                 repository,
                 start_entities,
@@ -1573,6 +1616,7 @@ def emit_version_diagrams(
                 bilingual,
                 inheritance_overrides,
                 enable_inheritance,
+                scope,
             )
 
             output_path = version_dir / f"{doc.path.stem}.puml"
@@ -1644,6 +1688,7 @@ def main() -> None:
             bilingual,
             inheritance_overrides,
             inheritance_enabled,
+            args.inheritance_scope,
         )
 
     if args.list:
@@ -1675,6 +1720,10 @@ def main() -> None:
             f"🌱 正在以 {', '.join(start_entities)} 为起点生成图谱，探索深度 {args.depth} 层。"
         )
 
+    inheritance_scope = None
+    if inheritance_enabled and args.inheritance_scope == "start":
+        inheritance_scope = set(start_entities)
+
     diagram = generate_diagram(
         repository,
         start_entities,
@@ -1684,6 +1733,7 @@ def main() -> None:
         bilingual,
         inheritance_overrides,
         inheritance_enabled,
+        inheritance_scope,
     )
 
     if args.output:
