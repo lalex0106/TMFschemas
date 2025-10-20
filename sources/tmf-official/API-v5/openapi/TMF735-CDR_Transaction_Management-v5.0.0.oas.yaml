@@ -1,0 +1,4681 @@
+openapi: 3.0.1
+info:
+  title: CDR Transaction Management
+  description: >-
+    CDR Transaction Management API goal is to provide the ability to manage a CDR Transaction. This
+    CDR Transaction allows to manage CDR Transactions that define how revenue share is calculated,
+    billed and paid between an enterprise with one or more other parties. 
+  version: 5.0.0
+servers:
+  - url: 'https://serverRoot'
+tags:
+  - name: cdrTransaction
+    description: Operations for CdrTransaction Resource
+  - name: notification listener
+    description: Notifications for Resource Lifecycle and event notifications
+  - name: events subscription
+    description: Endpoints to register and terminate an Event Listener
+paths:
+  /cdrTransaction:
+    get:
+      tags:
+        - cdrTransaction
+      summary: List or find CdrTransaction objects
+      description: List or find CdrTransaction objects
+      operationId: listCdrTransaction
+      parameters:
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          $ref: '#/components/responses/200CdrTransactionArray'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+    post:
+      tags:
+        - cdrTransaction
+      summary: Creates a CdrTransaction
+      description: This operation creates a CdrTransaction entity.
+      operationId: createCdrTransaction
+      parameters:
+        - $ref: '#/components/parameters/Fields'
+      requestBody:
+        $ref: '#/components/requestBodies/CdrTransaction_FVO'
+      responses:
+        '201':
+          $ref: '#/components/responses/201CdrTransaction'
+        '202':
+          description: Accepted
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+  '/cdrTransaction/{id}':
+    get:
+      tags:
+        - cdrTransaction
+      summary: Retrieves a CdrTransaction by ID
+      description: >-
+        This operation retrieves a CdrTransaction entity. Attribute selection enabled for all first
+        level attributes.
+      operationId: retrieveCdrTransaction
+      parameters:
+        - $ref: '#/components/parameters/Id'
+        - $ref: '#/components/parameters/Fields'
+      responses:
+        '200':
+          $ref: '#/components/responses/200CdrTransaction_Get'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+    delete:
+      tags:
+        - cdrTransaction
+      summary: Deletes a CdrTransaction
+      description: This operation deletes a CdrTransaction entity.
+      operationId: deleteCdrTransaction
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '202':
+          $ref: '#/components/responses/202'
+        '204':
+          $ref: '#/components/responses/204'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+    patch:
+      tags:
+        - cdrTransaction
+      summary: Updates partially a CdrTransaction
+      description: This operation updates partially a CdrTransaction entity.
+      operationId: patchCdrTransaction
+      parameters:
+        - $ref: '#/components/parameters/Id'
+        - $ref: '#/components/parameters/Fields'
+      requestBody:
+        $ref: '#/components/requestBodies/CdrTransaction_MVO'
+      responses:
+        '200':
+          $ref: '#/components/responses/200CdrTransaction_Patch'
+        '202':
+          description: Accepted
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+  /hub:
+    post:
+      operationId: createHub
+      summary: Create a subscription (hub) to receive Events
+      description: Sets the communication endpoint to receive Events.
+      tags:
+        - events subscription
+      requestBody:
+        $ref: '#/components/requestBodies/Hub_FVO'
+      responses:
+        '201':
+          $ref: '#/components/responses/Hub'
+        default:
+          $ref: '#/components/responses/Error'
+  '/hub/{id}':
+    delete:
+      operationId: hubDelete
+      summary: Remove a subscription (hub) to receive Events
+      description: ''
+      tags:
+        - events subscription
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Deleted
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/cdrTransactionAttributeValueChangeEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity CdrTransactionAttributeValueChangeEvent
+      description: >-
+        Example of a client listener for receiving the notification
+        CdrTransactionAttributeValueChangeEvent
+      operationId: cdrTransactionAttributeValueChangeEvent
+      requestBody:
+        $ref: '#/components/requestBodies/CdrTransactionAttributeValueChangeEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/cdrTransactionCreateEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity CdrTransactionCreateEvent
+      description: Example of a client listener for receiving the notification CdrTransactionCreateEvent
+      operationId: cdrTransactionCreateEvent
+      requestBody:
+        $ref: '#/components/requestBodies/CdrTransactionCreateEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/cdrTransactionDeleteEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity CdrTransactionDeleteEvent
+      description: Example of a client listener for receiving the notification CdrTransactionDeleteEvent
+      operationId: cdrTransactionDeleteEvent
+      requestBody:
+        $ref: '#/components/requestBodies/CdrTransactionDeleteEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/cdrTransactionStateChangeEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity CdrTransactionStateChangeEvent
+      description: Example of a client listener for receiving the notification CdrTransactionStateChangeEvent
+      operationId: cdrTransactionStateChangeEvent
+      requestBody:
+        $ref: '#/components/requestBodies/CdrTransactionStateChangeEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+components:
+  schemas:
+    Addressable:
+      type: object
+      description: Base schema for adressable entities
+      properties:
+        href:
+          type: string
+          description: Hyperlink reference
+        id:
+          type: string
+          description: unique identifier
+    Addressable_FVO:
+      type: object
+      description: Base schema for adressable entities
+      properties:
+        id:
+          type: string
+          description: unique identifier
+    BaseEvent:
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - type: object
+          description: Base event with common attributes.
+          properties:
+            event:
+              type: object
+            eventId:
+              type: string
+              description: The identifier of the notification.
+            eventTime:
+              type: string
+              format: date-time
+              description: Time of the event occurrence.
+            eventType:
+              type: string
+              description: The type of the notification.
+            correlationId:
+              type: string
+              description: The correlation id for this event.
+            domain:
+              type: string
+              description: The domain of the event.
+            title:
+              type: string
+              description: The title of the event.
+            description:
+              type: string
+              description: An explanatory of the event.
+            priority:
+              type: string
+              description: A priority.
+            timeOcurred:
+              type: string
+              format: date-time
+              description: The time the event occured.
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          BaseEvent: '#/components/schemas/BaseEvent'
+    BaseEvent_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - type: object
+          description: Base event with common attributes.
+          properties:
+            event:
+              type: object
+            eventId:
+              type: string
+              description: The identifier of the notification.
+            eventTime:
+              type: string
+              format: date-time
+              description: Time of the event occurrence.
+            eventType:
+              type: string
+              description: The type of the notification.
+            correlationId:
+              type: string
+              description: The correlation id for this event.
+            domain:
+              type: string
+              description: The domain of the event.
+            title:
+              type: string
+              description: The title of the event.
+            description:
+              type: string
+              description: An explanatory of the event.
+            priority:
+              type: string
+              description: A priority.
+            timeOcurred:
+              type: string
+              format: date-time
+              description: The time the event occured.
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          BaseEvent: '#/components/schemas/BaseEvent_FVO'
+    BaseEvent_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Entity_MVO'
+        - type: object
+          description: Base event with common attributes.
+          properties:
+            event:
+              type: object
+            eventId:
+              type: string
+              description: The identifier of the notification.
+            eventTime:
+              type: string
+              format: date-time
+              description: Time of the event occurrence.
+            eventType:
+              type: string
+              description: The type of the notification.
+            correlationId:
+              type: string
+              description: The correlation id for this event.
+            domain:
+              type: string
+              description: The domain of the event.
+            title:
+              type: string
+              description: The title of the event.
+            description:
+              type: string
+              description: An explanatory of the event.
+            priority:
+              type: string
+              description: A priority.
+            timeOcurred:
+              type: string
+              format: date-time
+              description: The time the event occured.
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          BaseEvent: '#/components/schemas/BaseEvent_MVO'
+    Cdr:
+      type: object
+      description: An occurrence of employing a product for its intended purpose with all rating details
+      properties:
+        cdrDate:
+          type: string
+          format: date-time
+          description: Date of cdr
+          example: '2020-09-21T09:13:16-07:00'
+        description:
+          type: string
+          description: Description of cdr
+          example: Voicemail Retrieval
+        status:
+          $ref: '#/components/schemas/CdrStatusType'
+        cdrType:
+          type: string
+          description: Type of cdr
+        cdrCharacteristic:
+          type: array
+          items:
+            $ref: '#/components/schemas/CdrCharacteristic'
+        cdrDirectionType:
+          $ref: '#/components/schemas/CdrDirectionType'
+          minItems: 1
+        relatedParty:
+          $ref: '#/components/schemas/RelatedPartyRefOrPartyRoleRef'
+          minItems: 1
+        ratedCdr:
+          type: array
+          items:
+            $ref: '#/components/schemas/RatedCdr'
+        isBilled:
+          type: boolean
+          description: Boolean indicating if usage have been billed or not
+        offerTariffType:
+          type: string
+          description: Type of tariff applied
+        ratingAmountType:
+          type: string
+          description: Type of amount
+        amount:
+          $ref: '#/components/schemas/Money'
+        ratingDate:
+          type: string
+          format: date-time
+          description: Date of usage rating
+        isTaxExempt:
+          type: boolean
+          description: Indicates if the rated amount is exempt of tax
+        productRef:
+          $ref: '#/components/schemas/ProductRef'
+        taxExcludedRatingAmount:
+          $ref: '#/components/schemas/Money'
+        taxIncludedRatingAmount:
+          $ref: '#/components/schemas/Money'
+        taxRate:
+          type: number
+          format: float
+          description: Tax rate
+    CdrCharacteristic:
+      type: object
+      description: Provides the value of a given characteristic
+      allOf:
+        - $ref: '#/components/schemas/Characteristic'
+    CdrCharacteristic_FVO:
+      type: object
+      description: Provides the value of a given characteristic
+      allOf:
+        - $ref: '#/components/schemas/Characteristic_FVO'
+    CdrCharacteristic_MVO:
+      type: object
+      description: Provides the value of a given characteristic
+      allOf:
+        - $ref: '#/components/schemas/Characteristic_MVO'
+    CdrDirectionType:
+      enum:
+        - charge
+        - refund
+      type: string
+      description: Possible values for the Direction of the Cdr
+    CdrStatusType:
+      enum:
+        - settlement
+        - charging
+        - charged
+      type: string
+      description: Possible values for the status of the Cdr
+    CdrTransaction:
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - type: object
+          description: >-
+            A party revenue sharing transaction is a type of transaction which  can  be used to 
+            launch a revenue share between a partner and a service provider or between multiple
+            partners
+          properties:
+            relatedParty:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedPartyRefOrPartyRoleRef'
+              description: The associated party or partyRole
+              minItems: 1
+            state:
+              $ref: '#/components/schemas/CdrTransactionStateType'
+            requestedInitialState:
+              $ref: '#/components/schemas/CdrTransactionInitialStateType'
+              default: created
+            cancellationDate:
+              type: string
+              format: date-time
+              description: 'Date when the transaction is cancelled. This is used when transaction is cancelled. '
+            cancellationReason:
+              type: string
+              description: >-
+                Reason why the transaction is cancelled. This is used when transaction is
+                cancelled. 
+            channel:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedChannel'
+            description:
+              type: string
+              description: Description of the transaction
+            note:
+              type: array
+              items:
+                $ref: '#/components/schemas/Note'
+            transactionItem:
+              type: array
+              items:
+                $ref: '#/components/schemas/CdrTransactionItem'
+              minItems: 1
+            creationDate:
+              type: string
+              format: date-time
+              description: Date and time when the ProductOrder was created
+            completionDate:
+              type: string
+              format: date-time
+              description: Date when the ProductOrder was completed
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CdrTransaction: '#/components/schemas/CdrTransaction'
+    CdrTransactionAttributeValueChangeEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: CdrTransactionAttributeValueChangeEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/CdrTransactionAttributeValueChangeEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CdrTransactionAttributeValueChangeEvent: '#/components/schemas/CdrTransactionAttributeValueChangeEvent'
+    CdrTransactionAttributeValueChangeEventPayload:
+      type: object
+      description: CdrTransactionAttributeValueChangeEventPayload generic structure
+      properties:
+        CdrTransaction:
+          $ref: '#/components/schemas/CdrTransaction'
+    CdrTransactionCreateEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: CdrTransactionCreateEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/CdrTransactionCreateEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CdrTransactionCreateEvent: '#/components/schemas/CdrTransactionCreateEvent'
+    CdrTransactionCreateEventPayload:
+      type: object
+      description: CdrTransactionCreateEventPayload generic structure
+      properties:
+        CdrTransaction:
+          $ref: '#/components/schemas/CdrTransaction'
+    CdrTransactionDeleteEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: CdrTransactionDeleteEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/CdrTransactionDeleteEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CdrTransactionDeleteEvent: '#/components/schemas/CdrTransactionDeleteEvent'
+    CdrTransactionDeleteEventPayload:
+      type: object
+      description: CdrTransactionDeleteEventPayload generic structure
+      properties:
+        CdrTransaction:
+          $ref: '#/components/schemas/CdrTransaction'
+    CdrTransactionInitialStateType:
+      enum:
+        - charged
+      type: string
+      description: >-
+        Possible values for the requested initial state of the transaction from client- by default
+        created is considered
+    CdrTransactionItem:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            An identified part of the transaction. A transaction is decomposed into one or more
+            transaction items.
+          properties:
+            action:
+              $ref: '#/components/schemas/ItemActionType'
+            cdr:
+              type: array
+              items:
+                $ref: '#/components/schemas/Cdr'
+              minItems: 1
+            relatedParty:
+              $ref: '#/components/schemas/RelatedPartyRefOrPartyRoleRef'
+              minItems: 1
+            bill:
+              type: array
+              items:
+                $ref: '#/components/schemas/CustomerBillRef'
+              description: The bills related to this report item
+            payment:
+              type: array
+              items:
+                $ref: '#/components/schemas/PaymentRef'
+              description: The payments related to this report item
+            state:
+              $ref: '#/components/schemas/CdrTransactionItemStateType'
+            id:
+              type: string
+              description: >-
+                Identifier of the transaction item (generally it is a sequence number 01, 02, 03,
+                ...)
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CdrTransactionItem: '#/components/schemas/CdrTransactionItem'
+    CdrTransactionItemStateType:
+      enum:
+        - charged
+        - billed
+        - paid
+        - completed
+      type: string
+      description: Possible values for the state of the party revenue sharing transaction
+    CdrTransactionItem_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible_FVO'
+        - type: object
+          description: >-
+            An identified part of the transaction. A transaction is decomposed into one or more
+            transaction items.
+          properties:
+            action:
+              $ref: '#/components/schemas/ItemActionType'
+            cdr:
+              type: array
+              items:
+                $ref: '#/components/schemas/Cdr_FVO'
+              minItems: 1
+            relatedParty:
+              $ref: '#/components/schemas/RelatedPartyRefOrPartyRoleRef_FVO'
+              minItems: 1
+            bill:
+              type: array
+              items:
+                $ref: '#/components/schemas/CustomerBillRef_FVO'
+              description: The bills related to this report item
+            payment:
+              type: array
+              items:
+                $ref: '#/components/schemas/PaymentRef_FVO'
+              description: The payments related to this report item
+            state:
+              $ref: '#/components/schemas/CdrTransactionItemStateType'
+            id:
+              type: string
+              description: >-
+                Identifier of the transaction item (generally it is a sequence number 01, 02, 03,
+                ...)
+          required:
+            - action
+            - id
+            - state
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CdrTransactionItem: '#/components/schemas/CdrTransactionItem_FVO'
+    CdrTransactionItem_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            An identified part of the transaction. A transaction is decomposed into one or more
+            transaction items.
+          properties:
+            action:
+              $ref: '#/components/schemas/ItemActionType'
+            cdr:
+              type: array
+              items:
+                $ref: '#/components/schemas/Cdr_MVO'
+              minItems: 1
+            relatedParty:
+              $ref: '#/components/schemas/RelatedPartyRefOrPartyRoleRef_MVO'
+              minItems: 1
+            bill:
+              type: array
+              items:
+                $ref: '#/components/schemas/CustomerBillRef_MVO'
+              description: The bills related to this report item
+            payment:
+              type: array
+              items:
+                $ref: '#/components/schemas/PaymentRef_MVO'
+              description: The payments related to this report item
+            state:
+              $ref: '#/components/schemas/CdrTransactionItemStateType'
+            id:
+              type: string
+              description: >-
+                Identifier of the transaction item (generally it is a sequence number 01, 02, 03,
+                ...)
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CdrTransactionItem: '#/components/schemas/CdrTransactionItem_MVO'
+    CdrTransactionStateChangeEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: CdrTransactionStateChangeEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/CdrTransactionStateChangeEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CdrTransactionStateChangeEvent: '#/components/schemas/CdrTransactionStateChangeEvent'
+    CdrTransactionStateChangeEventPayload:
+      type: object
+      description: CdrTransactionStateChangeEventPayload generic structure
+      properties:
+        CdrTransaction:
+          $ref: '#/components/schemas/CdrTransaction'
+    CdrTransactionStateType:
+      enum:
+        - charged
+        - billed
+        - paid
+        - completed
+      type: string
+      description: Possible values for the state of the Cdr transaction
+    CdrTransaction_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Entity_FVO'
+        - type: object
+          description: >-
+            A party revenue sharing transaction is a type of transaction which  can  be used to 
+            launch a revenue share between a partner and a service provider or between multiple
+            partners
+          properties:
+            relatedParty:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedPartyRefOrPartyRoleRef_FVO'
+              description: The associated party or partyRole
+              minItems: 1
+            requestedInitialState:
+              $ref: '#/components/schemas/CdrTransactionInitialStateType'
+              default: created
+            cancellationDate:
+              type: string
+              format: date-time
+              description: 'Date when the transaction is cancelled. This is used when transaction is cancelled. '
+            cancellationReason:
+              type: string
+              description: >-
+                Reason why the transaction is cancelled. This is used when transaction is
+                cancelled. 
+            channel:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedChannel_FVO'
+            description:
+              type: string
+              description: Description of the transaction
+            note:
+              type: array
+              items:
+                $ref: '#/components/schemas/Note_FVO'
+            transactionItem:
+              type: array
+              items:
+                $ref: '#/components/schemas/CdrTransactionItem_FVO'
+              minItems: 1
+            creationDate:
+              type: string
+              format: date-time
+              description: Date and time when the ProductOrder was created
+            completionDate:
+              type: string
+              format: date-time
+              description: Date when the ProductOrder was completed
+          required:
+            - relatedParty
+            - channel
+            - '@type'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CdrTransaction: '#/components/schemas/CdrTransaction_FVO'
+    CdrTransaction_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Entity_MVO'
+        - type: object
+          description: >-
+            A party revenue sharing transaction is a type of transaction which  can  be used to 
+            launch a revenue share between a partner and a service provider or between multiple
+            partners
+          properties:
+            relatedParty:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedPartyRefOrPartyRoleRef_MVO'
+              description: The associated party or partyRole
+              minItems: 1
+            state:
+              $ref: '#/components/schemas/CdrTransactionStateType'
+            requestedInitialState:
+              $ref: '#/components/schemas/CdrTransactionInitialStateType'
+              default: created
+            cancellationDate:
+              type: string
+              format: date-time
+              description: 'Date when the transaction is cancelled. This is used when transaction is cancelled. '
+            cancellationReason:
+              type: string
+              description: >-
+                Reason why the transaction is cancelled. This is used when transaction is
+                cancelled. 
+            channel:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedChannel_MVO'
+            description:
+              type: string
+              description: Description of the transaction
+            note:
+              type: array
+              items:
+                $ref: '#/components/schemas/Note_MVO'
+            transactionItem:
+              type: array
+              items:
+                $ref: '#/components/schemas/CdrTransactionItem_MVO'
+              minItems: 1
+            creationDate:
+              type: string
+              format: date-time
+              description: Date and time when the ProductOrder was created
+            completionDate:
+              type: string
+              format: date-time
+              description: Date when the ProductOrder was completed
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CdrTransaction: '#/components/schemas/CdrTransaction_MVO'
+    Cdr_FVO:
+      type: object
+      description: An occurrence of employing a product for its intended purpose with all rating details
+      properties:
+        cdrDate:
+          type: string
+          format: date-time
+          description: Date of cdr
+          example: '2020-09-21T09:13:16-07:00'
+        description:
+          type: string
+          description: Description of cdr
+          example: Voicemail Retrieval
+        status:
+          $ref: '#/components/schemas/CdrStatusType'
+        cdrType:
+          type: string
+          description: Type of cdr
+        cdrCharacteristic:
+          type: array
+          items:
+            $ref: '#/components/schemas/CdrCharacteristic_FVO'
+        cdrDirectionType:
+          $ref: '#/components/schemas/CdrDirectionType'
+          minItems: 1
+        relatedParty:
+          $ref: '#/components/schemas/RelatedPartyRefOrPartyRoleRef_FVO'
+          minItems: 1
+        ratedCdr:
+          type: array
+          items:
+            $ref: '#/components/schemas/RatedCdr_FVO'
+        isBilled:
+          type: boolean
+          description: Boolean indicating if usage have been billed or not
+        offerTariffType:
+          type: string
+          description: Type of tariff applied
+        ratingAmountType:
+          type: string
+          description: Type of amount
+        amount:
+          $ref: '#/components/schemas/Money'
+        ratingDate:
+          type: string
+          format: date-time
+          description: Date of usage rating
+        isTaxExempt:
+          type: boolean
+          description: Indicates if the rated amount is exempt of tax
+        productRef:
+          $ref: '#/components/schemas/ProductRef_FVO'
+        taxExcludedRatingAmount:
+          $ref: '#/components/schemas/Money'
+        taxIncludedRatingAmount:
+          $ref: '#/components/schemas/Money'
+        taxRate:
+          type: number
+          format: float
+          description: Tax rate
+      required:
+        - isTaxExempt
+        - productRef
+        - taxExcludedRatingAmount
+        - taxIncludedRatingAmount
+        - taxRate
+    Cdr_MVO:
+      type: object
+      description: An occurrence of employing a product for its intended purpose with all rating details
+      properties:
+        cdrDate:
+          type: string
+          format: date-time
+          description: Date of cdr
+          example: '2020-09-21T09:13:16-07:00'
+        description:
+          type: string
+          description: Description of cdr
+          example: Voicemail Retrieval
+        status:
+          $ref: '#/components/schemas/CdrStatusType'
+        cdrType:
+          type: string
+          description: Type of cdr
+        cdrCharacteristic:
+          type: array
+          items:
+            $ref: '#/components/schemas/CdrCharacteristic_MVO'
+        cdrDirectionType:
+          $ref: '#/components/schemas/CdrDirectionType'
+          minItems: 1
+        relatedParty:
+          $ref: '#/components/schemas/RelatedPartyRefOrPartyRoleRef_MVO'
+          minItems: 1
+        ratedCdr:
+          type: array
+          items:
+            $ref: '#/components/schemas/RatedCdr_MVO'
+        isBilled:
+          type: boolean
+          description: Boolean indicating if usage have been billed or not
+        offerTariffType:
+          type: string
+          description: Type of tariff applied
+        ratingAmountType:
+          type: string
+          description: Type of amount
+        amount:
+          $ref: '#/components/schemas/Money'
+        ratingDate:
+          type: string
+          format: date-time
+          description: Date of usage rating
+        isTaxExempt:
+          type: boolean
+          description: Indicates if the rated amount is exempt of tax
+        productRef:
+          $ref: '#/components/schemas/ProductRef_MVO'
+        taxExcludedRatingAmount:
+          $ref: '#/components/schemas/Money'
+        taxIncludedRatingAmount:
+          $ref: '#/components/schemas/Money'
+        taxRate:
+          type: number
+          format: float
+          description: Tax rate
+    ChannelRef:
+      type: object
+      description: >-
+        The channel to which the resource reference to. e.g. channel for selling product offerings,
+        channel for opening a trouble ticket etc..
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ChannelRef: '#/components/schemas/ChannelRef'
+    ChannelRef_FVO:
+      type: object
+      description: >-
+        The channel to which the resource reference to. e.g. channel for selling product offerings,
+        channel for opening a trouble ticket etc..
+      allOf:
+        - $ref: '#/components/schemas/EntityRef_FVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ChannelRef: '#/components/schemas/ChannelRef_FVO'
+    ChannelRef_MVO:
+      type: object
+      description: >-
+        The channel to which the resource reference to. e.g. channel for selling product offerings,
+        channel for opening a trouble ticket etc..
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ChannelRef: '#/components/schemas/ChannelRef_MVO'
+    Characteristic:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Describes a given characteristic of an object or entity through a name/value pair.
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            name:
+              type: string
+              description: Name of the characteristic
+            valueType:
+              type: string
+              description: Data type of the value of the characteristic
+            characteristicRelationship:
+              type: array
+              items:
+                $ref: '#/components/schemas/CharacteristicRelationship'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Characteristic: '#/components/schemas/Characteristic'
+          CdrCharacteristic: '#/components/schemas/CdrCharacteristic'
+    CharacteristicRelationship:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Another Characteristic that is related to the current Characteristic;
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            relationshipType:
+              type: string
+              description: The type of relationship
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CharacteristicRelationship: '#/components/schemas/CharacteristicRelationship'
+    CharacteristicRelationship_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible_FVO'
+        - type: object
+          description: Another Characteristic that is related to the current Characteristic;
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            relationshipType:
+              type: string
+              description: The type of relationship
+          required:
+            - id
+            - relationshipType
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CharacteristicRelationship: '#/components/schemas/CharacteristicRelationship_FVO'
+    CharacteristicRelationship_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Another Characteristic that is related to the current Characteristic;
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            relationshipType:
+              type: string
+              description: The type of relationship
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CharacteristicRelationship: '#/components/schemas/CharacteristicRelationship_MVO'
+    Characteristic_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible_FVO'
+        - type: object
+          description: Describes a given characteristic of an object or entity through a name/value pair.
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            name:
+              type: string
+              description: Name of the characteristic
+            valueType:
+              type: string
+              description: Data type of the value of the characteristic
+            characteristicRelationship:
+              type: array
+              items:
+                $ref: '#/components/schemas/CharacteristicRelationship_FVO'
+          required:
+            - name
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Characteristic: '#/components/schemas/Characteristic_FVO'
+          CdrCharacteristic: '#/components/schemas/CdrCharacteristic_FVO'
+    Characteristic_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Describes a given characteristic of an object or entity through a name/value pair.
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            name:
+              type: string
+              description: Name of the characteristic
+            valueType:
+              type: string
+              description: Data type of the value of the characteristic
+            characteristicRelationship:
+              type: array
+              items:
+                $ref: '#/components/schemas/CharacteristicRelationship_MVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Characteristic: '#/components/schemas/Characteristic_MVO'
+          CdrCharacteristic: '#/components/schemas/CdrCharacteristic_MVO'
+    CustomerBillRef:
+      type: object
+      description: Bill reference.
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CustomerBillRef: '#/components/schemas/CustomerBillRef'
+    CustomerBillRef_FVO:
+      type: object
+      description: Bill reference.
+      allOf:
+        - $ref: '#/components/schemas/EntityRef_FVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CustomerBillRef: '#/components/schemas/CustomerBillRef_FVO'
+    CustomerBillRef_MVO:
+      type: object
+      description: Bill reference.
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CustomerBillRef: '#/components/schemas/CustomerBillRef_MVO'
+    Entity:
+      type: object
+      description: Base entity schema for use in TMForum Open-APIs. Property.
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/Addressable'
+    EntityRef:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/Addressable'
+        - type: object
+          description: Entity reference schema to be use for all entityRef class.
+          properties:
+            id:
+              type: string
+              description: The identifier of the referred entity.
+            href:
+              type: string
+              description: The URI of the referred entity.
+            name:
+              type: string
+              description: Name of the referred entity.
+            '@referredType':
+              type: string
+              description: The actual type of the target instance when needed for disambiguation.
+          required:
+            - id
+    EntityRef_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible_FVO'
+        - $ref: '#/components/schemas/Addressable_FVO'
+        - type: object
+          description: Entity reference schema to be use for all entityRef class.
+          properties:
+            id:
+              type: string
+              description: The identifier of the referred entity.
+            href:
+              type: string
+              description: The URI of the referred entity.
+            name:
+              type: string
+              description: Name of the referred entity.
+            '@referredType':
+              type: string
+              description: The actual type of the target instance when needed for disambiguation.
+          required:
+            - id
+    Entity_FVO:
+      type: object
+      description: Base entity schema for use in TMForum Open-APIs. Property.
+      allOf:
+        - $ref: '#/components/schemas/Extensible_FVO'
+        - $ref: '#/components/schemas/Addressable_FVO'
+    Entity_MVO:
+      type: object
+      description: Base entity schema for use in TMForum Open-APIs. Property.
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+    Event:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: event with common attributes.
+          properties:
+            href:
+              type: string
+              description: Hyperlink reference
+            id:
+              type: string
+              description: unique identifier
+            correlationId:
+              type: string
+              description: The correlation id for this event.
+            domain:
+              type: string
+              description: The domain of the event.
+            title:
+              type: string
+              description: The title of the event.
+            description:
+              type: string
+              description: An explnatory of the event.
+            priority:
+              type: string
+              description: A priority.
+            timeOccurred:
+              type: string
+              format: date-time
+              description: The time the event occurred.
+            source:
+              $ref: '#/components/schemas/EntityRef'
+            reportingSystem:
+              $ref: '#/components/schemas/EntityRef'
+            relatedParty:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedPartyRefOrPartyRoleRef'
+            analyticCharacteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic'
+            eventId:
+              type: string
+              description: The identifier of the notification.
+            eventTime:
+              type: string
+              format: date-time
+              description: Time of the event occurrence.
+            eventType:
+              type: string
+              description: The type of the notification.
+            event:
+              description: The event linked to the involved resource object
+              type: object
+    Event_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: event with common attributes.
+          properties:
+            href:
+              type: string
+              description: Hyperlink reference
+            id:
+              type: string
+              description: unique identifier
+            correlationId:
+              type: string
+              description: The correlation id for this event.
+            domain:
+              type: string
+              description: The domain of the event.
+            title:
+              type: string
+              description: The title of the event.
+            description:
+              type: string
+              description: An explnatory of the event.
+            priority:
+              type: string
+              description: A priority.
+            timeOccurred:
+              type: string
+              format: date-time
+              description: The time the event occurred.
+            source:
+              $ref: '#/components/schemas/EntityRef_FVO'
+            reportingSystem:
+              $ref: '#/components/schemas/EntityRef_FVO'
+            relatedParty:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedPartyRefOrPartyRoleRef_FVO'
+            analyticCharacteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic_FVO'
+            eventId:
+              type: string
+              description: The identifier of the notification.
+            eventTime:
+              type: string
+              format: date-time
+              description: Time of the event occurrence.
+            eventType:
+              type: string
+              description: The type of the notification.
+            event:
+              description: The event linked to the involved resource object
+              type: object
+          required:
+            - eventId
+            - eventTime
+            - eventType
+            - event
+    Event_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: event with common attributes.
+          properties:
+            href:
+              type: string
+              description: Hyperlink reference
+            id:
+              type: string
+              description: unique identifier
+            correlationId:
+              type: string
+              description: The correlation id for this event.
+            domain:
+              type: string
+              description: The domain of the event.
+            title:
+              type: string
+              description: The title of the event.
+            description:
+              type: string
+              description: An explnatory of the event.
+            priority:
+              type: string
+              description: A priority.
+            timeOccurred:
+              type: string
+              format: date-time
+              description: The time the event occurred.
+            source:
+              $ref: '#/components/schemas/EntityRef'
+            reportingSystem:
+              $ref: '#/components/schemas/EntityRef'
+            relatedParty:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedPartyRefOrPartyRoleRef_MVO'
+            analyticCharacteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic_MVO'
+            eventId:
+              type: string
+              description: The identifier of the notification.
+            eventTime:
+              type: string
+              format: date-time
+              description: Time of the event occurrence.
+            eventType:
+              type: string
+              description: The type of the notification.
+            event:
+              description: The event linked to the involved resource object
+              type: object
+          required:
+            - eventId
+            - eventTime
+            - eventType
+            - event
+    Extensible:
+      type: object
+      description: >-
+        Base Extensible schema for use in TMForum Open-APIs - When used for in a schema it means
+        that the Entity described by the schema  MUST be extended with the @type
+      properties:
+        '@type':
+          type: string
+          description: 'When sub-classing, this defines the sub-class Extensible name'
+        '@baseType':
+          type: string
+          description: 'When sub-classing, this defines the super-class'
+        '@schemaLocation':
+          type: string
+          description: A URI to a JSON-Schema file that defines additional attributes and relationships
+      required:
+        - '@type'
+    Extensible_FVO:
+      type: object
+      description: >-
+        Base Extensible schema for use in TMForum Open-APIs - When used for in a schema it means
+        that the Entity described by the schema  MUST be extended with the @type
+      properties:
+        '@type':
+          type: string
+          description: 'When sub-classing, this defines the sub-class Extensible name'
+        '@baseType':
+          type: string
+          description: 'When sub-classing, this defines the super-class'
+        '@schemaLocation':
+          type: string
+          description: A URI to a JSON-Schema file that defines additional attributes and relationships
+      required:
+        - '@type'
+    ItemActionType:
+      enum:
+        - add
+        - modify
+        - delete
+        - noChange
+      type: string
+      description: action to be performed on the entity managed by the item
+    Money:
+      type: object
+      description: A base / value business entity used to represent money
+      properties:
+        unit:
+          type: string
+          description: Currency (ISO4217 norm uses 3 letters to define the currency)
+        value:
+          type: number
+          format: float
+          description: >-
+            A signed floating point number, the meaning of the sign is according to the context of
+            the API that uses this Data type
+    Note:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Extra information about a given entity
+          properties:
+            id:
+              type: string
+              description: Identifier of the note within its containing entity
+              example: afa9-3d90aaa8da0f
+            author:
+              type: string
+              description: Author of the note
+              example: Mr. N. Bene
+            date:
+              type: string
+              format: date-time
+              description: Date of the note
+              example: '2020-11-20T08:00:00Z'
+            text:
+              type: string
+              description: Text of the note
+              example: This is important
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Note: '#/components/schemas/Note'
+    Note_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible_FVO'
+        - type: object
+          description: Extra information about a given entity
+          properties:
+            id:
+              type: string
+              description: Identifier of the note within its containing entity
+              example: afa9-3d90aaa8da0f
+            author:
+              type: string
+              description: Author of the note
+              example: Mr. N. Bene
+            date:
+              type: string
+              format: date-time
+              description: Date of the note
+              example: '2020-11-20T08:00:00Z'
+            text:
+              type: string
+              description: Text of the note
+              example: This is important
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Note: '#/components/schemas/Note_FVO'
+    Note_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Extra information about a given entity
+          properties:
+            id:
+              type: string
+              description: Identifier of the note within its containing entity
+              example: afa9-3d90aaa8da0f
+            author:
+              type: string
+              description: Author of the note
+              example: Mr. N. Bene
+            date:
+              type: string
+              format: date-time
+              description: Date of the note
+              example: '2020-11-20T08:00:00Z'
+            text:
+              type: string
+              description: Text of the note
+              example: This is important
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Note: '#/components/schemas/Note_MVO'
+    PartyRef:
+      type: object
+      description: A Party reference
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PartyRef: '#/components/schemas/PartyRef'
+    PartyRefOrPartyRoleRef:
+      type: object
+      description: ''
+      oneOf:
+        - $ref: '#/components/schemas/PartyRef'
+        - $ref: '#/components/schemas/PartyRoleRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PartyRef: '#/components/schemas/PartyRef'
+          PartyRoleRef: '#/components/schemas/PartyRoleRef'
+    PartyRefOrPartyRoleRef_FVO:
+      type: object
+      description: ''
+      oneOf:
+        - $ref: '#/components/schemas/PartyRef_FVO'
+        - $ref: '#/components/schemas/PartyRoleRef_FVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PartyRef: '#/components/schemas/PartyRef_FVO'
+          PartyRoleRef: '#/components/schemas/PartyRoleRef_FVO'
+    PartyRefOrPartyRoleRef_MVO:
+      type: object
+      description: ''
+      oneOf:
+        - $ref: '#/components/schemas/PartyRef_MVO'
+        - $ref: '#/components/schemas/PartyRoleRef_MVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PartyRef: '#/components/schemas/PartyRef_MVO'
+          PartyRoleRef: '#/components/schemas/PartyRoleRef_MVO'
+    PartyRef_FVO:
+      type: object
+      description: A Party reference
+      allOf:
+        - $ref: '#/components/schemas/EntityRef_FVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PartyRef: '#/components/schemas/PartyRef_FVO'
+    PartyRef_MVO:
+      type: object
+      description: A Party reference
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PartyRef: '#/components/schemas/PartyRef_MVO'
+    PartyRoleRef:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+        - type: object
+          description: >-
+            Party role reference. A party role represents the part played by a party in a given
+            context.
+          properties:
+            partyId:
+              type: string
+              description: The identifier of the engaged party that is linked to the PartyRole object.
+            partyName:
+              type: string
+              description: The name of the engaged party that is linked to the PartyRole object.
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PartyRoleRef: '#/components/schemas/PartyRoleRef'
+    PartyRoleRef_FVO:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef_FVO'
+        - type: object
+          description: >-
+            Party role reference. A party role represents the part played by a party in a given
+            context.
+          properties:
+            partyId:
+              type: string
+              description: The identifier of the engaged party that is linked to the PartyRole object.
+            partyName:
+              type: string
+              description: The name of the engaged party that is linked to the PartyRole object.
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PartyRoleRef: '#/components/schemas/PartyRoleRef_FVO'
+    PartyRoleRef_MVO:
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+        - type: object
+          description: >-
+            Party role reference. A party role represents the part played by a party in a given
+            context.
+          properties:
+            partyId:
+              type: string
+              description: The identifier of the engaged party that is linked to the PartyRole object.
+            partyName:
+              type: string
+              description: The name of the engaged party that is linked to the PartyRole object.
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PartyRoleRef: '#/components/schemas/PartyRoleRef_MVO'
+    PaymentRef:
+      type: object
+      description: >-
+        If an immediate payment has been done at the product order submission, the payment
+        information are captured and stored (as a reference) in the order.
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/EntityRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PaymentRef: '#/components/schemas/PaymentRef'
+    PaymentRef_FVO:
+      type: object
+      description: >-
+        If an immediate payment has been done at the product order submission, the payment
+        information are captured and stored (as a reference) in the order.
+      allOf:
+        - $ref: '#/components/schemas/Extensible_FVO'
+        - $ref: '#/components/schemas/EntityRef_FVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PaymentRef: '#/components/schemas/PaymentRef_FVO'
+    PaymentRef_MVO:
+      type: object
+      description: >-
+        If an immediate payment has been done at the product order submission, the payment
+        information are captured and stored (as a reference) in the order.
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/EntityRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          PaymentRef: '#/components/schemas/PaymentRef_MVO'
+    ProductRef:
+      type: object
+      description: A Product reference
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/EntityRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ProductRef: '#/components/schemas/ProductRef'
+    ProductRef_FVO:
+      type: object
+      description: A Product reference
+      allOf:
+        - $ref: '#/components/schemas/Extensible_FVO'
+        - $ref: '#/components/schemas/EntityRef_FVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ProductRef: '#/components/schemas/ProductRef_FVO'
+    ProductRef_MVO:
+      type: object
+      description: A Product reference
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/EntityRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ProductRef: '#/components/schemas/ProductRef_MVO'
+    RatedCdr:
+      type: object
+      description: An occurrence of employing a cdr for its intended purpose with all rating details
+      properties:
+        isBilled:
+          type: boolean
+          description: Boolean indicating if usage have been billed or not
+        offerTariffType:
+          type: string
+          description: Type of tariff applied
+        ratingAmountType:
+          type: string
+          description: Type of amount
+        ratingDate:
+          type: string
+          format: date-time
+          description: Date of usage rating
+        isTaxExempt:
+          type: boolean
+          description: Indicates if the rated amount is exempt of tax
+        productRef:
+          $ref: '#/components/schemas/ProductRef'
+        taxExcludedRatingAmount:
+          $ref: '#/components/schemas/Money'
+        taxIncludedRatingAmount:
+          $ref: '#/components/schemas/Money'
+        taxRate:
+          type: number
+          format: float
+          description: Tax rate
+    RatedCdr_FVO:
+      type: object
+      description: An occurrence of employing a cdr for its intended purpose with all rating details
+      properties:
+        isBilled:
+          type: boolean
+          description: Boolean indicating if usage have been billed or not
+        offerTariffType:
+          type: string
+          description: Type of tariff applied
+        ratingAmountType:
+          type: string
+          description: Type of amount
+        ratingDate:
+          type: string
+          format: date-time
+          description: Date of usage rating
+        isTaxExempt:
+          type: boolean
+          description: Indicates if the rated amount is exempt of tax
+        productRef:
+          $ref: '#/components/schemas/ProductRef_FVO'
+        taxExcludedRatingAmount:
+          $ref: '#/components/schemas/Money'
+        taxIncludedRatingAmount:
+          $ref: '#/components/schemas/Money'
+        taxRate:
+          type: number
+          format: float
+          description: Tax rate
+      required:
+        - isTaxExempt
+        - productRef
+        - taxExcludedRatingAmount
+        - taxIncludedRatingAmount
+        - taxRate
+    RatedCdr_MVO:
+      type: object
+      description: An occurrence of employing a cdr for its intended purpose with all rating details
+      properties:
+        isBilled:
+          type: boolean
+          description: Boolean indicating if usage have been billed or not
+        offerTariffType:
+          type: string
+          description: Type of tariff applied
+        ratingAmountType:
+          type: string
+          description: Type of amount
+        ratingDate:
+          type: string
+          format: date-time
+          description: Date of usage rating
+        isTaxExempt:
+          type: boolean
+          description: Indicates if the rated amount is exempt of tax
+        productRef:
+          $ref: '#/components/schemas/ProductRef_MVO'
+        taxExcludedRatingAmount:
+          $ref: '#/components/schemas/Money'
+        taxIncludedRatingAmount:
+          $ref: '#/components/schemas/Money'
+        taxRate:
+          type: number
+          format: float
+          description: Tax rate
+    RelatedChannel:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: 'Related channel to another entity. May be online web, mobile app, social ,etc.'
+          properties:
+            role:
+              type: string
+            channel:
+              $ref: '#/components/schemas/ChannelRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedChannel: '#/components/schemas/RelatedChannel'
+    RelatedChannel_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible_FVO'
+        - type: object
+          description: 'Related channel to another entity. May be online web, mobile app, social ,etc.'
+          properties:
+            role:
+              type: string
+            channel:
+              $ref: '#/components/schemas/ChannelRef_FVO'
+          required:
+            - role
+            - channel
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedChannel: '#/components/schemas/RelatedChannel_FVO'
+    RelatedChannel_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: 'Related channel to another entity. May be online web, mobile app, social ,etc.'
+          properties:
+            role:
+              type: string
+            channel:
+              $ref: '#/components/schemas/ChannelRef_MVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedChannel: '#/components/schemas/RelatedChannel_MVO'
+    RelatedPartyRefOrPartyRoleRef:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            RelatedParty reference. A related party defines party or party role or its reference,
+            linked to a specific entity
+          properties:
+            role:
+              description: >-
+                Role played by the related party or party role in the context of the specific entity
+                it is linked to. Such as 'initiator', 'customer',  'salesAgent', 'user'
+              type: string
+            partyOrPartyRole:
+              $ref: '#/components/schemas/PartyRefOrPartyRoleRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedPartyRefOrPartyRoleRef: '#/components/schemas/RelatedPartyRefOrPartyRoleRef'
+    RelatedPartyRefOrPartyRoleRef_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible_FVO'
+        - type: object
+          description: >-
+            RelatedParty reference. A related party defines party or party role or its reference,
+            linked to a specific entity
+          properties:
+            role:
+              description: >-
+                Role played by the related party or party role in the context of the specific entity
+                it is linked to. Such as 'initiator', 'customer',  'salesAgent', 'user'
+              type: string
+            partyOrPartyRole:
+              $ref: '#/components/schemas/PartyRefOrPartyRoleRef_FVO'
+          required:
+            - role
+            - partyOrPartyRole
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedPartyRefOrPartyRoleRef: '#/components/schemas/RelatedPartyRefOrPartyRoleRef_FVO'
+    RelatedPartyRefOrPartyRoleRef_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: >-
+            RelatedParty reference. A related party defines party or party role or its reference,
+            linked to a specific entity
+          properties:
+            role:
+              description: >-
+                Role played by the related party or party role in the context of the specific entity
+                it is linked to. Such as 'initiator', 'customer',  'salesAgent', 'user'
+              type: string
+            partyOrPartyRole:
+              $ref: '#/components/schemas/PartyRefOrPartyRoleRef_MVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedPartyRefOrPartyRoleRef: '#/components/schemas/RelatedPartyRefOrPartyRoleRef_MVO'
+    Error:
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Error: '#/components/schemas/Error'
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          required:
+            - code
+            - reason
+          properties:
+            code:
+              type: string
+              description: 'Application relevant detail, defined in the API or a common list.'
+            reason:
+              type: string
+              description: Explanation of the reason for the error which can be shown to a client user.
+            message:
+              type: string
+              description: >-
+                More details and corrective actions related to the error which can be shown to a
+                client user.
+            status:
+              type: string
+              description: HTTP Error code extension
+            referenceError:
+              type: string
+              description: URI of documentation describing the error.
+      description: 'Used when an API throws an Error, typically with a HTTP error response-code (3xx, 4xx, 5xx)'
+    Hub_FVO:
+      type: object
+      description: >-
+        Sets the communication endpoint address the service instance must use to deliver
+        notification information
+      required:
+        - callback
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - properties:
+            callback:
+              type: string
+              description: The callback being registered.
+            query:
+              type: string
+              description: additional data to be passed
+    Hub:
+      type: object
+      description: >-
+        Sets the communication endpoint address the service instance must use to deliver
+        notification information
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - properties:
+            id:
+              type: string
+              description: Id of the listener
+            callback:
+              type: string
+              description: The callback being registered.
+            query:
+              type: string
+              description: additional data to be passed
+          required:
+            - callback
+    JsonPatch:
+      type: object
+      description: A JSONPatch document as defined by RFC 6902
+      required:
+        - op
+        - path
+      properties:
+        op:
+          type: string
+          description: The operation to be performed
+          enum:
+            - add
+            - remove
+            - replace
+            - move
+            - copy
+            - test
+        path:
+          type: string
+          description: A JSON-Pointer
+        value:
+          description: The value to be used within the operations.
+        from:
+          type: string
+          description: A string containing a JSON Pointer value.
+    JsonPatchOperations:
+      description: JSONPatch Operations document as defined by RFC 6902
+      type: array
+      items:
+        $ref: '#/components/schemas/JsonPatch'
+  parameters:
+    Id:
+      name: id
+      required: true
+      schema:
+        type: string
+      in: path
+      description: Identifier of the Resource
+    Fields:
+      name: fields
+      in: query
+      description: Comma-separated properties to be provided in response
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: Requested index for start of resources to be provided in response
+      schema:
+        type: integer
+    Limit:
+      name: limit
+      in: query
+      description: Requested number of resources to be provided in response
+      schema:
+        type: integer
+  requestBodies:
+    CdrTransaction_FVO:
+      description: The CdrTransaction to be created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CdrTransaction_FVO'
+          examples:
+            CreateCdrTransaction:
+              $ref: '#/components/examples/CreateCdrTransaction_request'
+      required: true
+    CdrTransaction_MVO:
+      description: The CdrTransaction to be patched
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CdrTransaction_MVO'
+          examples:
+            CdrTransaction_partial_update_application_json_exapmles:
+              $ref: >-
+                #/components/examples/CdrTransaction_partial_update_application_json_exapmles_request
+        application/merge-patch+json:
+          schema:
+            $ref: '#/components/schemas/CdrTransaction_MVO'
+          examples:
+            CdrTransaction_partial_update_application_merge-patch_json_exapmles:
+              $ref: >-
+                #/components/examples/CdrTransaction_partial_update_application_merge-patch_json_exapmles_request
+        application/json-patch+json:
+          schema:
+            $ref: '#/components/schemas/JsonPatchOperations'
+          examples:
+            CdrTransaction_partial_update_application_json-patch_json_exapmles:
+              $ref: >-
+                #/components/examples/CdrTransaction_partial_update_application_json-patch_json_exapmles_request
+        application/json-patch-query+json:
+          schema:
+            $ref: '#/components/schemas/JsonPatchOperations'
+          examples:
+            CdrTransaction_partial_update_application_json-patch-query_json_exapmles:
+              $ref: >-
+                #/components/examples/CdrTransaction_partial_update_application_json-patch-query_json_exapmles_request
+      required: true
+    CdrTransactionCreateEvent:
+      description: CdrTransaction create Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CdrTransactionCreateEvent'
+          examples:
+            CdrTransactionCreateEvent:
+              $ref: '#/components/examples/CdrTransactionCreateEvent_request'
+      required: true
+    CdrTransactionStateChangeEvent:
+      description: CdrTransaction stateChange Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CdrTransactionStateChangeEvent'
+          examples:
+            CdrTransactionStateChangeEvent:
+              $ref: '#/components/examples/CdrTransactionStateChangeEvent_request'
+      required: true
+    CdrTransactionDeleteEvent:
+      description: CdrTransaction delete Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CdrTransactionDeleteEvent'
+          examples:
+            CdrTransactionDeleteEvent:
+              $ref: '#/components/examples/CdrTransactionDeleteEvent_request'
+      required: true
+    CdrTransactionAttributeValueChangeEvent:
+      description: CdrTransaction attributeValueChange Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CdrTransactionAttributeValueChangeEvent'
+          examples:
+            CdrTransactionAttributeValueChangeEvent:
+              $ref: '#/components/examples/CdrTransactionAttributeValueChangeEvent_request'
+      required: true
+    Hub_FVO:
+      description: Data containing the callback endpoint to deliver the information
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Hub_FVO'
+      required: true
+  responses:
+    '200':
+      description: OK
+    '202':
+      description: Accepted
+    '204':
+      description: Deleted
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '403':
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '405':
+      description: Method Not allowed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '409':
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '501':
+      description: Not Implemented
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '503':
+      description: Service Unavailable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    200CdrTransactionArray:
+      description: Success
+      headers:
+        X-Total-Count:
+          $ref: '#/components/headers/X-Total-Count'
+        X-Result-Count:
+          $ref: '#/components/headers/X-Result-Count'
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/CdrTransaction'
+          examples:
+            cdr_transaction_list_example:
+              $ref: '#/components/examples/cdr_transaction_list_example_response'
+    200CdrTransaction_Get:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CdrTransaction'
+          examples:
+            cdr_transaction_retrieve_example:
+              $ref: '#/components/examples/cdr_transaction_retrieve_example_response'
+    200CdrTransaction_Patch:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CdrTransaction'
+          examples:
+            CdrTransaction_partial_update_application_json_exapmles:
+              $ref: >-
+                #/components/examples/CdrTransaction_partial_update_application_json_exapmles_response
+        application/merge-patch+json:
+          schema:
+            $ref: '#/components/schemas/CdrTransaction'
+          examples:
+            CdrTransaction_partial_update_application_merge-patch_json_exapmles:
+              $ref: >-
+                #/components/examples/CdrTransaction_partial_update_application_merge-patch_json_exapmles_response
+        application/json-patch+json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/CdrTransaction'
+              - type: array
+                items:
+                  $ref: '#/components/schemas/CdrTransaction'
+              - type: string
+                nullable: true
+          examples:
+            CdrTransaction_partial_update_application_json-patch_json_exapmles:
+              $ref: >-
+                #/components/examples/CdrTransaction_partial_update_application_json-patch_json_exapmles_response
+        application/json-patch-query+json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/CdrTransaction'
+              - type: array
+                items:
+                  $ref: '#/components/schemas/CdrTransaction'
+              - type: string
+                nullable: true
+          examples:
+            CdrTransaction_partial_update_application_json-patch-query_json_exapmles:
+              $ref: >-
+                #/components/examples/CdrTransaction_partial_update_application_json-patch-query_json_exapmles_response
+    201CdrTransaction:
+      description: OK/Created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CdrTransaction'
+          examples:
+            CreateCdrTransaction:
+              $ref: '#/components/examples/CreateCdrTransaction_response'
+    Error:
+      description: Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Hub:
+      description: Notified
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Hub'
+  headers:
+    X-Total-Count:
+      description: Total number of items matching criteria
+      schema:
+        type: integer
+    X-Result-Count:
+      description: Actual number of items returned in the response body
+      schema:
+        type: integer
+  securitySchemes: {}
+  examples:
+    cdr_transaction_list_example_response:
+      value:
+        - '@type': CdrTransaction
+          href: 'https://mycsp.com:8080/tmf-api/CdrTransactionManagement/v5/CdrTransaction/1810'
+          id: '1810'
+          relatedParty:
+            - '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            - '@type': RelatedPartyRefOrPartyRoleRef
+              role: revenueSharingModelOwner
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+                id: '2779'
+                name: Mobi Service Providor
+                '@referredType': Organization
+          state: charged
+          requestedInitialState: charged
+          channel:
+            - '@type': RelatedChannel
+              role: revenueSharingDepartment
+              channel:
+                '@type': ChannelRef
+                href: 'https://mycsp.com:8080/tmf-api/channelManagement/v5/channel/1777'
+                id: '1777'
+                name: revenue sharing department
+                '@referredType': Channel
+          description: the transaction of MyFirstPartner revenue share
+          transactionItem:
+            - '@type': CdrTransactionItem
+              state: billed
+              id: '18101'
+              action: add
+              cdr:
+                - cdrDate: '2020-09-21T09:13:16-07:00'
+                  description: Mobile handset 2023 distribution price
+                  status: charged
+                  id: '181011'
+                  cdrType: revenue share
+                  relatedParty:
+                    '@type': RelatedPartyRefOrPartyRoleRef
+                    role: distributor
+                    partyOrPartyRole:
+                      '@type': PartyRef
+                      href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                      id: '2777'
+                      name: MyFirstPartner
+                      '@referredType': Organization
+                  isBilled: true
+                  productRef:
+                    '@type': ProductRef
+                    href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                    id: '7810'
+                    name: Mobile handset 2023 product of MyFirstPartner
+                    '@referredType': Product
+                  taxExcludedRatingAmount:
+                    unit: USD
+                    value: 0
+                  taxIncludedRatingAmount:
+                    unit: USD
+                    value: 0
+                  taxRate: 0
+                  amount:
+                    unit: USD
+                    value: 50000
+              relatedParty:
+                '@type': RelatedPartyRefOrPartyRoleRef
+                role: distributor
+                partyOrPartyRole:
+                  '@type': PartyRef
+                  href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                  id: '2777'
+                  name: MyFirstPartner
+                  '@referredType': Organization
+              bill:
+                - '@type': CustomerBillRef
+                  href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                  id: '2001'
+                  name: Customer 202302 bill of MyFirstPartner
+                  '@referredType': CustomerBill
+              payment:
+                - '@type': PaymentRef
+                  href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/Payment/5001'
+                  id: '5001'
+                  name: Customer 202302 bill payment of MyFirstPartner
+                  '@referredType': Payment
+            - '@type': CdrTransactionItem
+              state: billed
+              id: '18102'
+              action: add
+              cdr:
+                - cdrDate: '2020-09-21T09:13:16-07:00'
+                  description: smart speakers 2023 distribution price
+                  status: charged
+                  id: '181021'
+                  cdrType: revenue share
+                  relatedParty:
+                    '@type': RelatedPartyRefOrPartyRoleRef
+                    role: distributor
+                    partyOrPartyRole:
+                      '@type': PartyRef
+                      href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                      id: '2777'
+                      name: MyFirstPartner
+                      '@referredType': Organization
+                  isBilled: true
+                  productRef:
+                    '@type': ProductRef
+                    id: '7811'
+                    name: Smart speakers 2023 product of MyFirstPartner
+                    '@referredType': Product
+                  taxExcludedRatingAmount:
+                    unit: USD
+                    value: 0
+                  taxIncludedRatingAmount:
+                    unit: USD
+                    value: 0
+                  taxRate: 0
+                  amount:
+                    unit: USD
+                    value: 30000
+              relatedParty:
+                '@type': RelatedPartyRefOrPartyRoleRef
+                role: distributor
+                partyOrPartyRole:
+                  '@type': PartyRef
+                  href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                  id: '2777'
+                  name: MyFirstPartner
+                  '@referredType': Organization
+              bill:
+                - '@type': CustomerBillRef
+                  href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                  id: '2001'
+                  name: Customer 202302 bill of MyFirstPartner
+                  '@referredType': CustomerBill
+              payment:
+                - '@type': PaymentRef
+                  href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/Payment/5001'
+                  id: '5001'
+                  name: Customer 202302 bill payment of MyFirstPartner
+                  '@referredType': Payment
+            - '@type': CdrTransactionItem
+              state: billed
+              id: '18103'
+              action: add
+              cdr:
+                - cdrDate: '2020-09-21T09:13:16-07:00'
+                  description: Mobile handset 2023 distribution price
+                  status: charged
+                  id: '181031'
+                  cdrType: revenue share
+                  relatedParty:
+                    '@type': RelatedPartyRefOrPartyRoleRef
+                    role: revenueSharingModelOwner
+                    partyOrPartyRole:
+                      '@type': PartyRef
+                      href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+                      id: '2779'
+                      name: Mobi Service Providor
+                      '@referredType': Organization
+                  isBilled: true
+                  productRef:
+                    '@type': ProductRef
+                    href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                    id: '7810'
+                    name: Mobile handset 2023 product of MyFirstPartner
+                    '@referredType': Product
+                  taxExcludedRatingAmount:
+                    unit: USD
+                    value: 0
+                  taxIncludedRatingAmount:
+                    unit: USD
+                    value: 0
+                  taxRate: 0
+                  amount:
+                    unit: USD
+                    value: 60000
+              relatedParty:
+                '@type': RelatedPartyRefOrPartyRoleRef
+                role: distributor
+                partyOrPartyRole:
+                  '@type': PartyRef
+                  href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                  id: '2777'
+                  name: MyFirstPartner
+                  '@referredType': Organization
+              bill:
+                - '@type': CustomerBillRef
+                  href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2002'
+                  id: '2002'
+                  name: Customer 202302 bill of MyFirstPartner
+                  '@referredType': CustomerBill
+          creationDate: '2023-03-10T07:37:23.112Z'
+          completionDate: '2023-03-10T07:37:23.112Z'
+      description: Here's an example of a request for retrieving multiple cdr transactions.
+    cdr_transaction_retrieve_example_response:
+      value:
+        '@type': CdrTransaction
+        href: 'https://mycsp.com:8080/tmf-api/CdrTransactionManagement/v5/CdrTransaction/1810'
+        id: '1810'
+        relatedParty:
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: distributor
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+              id: '2777'
+              name: MyFirstPartner
+              '@referredType': Organization
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: revenueSharingModelOwner
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+              id: '2779'
+              name: Mobi Service Providor
+              '@referredType': Organization
+        state: charged
+        requestedInitialState: charged
+        channel:
+          - '@type': RelatedChannel
+            role: revenueSharingDepartment
+            channel:
+              '@type': ChannelRef
+              href: 'https://mycsp.com:8080/tmf-api/channelManagement/v5/channel/1777'
+              id: '1777'
+              name: revenue sharing department
+              '@referredType': Channel
+        description: the transaction of MyFirstPartner revenue share
+        transactionItem:
+          - '@type': CdrTransactionItem
+            state: billed
+            id: '18101'
+            action: add
+            cdr:
+              - cdrDate: '2020-09-21T09:13:16-07:00'
+                description: Mobile handset 2023 distribution price
+                status: charged
+                id: '181011'
+                cdrType: revenue share
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                isBilled: true
+                productRef:
+                  '@type': ProductRef
+                  href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                  id: '7810'
+                  name: Mobile handset 2023 product of MyFirstPartner
+                  '@referredType': Product
+                taxExcludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxIncludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxRate: 0
+                amount:
+                  unit: USD
+                  value: 50000
+            relatedParty:
+              '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            bill:
+              - '@type': CustomerBillRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                id: '2001'
+                name: Customer 202302 bill of MyFirstPartner
+                '@referredType': CustomerBill
+            payment:
+              - '@type': PaymentRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/Payment/5001'
+                id: '5001'
+                name: Customer 202302 bill payment of MyFirstPartner
+                '@referredType': Payment
+          - '@type': CdrTransactionItem
+            state: billed
+            id: '18102'
+            action: add
+            cdr:
+              - cdrDate: '2020-09-21T09:13:16-07:00'
+                description: smart speakers 2023 distribution price
+                status: charged
+                id: '181021'
+                cdrType: revenue share
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                isBilled: true
+                productRef:
+                  '@type': ProductRef
+                  href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7811'
+                  id: '7811'
+                  name: Smart speakers 2023 product of MyFirstPartner
+                  '@referredType': Product
+                taxExcludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxIncludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxRate: 0
+                amount:
+                  unit: USD
+                  value: 30000
+            relatedParty:
+              '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            bill:
+              - '@type': CustomerBillRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                id: '2001'
+                name: Customer 202302 bill of MyFirstPartner
+                '@referredType': CustomerBill
+            payment:
+              - '@type': PaymentRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/Payment/5001'
+                id: '5001'
+                name: Customer 202302 bill payment of MyFirstPartner
+                '@referredType': Payment
+          - '@type': CdrTransactionItem
+            state: billed
+            id: '18103'
+            action: add
+            cdr:
+              - cdrDate: '2020-09-21T09:13:16-07:00'
+                description: Mobile handset 2023 distribution price
+                status: charged
+                id: '181031'
+                cdrType: revenue share
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: revenueSharingModelOwner
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+                    id: '2779'
+                    name: Mobi Service Providor
+                    '@referredType': Organization
+                isBilled: true
+                productRef:
+                  '@type': ProductRef
+                  href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                  id: '7810'
+                  name: Mobile handset 2023 product of MyFirstPartner
+                  '@referredType': Product
+                taxExcludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxIncludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxRate: 0
+                amount:
+                  unit: USD
+                  value: 60000
+            relatedParty:
+              '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            bill:
+              - '@type': CustomerBillRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2002'
+                id: '2002'
+                name: Customer 202302 bill of MyFirstPartner
+                '@referredType': CustomerBill
+        creationDate: '2023-03-10T07:37:23.112Z'
+        completionDate: '2023-03-10T07:37:23.112Z'
+      description: Here's an example of a request for retrieving a specific cdr transaction.
+    CreateCdrTransaction_request:
+      value:
+        '@type': CdrTransaction
+        relatedParty:
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: distributor
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+              id: '2777'
+              name: MyFirstPartner
+              '@referredType': Organization
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: revenueSharingModelOwner
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+              id: '2779'
+              name: Mobi Service Providor
+              '@referredType': Organization
+        state: charged
+        requestedInitialState: charged
+        channel:
+          - '@type': RelatedChannel
+            role: revenueSharingDepartment
+            channel:
+              '@type': ChannelRef
+              href: 'https://mycsp.com:8080/tmf-api/channelManagement/v5/channel/1777'
+              id: '1777'
+              name: revenue sharing department
+              '@referredType': Channel
+        description: the transaction of MyFirstPartner revenue share
+        transactionItem:
+          - '@type': CdrTransactionItem
+            state: billed
+            action: add
+            cdr:
+              - cdrDate: '2020-09-21T09:13:16-07:00'
+                description: Mobile handset 2023 distribution price
+                status: charged
+                cdrType: revenue share
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                isBilled: true
+                isTaxExempt: false
+                productRef:
+                  '@type': ProductRef
+                  href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                  id: '7810'
+                  name: Mobile handset 2023 product of MyFirstPartner
+                  '@referredType': Product
+                taxExcludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxIncludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxRate: 0
+                amount:
+                  unit: USD
+                  value: 50000
+            relatedParty:
+              '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            bill:
+              - '@type': CustomerBillRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                id: '2001'
+                name: Customer 202302 bill of MyFirstPartner
+                '@referredType': CustomerBill
+            payment:
+              - '@type': PaymentRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/Payment/5001'
+                id: '5001'
+                name: Customer 202302 bill payment of MyFirstPartner
+                '@referredType': Payment
+          - '@type': CdrTransactionItem
+            state: billed
+            action: add
+            cdr:
+              - cdrDate: '2020-09-21T09:13:16-07:00'
+                description: smart speakers 2023 distribution price
+                status: charged
+                cdrType: revenue share
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                isBilled: true
+                isTaxExempt: false
+                productRef:
+                  '@type': ProductRef
+                  href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7811'
+                  id: '7811'
+                  name: Smart speakers 2023 product of MyFirstPartner
+                  '@referredType': Product
+                taxExcludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxIncludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxRate: 0
+                amount:
+                  unit: USD
+                  value: 30000
+            relatedParty:
+              '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            bill:
+              - '@type': CustomerBillRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                id: '2001'
+                name: Customer 202302 bill of MyFirstPartner
+                '@referredType': CustomerBill
+            payment:
+              - '@type': PaymentRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/Payment/5001'
+                id: '5001'
+                name: Customer 202302 bill payment of MyFirstPartner
+                '@referredType': Payment
+          - '@type': CdrTransactionItem
+            state: billed
+            action: add
+            cdr:
+              - cdrDate: '2020-09-21T09:13:16-07:00'
+                description: Mobile handset 2023 distribution price
+                status: charged
+                cdrType: revenue share
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: revenueSharingModelOwner
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+                    id: '2779'
+                    name: Mobi Service Providor
+                    '@referredType': Organization
+                isBilled: true
+                isTaxExempt: false
+                productRef:
+                  '@type': ProductRef
+                  href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                  id: '7810'
+                  name: Mobile handset 2023 product of MyFirstPartner
+                  '@referredType': Product
+                taxExcludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxIncludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxRate: 0
+                amount:
+                  unit: USD
+                  value: 60000
+            relatedParty:
+              '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            bill:
+              - '@type': CustomerBillRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2002'
+                id: '2002'
+                name: Customer 202302 bill of MyFirstPartner
+                '@referredType': CustomerBill
+        creationDate: '2023-03-10T07:37:23.112Z'
+        completionDate: '2023-03-10T07:37:23.112Z'
+      description: POST CdrTransaction request example
+    CreateCdrTransaction_response:
+      value:
+        '@type': CdrTransaction
+        href: 'https://mycsp.com:8080/tmf-api/CdrTransactionManagement/v5/CdrTransaction/1810'
+        id: '1810'
+        relatedParty:
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: distributor
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+              id: '2777'
+              name: MyFirstPartner
+              '@referredType': Organization
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: revenueSharingModelOwner
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+              id: '2779'
+              name: Mobi Service Providor
+              '@referredType': Organization
+        state: charged
+        requestedInitialState: charged
+        channel:
+          - '@type': RelatedChannel
+            role: revenueSharingDepartment
+            channel:
+              '@type': ChannelRef
+              href: 'https://mycsp.com:8080/tmf-api/channelManagement/v5/channel/1777'
+              id: '1777'
+              name: revenue sharing department
+              '@referredType': Channel
+        description: the transaction of MyFirstPartner revenue share
+        transactionItem:
+          - '@type': CdrTransactionItem
+            state: billed
+            id: '18101'
+            action: add
+            cdr:
+              - cdrDate: '2020-09-21T09:13:16-07:00'
+                description: Mobile handset 2023 distribution price
+                status: charged
+                cdrType: revenue share
+                id: '181011'
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                isBilled: true
+                isTaxExempt: false
+                productRef:
+                  '@type': ProductRef
+                  href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                  id: '7810'
+                  name: Mobile handset 2023 product of MyFirstPartner
+                  '@referredType': Product
+                taxExcludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxIncludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxRate: 0
+                amount:
+                  unit: USD
+                  value: 50000
+            relatedParty:
+              '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            bill:
+              - '@type': CustomerBillRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                id: '2001'
+                name: Customer 202302 bill of MyFirstPartner
+                '@referredType': CustomerBill
+            payment:
+              - '@type': PaymentRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/Payment/5001'
+                id: '5001'
+                name: Customer 202302 bill payment of MyFirstPartner
+                '@referredType': Payment
+          - '@type': CdrTransactionItem
+            state: billed
+            id: '18102'
+            action: add
+            cdr:
+              - cdrDate: '2020-09-21T09:13:16-07:00'
+                description: smart speakers 2023 distribution price
+                status: charged
+                id: '181021'
+                cdrType: revenue share
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                isBilled: true
+                isTaxExempt: false
+                productRef:
+                  '@type': ProductRef
+                  href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7811'
+                  id: '7811'
+                  name: Smart speakers 2023 product of MyFirstPartner
+                  '@referredType': Product
+                taxExcludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxIncludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxRate: 0
+                amount:
+                  unit: USD
+                  value: 30000
+            relatedParty:
+              '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            bill:
+              - '@type': CustomerBillRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                id: '2001'
+                name: Customer 202302 bill of MyFirstPartner
+                '@referredType': CustomerBill
+            payment:
+              - '@type': PaymentRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/Payment/5001'
+                id: '5001'
+                name: Customer 202302 bill payment of MyFirstPartner
+                '@referredType': Payment
+          - '@type': CdrTransactionItem
+            state: billed
+            id: '18103'
+            action: add
+            cdr:
+              - cdrDate: '2020-09-21T09:13:16-07:00'
+                description: Mobile handset 2023 distribution price
+                status: charged
+                id: '181031'
+                cdrType: revenue share
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: revenueSharingModelOwner
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+                    id: '2779'
+                    name: Mobi Service Providor
+                    '@referredType': Organization
+                isBilled: true
+                isTaxExempt: false
+                productRef:
+                  '@type': ProductRef
+                  href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                  id: '7810'
+                  name: Mobile handset 2023 product of MyFirstPartner
+                  '@referredType': Product
+                taxExcludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxIncludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxRate: 0
+                amount:
+                  unit: USD
+                  value: 60000
+            relatedParty:
+              '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            bill:
+              - '@type': CustomerBillRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2002'
+                id: '2002'
+                name: Customer 202302 bill of MyFirstPartner
+                '@referredType': CustomerBill
+        creationDate: '2023-03-10T07:37:23.112Z'
+        completionDate: '2023-03-10T07:37:23.112Z'
+      description: POST CdrTransaction response description.
+    CdrTransaction_partial_update_application_json_exapmles_request:
+      value:
+        '@type': CdrTransaction
+        completionDate: '2023-05-10T07:37:23.112Z'
+      description: PATCH CdrTransaction request leveraging json application example
+    CdrTransaction_partial_update_application_json_exapmles_response:
+      value:
+        '@type': CdrTransaction
+        href: 'https://mycsp.com:8080/tmf-api/CdrTransactionManagement/v5/CdrTransaction/1810'
+        id: '1810'
+        relatedParty:
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: distributor
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+              id: '2777'
+              name: MyFirstPartner
+              '@referredType': Organization
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: revenueSharingModelOwner
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+              id: '2779'
+              name: Mobi Service Providor
+              '@referredType': Organization
+        state: charged
+        requestedInitialState: charged
+        channel:
+          - '@type': RelatedChannel
+            role: revenueSharingDepartment
+            channel:
+              '@type': ChannelRef
+              href: 'https://mycsp.com:8080/tmf-api/channelManagement/v5/channel/1777'
+              id: '1777'
+              name: revenue sharing department
+              '@referredType': Channel
+        description: the transaction of MyFirstPartner revenue share
+        transactionItem:
+          - '@type': CdrTransactionItem
+            state: billed
+            id: '18101'
+            action: add
+            cdr:
+              - cdrDate: '2020-09-21T09:13:16-07:00'
+                description: Mobile handset 2023 distribution price
+                status: charged
+                id: '181011'
+                cdrType: revenue share
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                isBilled: true
+                productRef:
+                  '@type': ProductRef
+                  href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                  id: '7810'
+                  name: Mobile handset 2023 product of MyFirstPartner
+                  '@referredType': Product
+                taxExcludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxIncludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxRate: 0
+                amount:
+                  unit: USD
+                  value: 50000
+            relatedParty:
+              '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            bill:
+              - '@type': CustomerBillRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                id: '2001'
+                name: Customer 202302 bill of MyFirstPartner
+                '@referredType': CustomerBill
+            payment:
+              - '@type': PaymentRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/Payment/5001'
+                id: '5001'
+                name: Customer 202302 bill payment of MyFirstPartner
+                '@referredType': Payment
+          - '@type': CdrTransactionItem
+            state: billed
+            id: '18102'
+            action: add
+            cdr:
+              - cdrDate: '2020-09-21T09:13:16-07:00'
+                description: smart speakers 2023 distribution price
+                status: charged
+                id: '181021'
+                cdrType: revenue share
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                isBilled: true
+                productRef:
+                  '@type': ProductRef
+                  href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7811'
+                  id: '7811'
+                  name: Smart speakers 2023 product of MyFirstPartner
+                  '@referredType': Product
+                taxExcludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxIncludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxRate: 0
+                amount:
+                  unit: USD
+                  value: 30000
+            relatedParty:
+              '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            bill:
+              - '@type': CustomerBillRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                id: '2001'
+                name: Customer 202302 bill of MyFirstPartner
+                '@referredType': CustomerBill
+            payment:
+              - '@type': PaymentRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/Payment/5001'
+                id: '5001'
+                name: Customer 202302 bill payment of MyFirstPartner
+                '@referredType': Payment
+          - '@type': CdrTransactionItem
+            state: billed
+            id: '18103'
+            action: add
+            cdr:
+              - cdrDate: '2020-09-21T09:13:16-07:00'
+                description: Mobile handset 2023 distribution price
+                status: charged
+                id: '181031'
+                cdrType: revenue share
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: revenueSharingModelOwner
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+                    id: '2779'
+                    name: Mobi Service Providor
+                    '@referredType': Organization
+                isBilled: true
+                productRef:
+                  '@type': ProductRef
+                  href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                  id: '7810'
+                  name: Mobile handset 2023 product of MyFirstPartner
+                  '@referredType': Product
+                taxExcludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxIncludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxRate: 0
+                amount:
+                  unit: USD
+                  value: 60000
+            relatedParty:
+              '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            bill:
+              - '@type': CustomerBillRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2002'
+                id: '2002'
+                name: Customer 202302 bill of MyFirstPartner
+                '@referredType': CustomerBill
+        creationDate: '2023-03-10T07:37:23.112Z'
+        completionDate: '2023-05-10T07:37:23.112Z'
+      description: PATCH CdrTransaction representation.
+    CdrTransaction_partial_update_application_merge-patch_json_exapmles_request:
+      value:
+        '@type': CdrTransaction
+        completionDate: '2023-05-10T07:37:23.112Z'
+      description: PATCH CdrTransaction request leveraging json application example
+    CdrTransaction_partial_update_application_merge-patch_json_exapmles_response:
+      value:
+        '@type': CdrTransaction
+        href: 'https://mycsp.com:8080/tmf-api/CdrTransactionManagement/v5/CdrTransaction/1810'
+        id: '1810'
+        relatedParty:
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: distributor
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+              id: '2777'
+              name: MyFirstPartner
+              '@referredType': Organization
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: revenueSharingModelOwner
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+              id: '2779'
+              name: Mobi Service Providor
+              '@referredType': Organization
+        state: charged
+        requestedInitialState: charged
+        channel:
+          - '@type': RelatedChannel
+            role: revenueSharingDepartment
+            channel:
+              '@type': ChannelRef
+              href: 'https://mycsp.com:8080/tmf-api/channelManagement/v5/channel/1777'
+              id: '1777'
+              name: revenue sharing department
+              '@referredType': Channel
+        description: the transaction of MyFirstPartner revenue share
+        transactionItem:
+          - '@type': CdrTransactionItem
+            state: billed
+            id: '18101'
+            action: add
+            cdr:
+              - cdrDate: '2020-09-21T09:13:16-07:00'
+                description: Mobile handset 2023 distribution price
+                status: charged
+                id: '181011'
+                cdrType: revenue share
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                isBilled: true
+                productRef:
+                  '@type': ProductRef
+                  href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                  id: '7810'
+                  name: Mobile handset 2023 product of MyFirstPartner
+                  '@referredType': Product
+                taxExcludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxIncludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxRate: 0
+                amount:
+                  unit: USD
+                  value: 50000
+            relatedParty:
+              '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            bill:
+              - '@type': CustomerBillRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                id: '2001'
+                name: Customer 202302 bill of MyFirstPartner
+                '@referredType': CustomerBill
+            payment:
+              - '@type': PaymentRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/Payment/5001'
+                id: '5001'
+                name: Customer 202302 bill payment of MyFirstPartner
+                '@referredType': Payment
+          - '@type': CdrTransactionItem
+            state: billed
+            id: '18102'
+            action: add
+            cdr:
+              - cdrDate: '2020-09-21T09:13:16-07:00'
+                description: smart speakers 2023 distribution price
+                status: charged
+                id: '181021'
+                cdrType: revenue share
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                isBilled: true
+                productRef:
+                  '@type': ProductRef
+                  href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7811'
+                  id: '7811'
+                  name: Smart speakers 2023 product of MyFirstPartner
+                  '@referredType': Product
+                taxExcludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxIncludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxRate: 0
+                amount:
+                  unit: USD
+                  value: 30000
+            relatedParty:
+              '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            bill:
+              - '@type': CustomerBillRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                id: '2001'
+                name: Customer 202302 bill of MyFirstPartner
+                '@referredType': CustomerBill
+            payment:
+              - '@type': PaymentRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/Payment/5001'
+                id: '5001'
+                name: Customer 202302 bill payment of MyFirstPartner
+                '@referredType': Payment
+          - '@type': CdrTransactionItem
+            state: billed
+            id: '18103'
+            action: add
+            cdr:
+              - cdrDate: '2020-09-21T09:13:16-07:00'
+                description: Mobile handset 2023 distribution price
+                status: charged
+                id: '181031'
+                cdrType: revenue share
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: revenueSharingModelOwner
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+                    id: '2779'
+                    name: Mobi Service Providor
+                    '@referredType': Organization
+                isBilled: true
+                productRef:
+                  '@type': ProductRef
+                  href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                  id: '7810'
+                  name: Mobile handset 2023 product of MyFirstPartner
+                  '@referredType': Product
+                taxExcludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxIncludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxRate: 0
+                amount:
+                  unit: USD
+                  value: 60000
+            relatedParty:
+              '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            bill:
+              - '@type': CustomerBillRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2002'
+                id: '2002'
+                name: Customer 202302 bill of MyFirstPartner
+                '@referredType': CustomerBill
+        creationDate: '2023-03-10T07:37:23.112Z'
+        completionDate: '2023-05-10T07:37:23.112Z'
+      description: PATCH CdrTransaction representation.
+    CdrTransaction_partial_update_application_json-patch_json_exapmles_request:
+      value:
+        - op: replace
+          path: /completionDate
+          value: '2023-08-17T015:21:05.112Z'
+      description: PATCH CdrTransaction request leveraging json application example
+    CdrTransaction_partial_update_application_json-patch_json_exapmles_response:
+      value:
+        '@type': CdrTransaction
+        href: 'https://mycsp.com:8080/tmf-api/CdrTransactionManagement/v5/CdrTransaction/1810'
+        id: '1810'
+        relatedParty:
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: distributor
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+              id: '2777'
+              name: MyFirstPartner
+              '@referredType': Organization
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: revenueSharingModelOwner
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+              id: '2779'
+              name: Mobi Service Providor
+              '@referredType': Organization
+        state: charged
+        requestedInitialState: charged
+        channel:
+          - '@type': RelatedChannel
+            role: revenueSharingDepartment
+            channel:
+              '@type': ChannelRef
+              href: 'https://mycsp.com:8080/tmf-api/channelManagement/v5/channel/1777'
+              id: '1777'
+              name: revenue sharing department
+              '@referredType': Channel
+        description: the transaction of MyFirstPartner revenue share
+        transactionItem:
+          - '@type': CdrTransactionItem
+            state: billed
+            id: '18101'
+            action: add
+            cdr:
+              - cdrDate: '2020-09-21T09:13:16-07:00'
+                description: Mobile handset 2023 distribution price
+                status: charged
+                id: '181011'
+                cdrType: revenue share
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                isBilled: true
+                productRef:
+                  '@type': ProductRef
+                  href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                  id: '7810'
+                  name: Mobile handset 2023 product of MyFirstPartner
+                  '@referredType': Product
+                taxExcludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxIncludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxRate: 0
+                amount:
+                  unit: USD
+                  value: 50000
+            relatedParty:
+              '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            bill:
+              - '@type': CustomerBillRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                id: '2001'
+                name: Customer 202302 bill of MyFirstPartner
+                '@referredType': CustomerBill
+            payment:
+              - '@type': PaymentRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/Payment/5001'
+                id: '5001'
+                name: Customer 202302 bill payment of MyFirstPartner
+                '@referredType': Payment
+          - '@type': CdrTransactionItem
+            state: billed
+            id: '18102'
+            action: add
+            cdr:
+              - cdrDate: '2020-09-21T09:13:16-07:00'
+                description: smart speakers 2023 distribution price
+                status: charged
+                id: '181021'
+                cdrType: revenue share
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                isBilled: true
+                productRef:
+                  '@type': ProductRef
+                  href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7811'
+                  id: '7811'
+                  name: Smart speakers 2023 product of MyFirstPartner
+                  '@referredType': Product
+                taxExcludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxIncludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxRate: 0
+                amount:
+                  unit: USD
+                  value: 30000
+            relatedParty:
+              '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            bill:
+              - '@type': CustomerBillRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                id: '2001'
+                name: Customer 202302 bill of MyFirstPartner
+                '@referredType': CustomerBill
+            payment:
+              - '@type': PaymentRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/Payment/5001'
+                id: '5001'
+                name: Customer 202302 bill payment of MyFirstPartner
+                '@referredType': Payment
+          - '@type': CdrTransactionItem
+            state: billed
+            id: '18103'
+            action: add
+            cdr:
+              - cdrDate: '2020-09-21T09:13:16-07:00'
+                description: Mobile handset 2023 distribution price
+                status: charged
+                id: '181031'
+                cdrType: revenue share
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: revenueSharingModelOwner
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+                    id: '2779'
+                    name: Mobi Service Providor
+                    '@referredType': Organization
+                isBilled: true
+                productRef:
+                  '@type': ProductRef
+                  href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                  id: '7810'
+                  name: Mobile handset 2023 product of MyFirstPartner
+                  '@referredType': Product
+                taxExcludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxIncludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxRate: 0
+                amount:
+                  unit: USD
+                  value: 60000
+            relatedParty:
+              '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            bill:
+              - '@type': CustomerBillRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2002'
+                id: '2002'
+                name: Customer 202302 bill of MyFirstPartner
+                '@referredType': CustomerBill
+        creationDate: '2023-03-10T07:37:23.112Z'
+        completionDate: '2023-08-17T015:21:05.112Z'
+      description: PATCH CdrTransaction representation.
+    CdrTransaction_partial_update_application_json-patch-query_json_exapmles_request:
+      value:
+        - op: replace
+          path: /transactionItem.state?id=18101
+          value: completed
+      description: PATCH CdrTransaction request leveraging json application example
+    CdrTransaction_partial_update_application_json-patch-query_json_exapmles_response:
+      value:
+        '@type': CdrTransaction
+        href: 'https://mycsp.com:8080/tmf-api/CdrTransactionManagement/v5/CdrTransaction/1810'
+        id: '1810'
+        relatedParty:
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: distributor
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+              id: '2777'
+              name: MyFirstPartner
+              '@referredType': Organization
+          - '@type': RelatedPartyRefOrPartyRoleRef
+            role: revenueSharingModelOwner
+            partyOrPartyRole:
+              '@type': PartyRef
+              href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+              id: '2779'
+              name: Mobi Service Providor
+              '@referredType': Organization
+        state: charged
+        requestedInitialState: charged
+        channel:
+          - '@type': RelatedChannel
+            role: revenueSharingDepartment
+            channel:
+              '@type': ChannelRef
+              href: 'https://mycsp.com:8080/tmf-api/channelManagement/v5/channel/1777'
+              id: '1777'
+              name: revenue sharing department
+              '@referredType': Channel
+        description: the transaction of MyFirstPartner revenue share
+        transactionItem:
+          - '@type': CdrTransactionItem
+            state: completed
+            id: '18101'
+            action: add
+            cdr:
+              - cdrDate: '2020-09-21T09:13:16-07:00'
+                description: Mobile handset 2023 distribution price
+                status: charged
+                id: '181011'
+                cdrType: revenue share
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                isBilled: true
+                productRef:
+                  '@type': ProductRef
+                  href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                  id: '7810'
+                  name: Mobile handset 2023 product of MyFirstPartner
+                  '@referredType': Product
+                taxExcludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxIncludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxRate: 0
+                amount:
+                  unit: USD
+                  value: 50000
+            relatedParty:
+              '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            bill:
+              - '@type': CustomerBillRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                id: '2001'
+                name: Customer 202302 bill of MyFirstPartner
+                '@referredType': CustomerBill
+            payment:
+              - '@type': PaymentRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/Payment/5001'
+                id: '5001'
+                name: Customer 202302 bill payment of MyFirstPartner
+                '@referredType': Payment
+          - '@type': CdrTransactionItem
+            state: billed
+            id: '18102'
+            action: add
+            cdr:
+              - cdrDate: '2020-09-21T09:13:16-07:00'
+                description: smart speakers 2023 distribution price
+                status: charged
+                id: '181021'
+                cdrType: revenue share
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                isBilled: true
+                productRef:
+                  '@type': ProductRef
+                  href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7811'
+                  id: '7811'
+                  name: Smart speakers 2023 product of MyFirstPartner
+                  '@referredType': Product
+                taxExcludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxIncludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxRate: 0
+                amount:
+                  unit: USD
+                  value: 30000
+            relatedParty:
+              '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            bill:
+              - '@type': CustomerBillRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                id: '2001'
+                name: Customer 202302 bill of MyFirstPartner
+                '@referredType': CustomerBill
+            payment:
+              - '@type': PaymentRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/Payment/5001'
+                id: '5001'
+                name: Customer 202302 bill payment of MyFirstPartner
+                '@referredType': Payment
+          - '@type': CdrTransactionItem
+            state: billed
+            id: '18103'
+            action: add
+            cdr:
+              - cdrDate: '2020-09-21T09:13:16-07:00'
+                description: Mobile handset 2023 distribution price
+                status: charged
+                id: '181031'
+                cdrType: revenue share
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: revenueSharingModelOwner
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+                    id: '2779'
+                    name: Mobi Service Providor
+                    '@referredType': Organization
+                isBilled: true
+                productRef:
+                  '@type': ProductRef
+                  href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                  id: '7810'
+                  name: Mobile handset 2023 product of MyFirstPartner
+                  '@referredType': Product
+                taxExcludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxIncludedRatingAmount:
+                  unit: USD
+                  value: 0
+                taxRate: 0
+                amount:
+                  unit: USD
+                  value: 60000
+            relatedParty:
+              '@type': RelatedPartyRefOrPartyRoleRef
+              role: distributor
+              partyOrPartyRole:
+                '@type': PartyRef
+                href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                id: '2777'
+                name: MyFirstPartner
+                '@referredType': Organization
+            bill:
+              - '@type': CustomerBillRef
+                href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2002'
+                id: '2002'
+                name: Customer 202302 bill of MyFirstPartner
+                '@referredType': CustomerBill
+        creationDate: '2023-03-10T07:37:23.112Z'
+        completionDate: '2023-05-10T07:37:23.112Z'
+      description: PATCH CdrTransaction representation.
+    CdrTransactionCreateEvent_request:
+      value:
+        correlationId: 92cfc73d-deb7
+        description: CdrTransactionDeleteEvent illustration
+        domain: BusinessPartner
+        eventId: 67d6-9751-40e4f01440c9
+        eventTime: '2022-08-25T12:18:12.202Z'
+        eventType: CdrTransactionDeleteEvent
+        priority: '4'
+        timeOcurred: '2022-08-25T12:18:07.224Z'
+        title: CdrTransactionDeleteEvent
+        event:
+          cDRTransaction:
+            '@type': CdrTransaction
+            href: 'https://mycsp.com:8080/tmf-api/CdrTransactionManagement/v5/CdrTransaction/1810'
+            id: '1810'
+            relatedParty:
+              - '@type': RelatedPartyRefOrPartyRoleRef
+                role: distributor
+                partyOrPartyRole:
+                  '@type': PartyRef
+                  href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                  id: '2777'
+                  name: MyFirstPartner
+                  '@referredType': Organization
+              - '@type': RelatedPartyRefOrPartyRoleRef
+                role: revenueSharingModelOwner
+                partyOrPartyRole:
+                  '@type': PartyRef
+                  href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+                  id: '2779'
+                  name: Mobi Service Providor
+                  '@referredType': Organization
+            state: charged
+            requestedInitialState: charged
+            channel:
+              - '@type': RelatedChannel
+                role: revenueSharingDepartment
+                channel:
+                  '@type': ChannelRef
+                  href: 'https://mycsp.com:8080/tmf-api/channelManagement/v5/channel/1777'
+                  id: '1777'
+                  name: revenue sharing department
+                  '@referredType': Channel
+            description: the transaction of MyFirstPartner revenue share
+            transactionItem:
+              - '@type': CdrTransactionItem
+                state: billed
+                id: '18101'
+                action: add
+                cdr:
+                  - cdrDate: '2020-09-21T09:13:16-07:00'
+                    description: Mobile handset 2023 distribution price
+                    status: charged
+                    id: '181011'
+                    cdrType: revenue share
+                    relatedParty:
+                      '@type': RelatedPartyRefOrPartyRoleRef
+                      role: distributor
+                      partyOrPartyRole:
+                        '@type': PartyRef
+                        href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                        id: '2777'
+                        name: MyFirstPartner
+                        '@referredType': Organization
+                    isBilled: true
+                    isTaxExempt: false
+                    productRef:
+                      '@type': ProductRef
+                      href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                      id: '7810'
+                      name: Mobile handset 2023 product of MyFirstPartner
+                      '@referredType': Product
+                    taxExcludedRatingAmount:
+                      unit: USD
+                      value: 0
+                    taxIncludedRatingAmount:
+                      unit: USD
+                      value: 0
+                    taxRate: 0
+                    amount:
+                      unit: USD
+                      value: 50000
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                bill:
+                  - '@type': CustomerBillRef
+                    href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                    id: '2001'
+                    name: Customer 202302 bill of MyFirstPartner
+                    '@referredType': CustomerBill
+                payment:
+                  - '@type': PaymentRef
+                    href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/Payment/5001'
+                    id: '5001'
+                    name: Customer 202302 bill payment of MyFirstPartner
+                    '@referredType': Payment
+              - '@type': CdrTransactionItem
+                state: billed
+                id: '18102'
+                action: add
+                cdr:
+                  - cdrDate: '2020-09-21T09:13:16-07:00'
+                    description: smart speakers 2023 distribution price
+                    status: charged
+                    id: '181021'
+                    cdrType: revenue share
+                    relatedParty:
+                      '@type': RelatedPartyRefOrPartyRoleRef
+                      role: distributor
+                      partyOrPartyRole:
+                        '@type': PartyRef
+                        href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                        id: '2777'
+                        name: MyFirstPartner
+                        '@referredType': Organization
+                    isBilled: true
+                    isTaxExempt: false
+                    productRef:
+                      '@type': ProductRef
+                      href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7811'
+                      id: '7811'
+                      name: Smart speakers 2023 product of MyFirstPartner
+                      '@referredType': Product
+                    taxExcludedRatingAmount:
+                      unit: USD
+                      value: 0
+                    taxIncludedRatingAmount:
+                      unit: USD
+                      value: 0
+                    taxRate: 0
+                    amount:
+                      unit: USD
+                      value: 30000
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                bill:
+                  - '@type': CustomerBillRef
+                    href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                    id: '2001'
+                    name: Customer 202302 bill of MyFirstPartner
+                    '@referredType': CustomerBill
+                payment:
+                  - '@type': PaymentRef
+                    href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/Payment/5001'
+                    id: '5001'
+                    name: Customer 202302 bill payment of MyFirstPartner
+                    '@referredType': Payment
+              - '@type': CdrTransactionItem
+                state: billed
+                id: '18103'
+                action: add
+                cdr:
+                  - cdrDate: '2020-09-21T09:13:16-07:00'
+                    description: Mobile handset 2023 distribution price
+                    status: charged
+                    id: '181031'
+                    cdrType: revenue share
+                    relatedParty:
+                      '@type': RelatedPartyRefOrPartyRoleRef
+                      role: revenueSharingModelOwner
+                      partyOrPartyRole:
+                        '@type': PartyRef
+                        href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+                        id: '2779'
+                        name: Mobi Service Providor
+                        '@referredType': Organization
+                    isBilled: true
+                    isTaxExempt: false
+                    productRef:
+                      '@type': ProductRef
+                      href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                      id: '7810'
+                      name: Mobile handset 2023 product of MyFirstPartner
+                      '@referredType': Product
+                    taxExcludedRatingAmount:
+                      unit: USD
+                      value: 0
+                    taxIncludedRatingAmount:
+                      unit: USD
+                      value: 0
+                    taxRate: 0
+                    amount:
+                      unit: USD
+                      value: 60000
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                bill:
+                  - '@type': CustomerBillRef
+                    href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2002'
+                    id: '2002'
+                    name: Customer 202302 bill of MyFirstPartner
+                    '@referredType': CustomerBill
+            creationDate: '2023-03-10T07:37:23.112Z'
+            completionDate: '2023-03-10T07:37:23.112Z'
+        reportingSystem:
+          id: '759'
+          name: APP-745
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        source:
+          id: '705'
+          name: APP-317
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        '@baseType': Event
+        '@type': CdrTransactionDeleteEvent
+      description: Message example for CdrTransactionCreateEvent event
+    CdrTransactionStateChangeEvent_request:
+      value:
+        correlationId: 95cfc73d-deb7
+        description: CdrTransactionStateChangeEvent illustration
+        domain: BusinessPartner
+        eventId: 97d6-9751-40e4f01440c9
+        eventTime: '2022-08-25T12:18:12.202Z'
+        eventType: CdrTransactionStateChangeEvent
+        priority: '4'
+        timeOcurred: '2022-08-25T12:18:07.224Z'
+        title: CdrTransactionStateChangeEvent
+        event:
+          cDRTransaction:
+            '@type': CdrTransaction
+            '@baseType': CdrTransaction
+            '@schemaLocation': 'https://mycsp.com:8080/tmf-api/schemas/BusinessPartner/CdrTransaction.schema.json'
+            href: 'https://mycsp.com:8080/tmf-api/CdrTransactionManagement/v5/CdrTransaction/1810'
+            id: '1810'
+            relatedParty:
+              - '@type': RelatedPartyRefOrPartyRoleRef
+                role: distributor
+                partyOrPartyRole:
+                  '@type': PartyRef
+                  href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                  id: '2777'
+                  name: MyFirstPartner
+                  '@referredType': Organization
+              - '@type': RelatedPartyRefOrPartyRoleRef
+                role: revenueSharingModelOwner
+                partyOrPartyRole:
+                  '@type': PartyRef
+                  href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+                  id: '2779'
+                  name: Mobi Service Providor
+                  '@referredType': Organization
+            state: charged
+            requestedInitialState: charged
+            channel:
+              - '@type': RelatedChannel
+                '@baseType': RelatedChannel
+                '@schemaLocation': 'https://mycsp.com:8080/tmf-api/schemas/BusinessPartner/RelatedChannel.json'
+                role: revenueSharingDepartment
+                channel:
+                  '@type': ChannelRef
+                  href: 'https://mycsp.com:8080/tmf-api/channelManagement/v5/channel/1777'
+                  id: '1777'
+                  name: revenue sharing department
+                  '@referredType': Channel
+            description: the transaction of MyFirstPartner revenue share
+            transactionItem:
+              - '@type': CdrTransactionItem
+                state: billed
+                id: '18101'
+                action: add
+                cdr:
+                  - cdrDate: '2020-09-21T09:13:16-07:00'
+                    description: Mobile handset 2023 distribution price
+                    status: charged
+                    id: '181011'
+                    cdrType: revenue share
+                    relatedParty:
+                      '@type': RelatedPartyRefOrPartyRoleRef
+                      role: distributor
+                      partyOrPartyRole:
+                        '@type': PartyRef
+                        href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                        id: '2777'
+                        name: MyFirstPartner
+                        '@referredType': Organization
+                    isBilled: true
+                    isTaxExempt: false
+                    productRef:
+                      '@type': ProductRef
+                      href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                      id: '7810'
+                      name: Mobile handset 2023 product of MyFirstPartner
+                      '@referredType': Product
+                    taxExcludedRatingAmount:
+                      unit: USD
+                      value: 0
+                    taxIncludedRatingAmount:
+                      unit: USD
+                      value: 0
+                    taxRate: 0
+                    amount:
+                      unit: USD
+                      value: 50000
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                bill:
+                  - '@type': CustomerBillRef
+                    href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                    id: '2001'
+                    name: Customer 202302 bill of MyFirstPartner
+                    '@referredType': CustomerBill
+                payment:
+                  - '@type': PaymentRef
+                    id: '5001'
+                    name: Customer 202302 bill payment of MyFirstPartner
+                    '@referredType': Payment
+              - '@type': CdrTransactionItem
+                state: billed
+                id: '18102'
+                action: add
+                cdr:
+                  - cdrDate: '2020-09-21T09:13:16-07:00'
+                    description: smart speakers 2023 distribution price
+                    status: charged
+                    id: '181021'
+                    cdrType: revenue share
+                    relatedParty:
+                      '@type': RelatedPartyRefOrPartyRoleRef
+                      role: distributor
+                      partyOrPartyRole:
+                        '@type': PartyRef
+                        href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                        id: '2777'
+                        name: MyFirstPartner
+                        '@referredType': Organization
+                    isBilled: true
+                    isTaxExempt: false
+                    productRef:
+                      '@type': ProductRef
+                      href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7811'
+                      id: '7811'
+                      name: Smart speakers 2023 product of MyFirstPartner
+                      '@referredType': Product
+                    taxExcludedRatingAmount:
+                      unit: USD
+                      value: 0
+                    taxIncludedRatingAmount:
+                      unit: USD
+                      value: 0
+                    taxRate: 0
+                    amount:
+                      unit: USD
+                      value: 30000
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                bill:
+                  - '@type': CustomerBillRef
+                    href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                    id: '2001'
+                    name: Customer 202302 bill of MyFirstPartner
+                    '@referredType': CustomerBill
+                payment:
+                  - '@type': PaymentRef
+                    href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/Payment/5001'
+                    id: '5001'
+                    name: Customer 202302 bill payment of MyFirstPartner
+                    '@referredType': Payment
+              - '@type': CdrTransactionItem
+                state: billed
+                id: '18102'
+                action: add
+                cdr:
+                  - cdrDate: '2020-09-21T09:13:16-07:00'
+                    description: Mobile handset 2023 distribution price
+                    status: charged
+                    id: '181031'
+                    cdrType: revenue share
+                    relatedParty:
+                      '@type': RelatedPartyRefOrPartyRoleRef
+                      role: revenueSharingModelOwner
+                      partyOrPartyRole:
+                        '@type': PartyRef
+                        href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+                        id: '2779'
+                        name: Mobi Service Providor
+                        '@referredType': Organization
+                    isBilled: true
+                    isTaxExempt: false
+                    productRef:
+                      '@type': ProductRef
+                      href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                      id: '7810'
+                      name: Mobile handset 2023 product of MyFirstPartner
+                      '@referredType': Product
+                    taxExcludedRatingAmount:
+                      unit: USD
+                      value: 0
+                    taxIncludedRatingAmount:
+                      unit: USD
+                      value: 0
+                    taxRate: 0
+                    amount:
+                      unit: USD
+                      value: 60000
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                bill:
+                  - '@type': CustomerBillRef
+                    href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2002'
+                    id: '2002'
+                    name: Customer 202302 bill of MyFirstPartner
+                    '@referredType': CustomerBill
+            creationDate: '2023-03-10T07:37:23.112Z'
+            completionDate: '2023-03-10T07:37:23.112Z'
+        reportingSystem:
+          id: '759'
+          name: APP-745
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        source:
+          id: '705'
+          name: APP-317
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        '@baseType': Event
+        '@type': CdrTransactionStateChangeEvent
+      description: Message example for CdrTransactionStateChangeEvent event
+    CdrTransactionDeleteEvent_request:
+      value:
+        correlationId: 93cfc73d-deb7
+        description: CdrTransactionDeleteEvent illustration
+        domain: BusinessPartner
+        eventId: 48d6-9751-40e4f01440c9
+        eventTime: '2022-08-25T12:18:12.202Z'
+        eventType: CdrTransactionDeleteEvent
+        priority: '4'
+        timeOcurred: '2022-08-25T12:18:07.224Z'
+        title: CdrTransactionDeleteEvent
+        event:
+          cDRTransaction:
+            id: '1810'
+            href: 'https://host:port/cDRTransaction/v5/cDRTransaction/1810'
+            '@type': CdrTransaction
+        reportingSystem:
+          id: '759'
+          name: APP-745
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        source:
+          id: '705'
+          name: APP-317
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        '@baseType': Event
+        '@type': CdrTransactionDeleteEvent
+      description: Message example for CdrTransactionDeleteEvent event
+    CdrTransactionAttributeValueChangeEvent_request:
+      value:
+        correlationId: 91cfc73d-deb7
+        description: CdrTransactionAttributeValueChangeEvent illustration
+        domain: BusinessPartner
+        eventId: 57d6-9751-40e4f01440c9
+        eventTime: '2022-08-25T12:18:12.202Z'
+        eventType: CdrTransactionAttributeValueChangeEvent
+        priority: '4'
+        timeOcurred: '2022-08-25T12:18:07.224Z'
+        title: CdrTransactionAttributeValueChangeEvent
+        event:
+          cDRTransaction:
+            '@type': CdrTransaction
+            href: 'https://mycsp.com:8080/tmf-api/CdrTransactionManagement/v5/CdrTransaction/1810'
+            id: '1810'
+            relatedParty:
+              - '@type': RelatedPartyRefOrPartyRoleRef
+                role: distributor
+                partyOrPartyRole:
+                  '@type': PartyRef
+                  href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                  id: '2777'
+                  name: MyFirstPartner
+                  '@referredType': Organization
+              - '@type': RelatedPartyRefOrPartyRoleRef
+                role: revenueSharingModelOwner
+                partyOrPartyRole:
+                  '@type': PartyRef
+                  href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+                  id: '2779'
+                  name: Mobi Service Providor
+                  '@referredType': Organization
+            state: charged
+            requestedInitialState: charged
+            channel:
+              - '@type': RelatedChannel
+                role: revenueSharingDepartment
+                channel:
+                  '@type': ChannelRef
+                  href: 'https://mycsp.com:8080/tmf-api/channelManagement/v5/channel/1777'
+                  id: '1777'
+                  name: revenue sharing department
+                  '@referredType': Channel
+            description: the transaction of MyFirstPartner revenue share
+            transactionItem:
+              - '@type': CdrTransactionItem
+                state: billed
+                id: '18101'
+                action: add
+                cdr:
+                  - cdrDate: '2020-09-21T09:13:16-07:00'
+                    description: Mobile handset 2023 distribution price
+                    status: charged
+                    id: '181011'
+                    cdrType: revenue share
+                    relatedParty:
+                      '@type': RelatedPartyRefOrPartyRoleRef
+                      role: distributor
+                      partyOrPartyRole:
+                        '@type': PartyRef
+                        href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                        id: '2777'
+                        name: MyFirstPartner
+                        '@referredType': Organization
+                    isBilled: true
+                    isTaxExempt: false
+                    productRef:
+                      '@type': ProductRef
+                      href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                      id: '7810'
+                      name: Mobile handset 2023 product of MyFirstPartner
+                      '@referredType': Product
+                    taxExcludedRatingAmount:
+                      unit: USD
+                      value: 0
+                    taxIncludedRatingAmount:
+                      unit: USD
+                      value: 0
+                    taxRate: 0
+                    amount:
+                      unit: USD
+                      value: 50000
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                bill:
+                  - '@type': CustomerBillRef
+                    href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                    id: '2001'
+                    name: Customer 202302 bill of MyFirstPartner
+                    '@referredType': CustomerBill
+                payment:
+                  - '@type': PaymentRef
+                    href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/Payment/5001'
+                    id: '5001'
+                    name: Customer 202302 bill payment of MyFirstPartner
+                    '@referredType': Payment
+              - '@type': CdrTransactionItem
+                state: billed
+                id: '18102'
+                action: add
+                cdr:
+                  - cdrDate: '2020-09-21T09:13:16-07:00'
+                    description: smart speakers 2023 distribution price
+                    status: charged
+                    id: '181021'
+                    cdrType: revenue share
+                    relatedParty:
+                      '@type': RelatedPartyRefOrPartyRoleRef
+                      role: distributor
+                      partyOrPartyRole:
+                        '@type': PartyRef
+                        href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                        id: '2777'
+                        name: MyFirstPartner
+                        '@referredType': Organization
+                    isBilled: true
+                    isTaxExempt: false
+                    productRef:
+                      '@type': ProductRef
+                      href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7811'
+                      id: '7811'
+                      name: Smart speakers 2023 product of MyFirstPartner
+                      '@referredType': Product
+                    taxExcludedRatingAmount:
+                      unit: USD
+                      value: 0
+                    taxIncludedRatingAmount:
+                      unit: USD
+                      value: 0
+                    taxRate: 0
+                    amount:
+                      unit: USD
+                      value: 30000
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                bill:
+                  - '@type': CustomerBillRef
+                    href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2001'
+                    id: '2001'
+                    name: Customer 202302 bill of MyFirstPartner
+                    '@referredType': CustomerBill
+                payment:
+                  - '@type': PaymentRef
+                    href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/Payment/5001'
+                    id: '5001'
+                    name: Customer 202302 bill payment of MyFirstPartner
+                    '@referredType': Payment
+              - '@type': CdrTransactionItem
+                state: billed
+                id: '18103'
+                action: add
+                cdr:
+                  - cdrDate: '2020-09-21T09:13:16-07:00'
+                    description: Mobile handset 2023 distribution price
+                    status: charged
+                    id: '181031'
+                    cdrType: revenue share
+                    relatedParty:
+                      '@type': RelatedPartyRefOrPartyRoleRef
+                      role: revenueSharingModelOwner
+                      partyOrPartyRole:
+                        '@type': PartyRef
+                        href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2779'
+                        id: '2779'
+                        name: Mobi Service Providor
+                        '@referredType': Organization
+                    isBilled: true
+                    isTaxExempt: false
+                    productRef:
+                      '@type': ProductRef
+                      href: 'https://mycsp.com:8080/tmf-api/ProductManagement/v5/Product/7810'
+                      id: '7810'
+                      name: Mobile handset 2023 product of MyFirstPartner
+                      '@referredType': Product
+                    taxExcludedRatingAmount:
+                      unit: USD
+                      value: 0
+                    taxIncludedRatingAmount:
+                      unit: USD
+                      value: 0
+                    taxRate: 0
+                    amount:
+                      unit: USD
+                      value: 60000
+                relatedParty:
+                  '@type': RelatedPartyRefOrPartyRoleRef
+                  role: distributor
+                  partyOrPartyRole:
+                    '@type': PartyRef
+                    href: 'https://mycsp.com:8080/tmf-api/partyManagement/v5/organization/2777'
+                    id: '2777'
+                    name: MyFirstPartner
+                    '@referredType': Organization
+                bill:
+                  - '@type': CustomerBillRef
+                    href: 'https://mycsp.com:8080/tmf-api/CustomerManagement/v5/CustomerBill/2002'
+                    id: '2002'
+                    name: Customer 202302 bill of MyFirstPartner
+                    '@referredType': CustomerBill
+            creationDate: '2023-03-10T07:37:23.112Z'
+            completionDate: '2023-03-10T07:37:23.112Z'
+        reportingSystem:
+          id: '759'
+          name: APP-745
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        source:
+          id: '705'
+          name: APP-317
+          '@type': ReportingResource
+          '@referredType': LogicalResource
+        '@baseType': Event
+        '@type': CdrTransactionAttributeValueChangeEvent
+      description: Message example for CdrTransactionAttributeValueChangeEvent event
