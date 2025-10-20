@@ -1,0 +1,2384 @@
+openapi: 3.0.1
+info:
+  title: ProcessFlow Management
+  description: >+
+    **TMF API Reference : TMF 701 - ProcessFlow API**
+
+
+    **Release : 22.5 - December 2022**
+
+
+    ProcessFlow API provides capabilities to define design-time process specification & task
+    specification by using the ProcessFlowSpecification and TaskFlow Specification and then runtime
+    to manage process execution via the resources ProcessFlow & TaskFlow. This API allows to:
+
+
+    **Design Time Use**
+
+    • Define ProcessFlow Specification to describe a business process (as done via a BPMN modeler)
+
+    • Define TaskFlow Specification to describe business task (define related entity specification,
+    characteristic to be managed, role ,etc...)
+
+    • Associate TaskFlow Specification ProcessFlow Specification (a TaskFlow Specification could be
+    used in several Process Flow Specification)
+
+    • Retrieve and get information about ProcessFlow Specification and TaskFlow Specification
+
+
+    **ProcessFlowSpecification**
+
+    A process flow specification is a definition of a process flow (as ProductSpecification is for
+    Product). This resource is used by modeler designer to track a process design from a draft
+    design to 'ready to be use' process flow.
+
+
+    ProcessFlow API performs the following operations on a ProcessFlowSpecification:
+
+    - Create a Process Flow Specification 
+
+    - Retrieve and Get information about Process Flow Specification
+
+    - Update Process Flow Specification
+
+    - Delete Process Flow Specification
+
+    - Notification of Process Flow Specification event
+
+
+    **TaskFlowSpecification**
+
+    A task flow specification is a definition of a task flow. This resource is used by modeler
+    designer to define a task specification (for example to define the characterstic to be valued
+    for this task specification).
+
+
+    ProcessFlow API performs the following operations on a TaskFlowSpecification:
+
+    • Create a Task Flow Specification 
+
+    • Retrieve and Get information about Task Flow Specification
+
+    • Update Task Flow Specification
+
+    • Delete Task Flow Specification
+
+    • Notification of Task Flow Specification event   
+
+
+    **Run Time use**
+
+    • Create a Process Flow (an instance of a processFlowSpecification). 
+
+    • Get information about next task flow to be achieved in this process.
+
+    • Provide information to complete a taskflow (via an update information).
+
+    • Get information about processFlow and taskFlow execution in progress.
+
+
+    **ProcessFlow resource**
+
+    A process flow resource allows to manage an **instance** of a processFlow (usually managed on a
+    bmpn tool but could be hardcoded). A processFlow will manage a list of taskFlow(s). A
+    ProcessFlow is an instance of a ProcessFlowSpecification
+
+
+    ProcessFlow API performs the following operations on a ProcessFlow:
+
+    - Retrieval of a ProcessFlow or a collection of ProcessFlow depending on filter criteria
+
+    - Creation of a ProcessFlow (from a processFlow type)
+
+    - Deletion of a ProcessFlow (for administration purposes)
+
+    - Notification of events on ProcessFlow .
+
+
+    **TaskFlow resource**
+
+    A taskFlow is one specific **instance** of a task of a process. A TaskFlow may need human
+    intervention to be completed (data capture). TaskFlow is a ProcessFlow subResource (A taskFlow
+    cannot be independant from a processFlow). A taskFlow is an instance of a TaskFlowSpecification.
+    A taskFlow is a ProcessFlow subResource.
+
+
+    Process Flow API performs the following operations on a task Flow:
+
+    - Retrieval of a TaskFlow or a collection of TaskFlow (for a processFlow) depending on filter
+    criteria(s)
+
+    - Create an instance of a TaskFlow 
+
+    - Partial update of a TaskFlow 
+
+    - Notification of events on TaskFlow .
+
+
+    Copyright © TM Forum 2021. All Rights Reserved
+
+  version: 5.0.0
+servers:
+  - url: 'https://serverRoot'
+tags:
+  - name: processFlow
+    description: Operations for ProcessFlow Resource
+  - name: taskFlow
+    description: Operations for TaskFlow Resource
+  - name: notification listener
+    description: Notifications for Resource Lifecycle and event notifications
+  - name: events subscription
+    description: Endpoints to register and terminate an Event Listener
+paths:
+  /processFlow:
+    get:
+      tags:
+        - processFlow
+      summary: List or find ProcessFlow objects
+      description: >-
+        This operation retrieves a ProcessFlow entity. Attribute selection enabled for all first
+        level attributes.
+      operationId: listProcessFlow
+      parameters:
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          $ref: '#/components/responses/200ProcessFlowArray'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+    post:
+      tags:
+        - processFlow
+      summary: Creates a ProcessFlow
+      description: This operation creates a ProcessFlow entity.
+      operationId: createProcessFlow
+      parameters:
+        - $ref: '#/components/parameters/Fields'
+      requestBody:
+        $ref: '#/components/requestBodies/ProcessFlow_FVO'
+      responses:
+        '201':
+          $ref: '#/components/responses/201ProcessFlow'
+        '202':
+          description: Accepted
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+  '/processFlow/{id}':
+    get:
+      tags:
+        - processFlow
+      summary: Retrieves a ProcessFlow by ID
+      description: List or find ProcessFlow objects
+      operationId: retrieveProcessFlow
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          $ref: '#/components/responses/200ProcessFlow_Get'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+    delete:
+      tags:
+        - processFlow
+      summary: Deletes a ProcessFlow
+      description: This operation deletes a ProcessFlow entity.
+      operationId: deleteProcessFlow
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '202':
+          $ref: '#/components/responses/202'
+        '204':
+          $ref: '#/components/responses/204'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+  /listener/processFlowCreateEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity ProcessFlowCreateEvent
+      description: Example of a client listener for receiving the notification ProcessFlowCreateEvent
+      operationId: processFlowCreateEvent
+      requestBody:
+        $ref: '#/components/requestBodies/ProcessFlowCreateEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/processFlowStateChangeEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity ProcessFlowCreateEvent
+      description: Example of a client listener for receiving the notification ProcessFlowStateChangeEvent
+      operationId: processFlowStateChangeEvent
+      requestBody:
+        $ref: '#/components/requestBodies/ProcessFlowStateChangeEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/processFlowDeleteEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity ProcessFlowCreateEvent
+      description: Example of a client listener for receiving the notification ProcessFlowDeleteEvent
+      operationId: processFlowDeleteEvent
+      requestBody:
+        $ref: '#/components/requestBodies/ProcessFlowDeleteEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/processFlowAttributeValueChangeEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity ProcessFlowCreateEvent
+      description: >-
+        Example of a client listener for receiving the notification
+        ProcessFlowAttributeValueChangeEvent
+      operationId: processFlowAttributeValueChangeEvent
+      requestBody:
+        $ref: '#/components/requestBodies/ProcessFlowAttributeValueChangeEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /taskFlow:
+    get:
+      tags:
+        - taskFlow
+      summary: List or find TaskFlow objects
+      description: >-
+        This operation retrieves a TaskFlow entity. Attribute selection enabled for all first level
+        attributes.
+      operationId: listTaskFlow
+      parameters:
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          $ref: '#/components/responses/200TaskFlowArray'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+    post:
+      tags:
+        - taskFlow
+      summary: Creates a TaskFlow
+      description: This operation creates a TaskFlow entity.
+      operationId: createTaskFlow
+      parameters:
+        - $ref: '#/components/parameters/Fields'
+      requestBody:
+        $ref: '#/components/requestBodies/TaskFlow_FVO'
+      responses:
+        '201':
+          $ref: '#/components/responses/201TaskFlow'
+        '202':
+          description: Accepted
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+  '/taskFlow/{id}':
+    get:
+      tags:
+        - taskFlow
+      summary: Retrieves a TaskFlow by ID
+      description: List or find TaskFlow objects
+      operationId: retrieveTaskFlow
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          $ref: '#/components/responses/200TaskFlow_Get'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+    patch:
+      tags:
+        - taskFlow
+      summary: Updates partially a TaskFlow
+      description: This operation updates partially a TaskFlow entity.
+      operationId: patchTaskFlow
+      parameters:
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        $ref: '#/components/requestBodies/TaskFlow_MVO'
+      responses:
+        '200':
+          $ref: '#/components/responses/200TaskFlow_Patch'
+        '202':
+          description: Accepted
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '500':
+          $ref: '#/components/responses/500'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+  /listener/taskFlowCreateEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity TaskFlowCreateEvent
+      description: Example of a client listener for receiving the notification TaskFlowCreateEvent
+      operationId: taskFlowCreateEvent
+      requestBody:
+        $ref: '#/components/requestBodies/TaskFlowCreateEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/taskFlowStateChangeEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity TaskFlowCreateEvent
+      description: Example of a client listener for receiving the notification TaskFlowStateChangeEvent
+      operationId: taskFlowStateChangeEvent
+      requestBody:
+        $ref: '#/components/requestBodies/TaskFlowStateChangeEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/taskFlowDeleteEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity TaskFlowCreateEvent
+      description: Example of a client listener for receiving the notification TaskFlowDeleteEvent
+      operationId: taskFlowDeleteEvent
+      requestBody:
+        $ref: '#/components/requestBodies/TaskFlowDeleteEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/taskFlowAttributeValueChangeEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity TaskFlowCreateEvent
+      description: >-
+        Example of a client listener for receiving the notification
+        TaskFlowAttributeValueChangeEvent
+      operationId: taskFlowAttributeValueChangeEvent
+      requestBody:
+        $ref: '#/components/requestBodies/TaskFlowAttributeValueChangeEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /listener/taskFlowInformationRequiredEvent:
+    post:
+      tags:
+        - notification listener
+      summary: Client listener for entity TaskFlowCreateEvent
+      description: Example of a client listener for receiving the notification TaskFlowInformationRequiredEvent
+      operationId: taskFlowInformationRequiredEvent
+      requestBody:
+        $ref: '#/components/requestBodies/TaskFlowInformationRequiredEvent'
+      responses:
+        '204':
+          description: Notified
+        default:
+          $ref: '#/components/responses/Error'
+  /hub:
+    post:
+      operationId: createHub
+      summary: Create a subscription (hub) to receive Events
+      description: Sets the communication endpoint to receive Events.
+      tags:
+        - events subscription
+      requestBody:
+        $ref: '#/components/requestBodies/Hub_FVO'
+      responses:
+        '201':
+          $ref: '#/components/responses/Hub'
+        default:
+          $ref: '#/components/responses/Error'
+  '/hub/{id}':
+    delete:
+      operationId: hubDelete
+      summary: Remove a subscription (hub) to receive Events
+      description: ''
+      tags:
+        - events subscription
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Deleted
+        default:
+          $ref: '#/components/responses/Error'
+components:
+  schemas:
+    Addressable:
+      type: object
+      description: Base schema for adressable entities
+      properties:
+        href:
+          type: string
+          description: Hyperlink reference
+        id:
+          type: string
+          description: unique identifier
+      required:
+        - id
+        - href
+    Addressable_FVO:
+      type: object
+      description: Base schema for adressable entities
+      properties:
+        id:
+          type: string
+          description: unique identifier
+    BaseEvent:
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - type: object
+          description: Base event with common attributes.
+          properties:
+            event:
+              type: object
+            eventId:
+              type: string
+              description: The identifier of the notification.
+            eventTime:
+              type: string
+              format: date-time
+              description: Time of the event occurrence.
+            eventType:
+              type: string
+              description: The type of the notification.
+            correlationId:
+              type: string
+              description: The correlation id for this event.
+            domain:
+              type: string
+              description: The domain of the event.
+            title:
+              type: string
+              description: The title of the event.
+            description:
+              type: string
+              description: An explanatory of the event.
+            priority:
+              type: string
+              description: A priority.
+            timeOcurred:
+              type: string
+              format: date-time
+              description: The time the event occured.
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          BaseEvent: '#/components/schemas/BaseEvent'
+    BaseEvent_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Entity_FVO'
+        - type: object
+          description: Base event with common attributes.
+          properties:
+            event:
+              type: object
+            eventId:
+              type: string
+              description: The identifier of the notification.
+            eventTime:
+              type: string
+              format: date-time
+              description: Time of the event occurrence.
+            eventType:
+              type: string
+              description: The type of the notification.
+            correlationId:
+              type: string
+              description: The correlation id for this event.
+            domain:
+              type: string
+              description: The domain of the event.
+            title:
+              type: string
+              description: The title of the event.
+            description:
+              type: string
+              description: An explanatory of the event.
+            priority:
+              type: string
+              description: A priority.
+            timeOcurred:
+              type: string
+              format: date-time
+              description: The time the event occured.
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          BaseEvent: '#/components/schemas/BaseEvent_FVO'
+    BaseEvent_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Entity_MVO'
+        - type: object
+          description: Base event with common attributes.
+          properties:
+            event:
+              type: object
+            eventId:
+              type: string
+              description: The identifier of the notification.
+            eventTime:
+              type: string
+              format: date-time
+              description: Time of the event occurrence.
+            eventType:
+              type: string
+              description: The type of the notification.
+            correlationId:
+              type: string
+              description: The correlation id for this event.
+            domain:
+              type: string
+              description: The domain of the event.
+            title:
+              type: string
+              description: The title of the event.
+            description:
+              type: string
+              description: An explanatory of the event.
+            priority:
+              type: string
+              description: A priority.
+            timeOcurred:
+              type: string
+              format: date-time
+              description: The time the event occured.
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          BaseEvent: '#/components/schemas/BaseEvent_MVO'
+    ChannelRef:
+      type: object
+      description: >-
+        The channel to which the resource reference to. e.g. channel for selling product offerings,
+        channel for opening a trouble ticket etc..
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/EntityRef'
+        - $ref: '#/components/schemas/Reference'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ChannelRef: '#/components/schemas/ChannelRef'
+    ChannelRef_FVO:
+      type: object
+      description: >-
+        The channel to which the resource reference to. e.g. channel for selling product offerings,
+        channel for opening a trouble ticket etc..
+      allOf:
+        - $ref: '#/components/schemas/Extensible_FVO'
+        - $ref: '#/components/schemas/EntityRef'
+        - $ref: '#/components/schemas/Reference_FVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ChannelRef: '#/components/schemas/ChannelRef_FVO'
+    ChannelRef_MVO:
+      type: object
+      description: >-
+        The channel to which the resource reference to. e.g. channel for selling product offerings,
+        channel for opening a trouble ticket etc..
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/EntityRef'
+        - $ref: '#/components/schemas/Reference_MVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ChannelRef: '#/components/schemas/ChannelRef_MVO'
+    Characteristic:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Describes a given characteristic of an object or entity through a name/value pair.
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            valueType:
+              type: string
+              description: Data type of the value of the characteristic
+            characteristicRelationship:
+              type: array
+              items:
+                $ref: '#/components/schemas/CharacteristicRelationship'
+            name:
+              type: string
+              description: Name of the characteristic
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Characteristic: '#/components/schemas/Characteristic'
+    CharacteristicRelationship:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Another Characteristic that is related to the current Characteristic;
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            relationshipType:
+              type: string
+              description: The type of relationship
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CharacteristicRelationship: '#/components/schemas/CharacteristicRelationship'
+    CharacteristicRelationship_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible_FVO'
+        - type: object
+          description: Another Characteristic that is related to the current Characteristic;
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            relationshipType:
+              type: string
+              description: The type of relationship
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CharacteristicRelationship: '#/components/schemas/CharacteristicRelationship_FVO'
+    CharacteristicRelationship_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Another Characteristic that is related to the current Characteristic;
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            relationshipType:
+              type: string
+              description: The type of relationship
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          CharacteristicRelationship: '#/components/schemas/CharacteristicRelationship_MVO'
+    Characteristic_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible_FVO'
+        - type: object
+          description: Describes a given characteristic of an object or entity through a name/value pair.
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            valueType:
+              type: string
+              description: Data type of the value of the characteristic
+            characteristicRelationship:
+              type: array
+              items:
+                $ref: '#/components/schemas/CharacteristicRelationship_FVO'
+            name:
+              type: string
+              description: Name of the characteristic
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Characteristic: '#/components/schemas/Characteristic_FVO'
+    Characteristic_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: Describes a given characteristic of an object or entity through a name/value pair.
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the characteristic
+            valueType:
+              type: string
+              description: Data type of the value of the characteristic
+            characteristicRelationship:
+              type: array
+              items:
+                $ref: '#/components/schemas/CharacteristicRelationship_MVO'
+            name:
+              type: string
+              description: Name of the characteristic
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Characteristic: '#/components/schemas/Characteristic_MVO'
+    Entity:
+      type: object
+      description: Base entity schema for use in TMForum Open-APIs. Property.
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/Addressable'
+    EntityRef:
+      type: object
+      description: Entity reference schema to be use for all entityRef class.
+      properties:
+        href:
+          type: string
+          description: Hyperlink reference
+    Entity_FVO:
+      type: object
+      description: Base entity schema for use in TMForum Open-APIs. Property.
+      allOf:
+        - $ref: '#/components/schemas/Extensible_FVO'
+        - $ref: '#/components/schemas/Addressable_FVO'
+    Entity_MVO:
+      type: object
+      description: Base entity schema for use in TMForum Open-APIs. Property.
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+    Event:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: event with common attributes.
+          properties:
+            href:
+              type: string
+              description: Hyperlink reference
+            id:
+              type: string
+              description: unique identifier
+            correlationId:
+              type: string
+              description: The correlation id for this event.
+            domain:
+              type: string
+              description: The domain of the event.
+            title:
+              type: string
+              description: The title of the event.
+            description:
+              type: string
+              description: An explnatory of the event.
+            priority:
+              type: string
+              description: A priority.
+            timeOccurred:
+              type: string
+              format: date-time
+              description: The time the event occurred.
+            source:
+              $ref: '#/components/schemas/EntityRef'
+            reportingSystem:
+              $ref: '#/components/schemas/EntityRef'
+            relatedParty:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedParty'
+            analyticCharacteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic'
+            eventId:
+              type: string
+              description: The identifier of the notification.
+            eventTime:
+              type: string
+              format: date-time
+              description: Time of the event occurrence.
+            eventType:
+              type: string
+              description: The type of the notification.
+            event:
+              description: The event linked to the involved resource object
+              type: object
+    Event_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: event with common attributes.
+          properties:
+            href:
+              type: string
+              description: Hyperlink reference
+            id:
+              type: string
+              description: unique identifier
+            correlationId:
+              type: string
+              description: The correlation id for this event.
+            domain:
+              type: string
+              description: The domain of the event.
+            title:
+              type: string
+              description: The title of the event.
+            description:
+              type: string
+              description: An explnatory of the event.
+            priority:
+              type: string
+              description: A priority.
+            timeOccurred:
+              type: string
+              format: date-time
+              description: The time the event occurred.
+            source:
+              $ref: '#/components/schemas/EntityRef'
+            reportingSystem:
+              $ref: '#/components/schemas/EntityRef'
+            relatedParty:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedParty_FVO'
+            analyticCharacteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic_FVO'
+            eventId:
+              type: string
+              description: The identifier of the notification.
+            eventTime:
+              type: string
+              format: date-time
+              description: Time of the event occurrence.
+            eventType:
+              type: string
+              description: The type of the notification.
+            event:
+              description: The event linked to the involved resource object
+              type: object
+    Event_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          description: event with common attributes.
+          properties:
+            href:
+              type: string
+              description: Hyperlink reference
+            id:
+              type: string
+              description: unique identifier
+            correlationId:
+              type: string
+              description: The correlation id for this event.
+            domain:
+              type: string
+              description: The domain of the event.
+            title:
+              type: string
+              description: The title of the event.
+            description:
+              type: string
+              description: An explnatory of the event.
+            priority:
+              type: string
+              description: A priority.
+            timeOccurred:
+              type: string
+              format: date-time
+              description: The time the event occurred.
+            source:
+              $ref: '#/components/schemas/EntityRef'
+            reportingSystem:
+              $ref: '#/components/schemas/EntityRef'
+            relatedParty:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedParty_MVO'
+            analyticCharacteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic_MVO'
+            eventId:
+              type: string
+              description: The identifier of the notification.
+            eventTime:
+              type: string
+              format: date-time
+              description: Time of the event occurrence.
+            eventType:
+              type: string
+              description: The type of the notification.
+            event:
+              description: The event linked to the involved resource object
+              type: object
+    Extensible:
+      type: object
+      description: >-
+        Base Extensible schema for use in TMForum Open-APIs - When used for in a schema it means
+        that the Entity described by the schema  MUST be extended with the @type
+      properties:
+        '@type':
+          type: string
+          description: 'When sub-classing, this defines the sub-class Extensible name'
+        '@baseType':
+          type: string
+          description: 'When sub-classing, this defines the super-class'
+        '@schemaLocation':
+          type: string
+          description: A URI to a JSON-Schema file that defines additional attributes and relationships
+      required:
+        - '@type'
+    Extensible_FVO:
+      type: object
+      description: >-
+        Base Extensible schema for use in TMForum Open-APIs - When used for in a schema it means
+        that the Entity described by the schema  MUST be extended with the @type
+      properties:
+        '@type':
+          type: string
+          description: 'When sub-classing, this defines the sub-class Extensible name'
+        '@baseType':
+          type: string
+          description: 'When sub-classing, this defines the super-class'
+        '@schemaLocation':
+          type: string
+          description: A URI to a JSON-Schema file that defines additional attributes and relationships
+      required:
+        - '@type'
+    InformationRequiredEvent:
+      type: object
+      description: InformationRequiredEvent generic structure
+      properties:
+        id:
+          type: string
+          description: unique identifier of the resource
+        href:
+          type: string
+          description: hyperlink reference to the resource
+        '@type':
+          type: string
+          description: 'When sub-classing, this defines the sub-class Extensible name'
+        informationRequiredPath:
+          type: array
+          items:
+            $ref: '#/components/schemas/JsonPatch'
+          minItems: 1
+    JsonPatch:
+      description: A JSONPatch document as defined by RFC 6902
+      required:
+        - op
+        - path
+      properties:
+        op:
+          type: string
+          description: The operation to be performed
+          enum:
+            - add
+            - remove
+            - replace
+            - move
+            - copy
+            - test
+        path:
+          type: string
+          description: A JSON-Pointer
+        value:
+          description: The value to be used within the operations.
+        from:
+          type: string
+          description: A string containing a JSON Pointer value.
+    ProcessFlow:
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - type: object
+          properties:
+            channel:
+              type: array
+              items:
+                $ref: '#/components/schemas/ChannelRef'
+              description: A list of channel(s) where this processFlow is executed
+            characteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic'
+              description: A list of characteristic(s) associated to this processFlow
+            processFlowSpecificationRef:
+              $ref: '#/components/schemas/ProcessFlowSpecificationRef'
+            relatedEntity:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedEntity'
+              description: A list of related entity(ies) to this processFlow
+            relatedParty:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedParty'
+              description: A list of related party(ies) to this processFlow
+            taskFlow:
+              type: array
+              items:
+                $ref: '#/components/schemas/TaskFlowRef'
+              description: A list of taskflow related to this processFlow
+            processFlowDate:
+              type: string
+              format: date-time
+              description: Is the date when the processFlow was created in basse (timestamp)
+            processFlowSpecification:
+              type: string
+              description: Specification of the processFlow.
+            state:
+              $ref: '#/components/schemas/ProcessFlowStateType'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ProcessFlow: '#/components/schemas/ProcessFlow'
+    ProcessFlowAttributeValueChangeEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: ProcessFlowAttributeValueChangeEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/ProcessFlowAttributeValueChangeEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ProcessFlowAttributeValueChangeEvent: '#/components/schemas/ProcessFlowAttributeValueChangeEvent'
+    ProcessFlowAttributeValueChangeEventPayload:
+      type: object
+      description: ProcessFlowAttributeValueChangeEventPayload generic structure
+      properties:
+        processFlow:
+          $ref: '#/components/schemas/ProcessFlow'
+    ProcessFlowCreateEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: ProcessFlowCreateEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/ProcessFlowCreateEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ProcessFlowCreateEvent: '#/components/schemas/ProcessFlowCreateEvent'
+    ProcessFlowCreateEventPayload:
+      type: object
+      description: ProcessFlowCreateEventPayload generic structure
+      properties:
+        processFlow:
+          $ref: '#/components/schemas/ProcessFlow'
+    ProcessFlowDeleteEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: ProcessFlowDeleteEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/ProcessFlowDeleteEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ProcessFlowDeleteEvent: '#/components/schemas/ProcessFlowDeleteEvent'
+    ProcessFlowDeleteEventPayload:
+      type: object
+      description: ProcessFlowDeleteEventPayload generic structure
+      properties:
+        processFlow:
+          $ref: '#/components/schemas/ProcessFlow'
+    ProcessFlowSpecificationRef:
+      type: object
+      description: A reference to a ProcessFlowSpecification defined design-time
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+    ProcessFlowSpecificationRef_FVO:
+      type: object
+      description: A reference to a ProcessFlowSpecification defined design-time
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+    ProcessFlowSpecificationRef_MVO:
+      type: object
+      description: A reference to a ProcessFlowSpecification defined design-time
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+    ProcessFlowStateChangeEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: ProcessFlowStateChangeEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/ProcessFlowStateChangeEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ProcessFlowStateChangeEvent: '#/components/schemas/ProcessFlowStateChangeEvent'
+    ProcessFlowStateChangeEventPayload:
+      type: object
+      description: ProcessFlowStateChangeEventPayload generic structure
+      properties:
+        processFlow:
+          $ref: '#/components/schemas/ProcessFlow'
+    ProcessFlowStateType:
+      enum:
+        - active
+        - cancelled
+        - hold
+        - completed
+      type: string
+      description: Valid values for the lifecycle state of the processFlow
+    ProcessFlow_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Entity_FVO'
+        - type: object
+          properties:
+            channel:
+              type: array
+              items:
+                $ref: '#/components/schemas/ChannelRef_FVO'
+              description: A list of channel(s) where this processFlow is executed
+            characteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic_FVO'
+              description: A list of characteristic(s) associated to this processFlow
+            processFlowSpecificationRef:
+              $ref: '#/components/schemas/ProcessFlowSpecificationRef_FVO'
+            relatedEntity:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedEntity_FVO'
+              description: A list of related entity(ies) to this processFlow
+            relatedParty:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedParty_FVO'
+              description: A list of related party(ies) to this processFlow
+            processFlowSpecification:
+              type: string
+              description: Specification of the processFlow.
+          required:
+            - processFlowSpecification
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ProcessFlow: '#/components/schemas/ProcessFlow_FVO'
+    ProcessFlow_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Entity_MVO'
+        - type: object
+          properties:
+            channel:
+              type: array
+              items:
+                $ref: '#/components/schemas/ChannelRef_MVO'
+              description: A list of channel(s) where this processFlow is executed
+            characteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic_MVO'
+              description: A list of characteristic(s) associated to this processFlow
+            processFlowSpecificationRef:
+              $ref: '#/components/schemas/ProcessFlowSpecificationRef'
+            relatedEntity:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedEntity_MVO'
+              description: A list of related entity(ies) to this processFlow
+            relatedParty:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedParty_MVO'
+              description: A list of related party(ies) to this processFlow
+            taskFlow:
+              type: array
+              items:
+                $ref: '#/components/schemas/TaskFlowRef_MVO'
+              description: A list of taskflow related to this processFlow
+            processFlowDate:
+              type: string
+              format: date-time
+              description: Is the date when the processFlow was created in basse (timestamp)
+            processFlowSpecification:
+              type: string
+              description: Specification of the processFlow.
+            state:
+              $ref: '#/components/schemas/ProcessFlowStateType'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          ProcessFlow: '#/components/schemas/ProcessFlow_MVO'
+    Reference:
+      type: object
+      description: Reference schema .
+      properties:
+        id:
+          type: string
+          description: Identifier of the referred entity.
+        name:
+          type: string
+          description: Name of the referred entity.
+        '@referredType':
+          type: string
+          description: The actual type of the target instance when needed for disambiguation.
+      required:
+        - id
+    Reference_FVO:
+      type: object
+      description: Reference schema .
+      properties:
+        id:
+          type: string
+          description: Identifier of the referred entity.
+        name:
+          type: string
+          description: Name of the referred entity.
+        '@referredType':
+          type: string
+          description: The actual type of the target instance when needed for disambiguation.
+      required:
+        - id
+    Reference_MVO:
+      type: object
+      description: Reference schema .
+      properties:
+        id:
+          type: string
+          description: Identifier of the referred entity.
+        name:
+          type: string
+          description: Name of the referred entity.
+        '@referredType':
+          type: string
+          description: The actual type of the target instance when needed for disambiguation.
+    RelatedEntity:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/EntityRef'
+        - $ref: '#/components/schemas/Reference'
+        - type: object
+          description: 'A reference to an entity, where the type of the entity is not known in advance.'
+          properties:
+            role:
+              type: string
+              description: The role of an entity.
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedEntity: '#/components/schemas/RelatedEntity'
+    RelatedEntity_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible_FVO'
+        - $ref: '#/components/schemas/EntityRef'
+        - $ref: '#/components/schemas/Reference_FVO'
+        - type: object
+          description: 'A reference to an entity, where the type of the entity is not known in advance.'
+          properties:
+            role:
+              type: string
+              description: The role of an entity.
+          required:
+            - role
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedEntity: '#/components/schemas/RelatedEntity_FVO'
+    RelatedEntity_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/EntityRef'
+        - $ref: '#/components/schemas/Reference_MVO'
+        - type: object
+          description: 'A reference to an entity, where the type of the entity is not known in advance.'
+          properties:
+            role:
+              type: string
+              description: The role of an entity.
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedEntity: '#/components/schemas/RelatedEntity_MVO'
+    RelatedParty:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/EntityRef'
+        - $ref: '#/components/schemas/Reference'
+        - type: object
+          description: Related Entity reference. A related party defines party linked to a specific entity.
+          properties:
+            role:
+              type: string
+              description: Role played by the related party
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedParty: '#/components/schemas/RelatedParty'
+    RelatedParty_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible_FVO'
+        - $ref: '#/components/schemas/EntityRef'
+        - $ref: '#/components/schemas/Reference_FVO'
+        - type: object
+          description: Related Entity reference. A related party defines party linked to a specific entity.
+          properties:
+            role:
+              type: string
+              description: Role played by the related party
+          required:
+            - '@referredType'
+            - role
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedParty: '#/components/schemas/RelatedParty_FVO'
+    RelatedParty_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - $ref: '#/components/schemas/EntityRef'
+        - $ref: '#/components/schemas/Reference_MVO'
+        - type: object
+          description: Related Entity reference. A related party defines party linked to a specific entity.
+          properties:
+            role:
+              type: string
+              description: Role played by the related party
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          RelatedParty: '#/components/schemas/RelatedParty_MVO'
+    TaskFlow:
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - type: object
+          properties:
+            channel:
+              type: array
+              items:
+                $ref: '#/components/schemas/ChannelRef'
+              description: A list of channel(s) where this taskFlow is executed
+            characteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic'
+              description: A list of characteristic(s) associated to this taskFlow
+            completionMethod:
+              type: string
+              description: TaskFlow completion method.
+            isMandatory:
+              type: boolean
+              description: Indicate mandatory TaskFlow.
+            priority:
+              type: integer
+              description: TaskFlow priority.
+            relatedEntity:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedEntity'
+              description: A list of related entity(ies) to this taskFlow
+            relatedParty:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedParty'
+              description: A list of related party(ies) to this task
+            state:
+              $ref: '#/components/schemas/TaskFlowStateType'
+            requestedCompletionDate:
+              type: string
+              format: date-time
+              description: Requested completion date for this task
+            completionDate:
+              type: string
+              format: date-time
+              description: Effective completion date for this task
+            requestedStartDate:
+              type: string
+              format: date-time
+              description: Requested start date for this task
+            startDate:
+              type: string
+              format: date-time
+              description: Effective start date for this task
+            taskFlowRelationship:
+              type: array
+              items:
+                $ref: '#/components/schemas/TaskFlowRelationship'
+              description: A list of taskFlows related to this taskFlow
+            taskFlowSpecification:
+              type: string
+              description: Reference of the TaskFlowSpecification
+            taskFlowSpecificationRef:
+              $ref: '#/components/schemas/TaskFlowSpecificationRef'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          TaskFlow: '#/components/schemas/TaskFlow'
+    TaskFlowAttributeValueChangeEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: TaskFlowAttributeValueChangeEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/TaskFlowAttributeValueChangeEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          TaskFlowAttributeValueChangeEvent: '#/components/schemas/TaskFlowAttributeValueChangeEvent'
+    TaskFlowAttributeValueChangeEventPayload:
+      type: object
+      description: TaskFlowAttributeValueChangeEventPayload generic structure
+      properties:
+        taskFlow:
+          $ref: '#/components/schemas/TaskFlow'
+    TaskFlowCreateEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: TaskFlowCreateEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/TaskFlowCreateEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          TaskFlowCreateEvent: '#/components/schemas/TaskFlowCreateEvent'
+    TaskFlowCreateEventPayload:
+      type: object
+      description: TaskFlowCreateEventPayload generic structure
+      properties:
+        taskFlow:
+          $ref: '#/components/schemas/TaskFlow'
+    TaskFlowDeleteEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: TaskFlowDeleteEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/TaskFlowDeleteEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          TaskFlowDeleteEvent: '#/components/schemas/TaskFlowDeleteEvent'
+    TaskFlowDeleteEventPayload:
+      type: object
+      description: TaskFlowDeleteEventPayload generic structure
+      properties:
+        taskFlow:
+          $ref: '#/components/schemas/TaskFlow'
+    TaskFlowInformationRequiredEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: TaskFlowInformationRequiredEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/TaskFlowInformationRequiredEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          TaskFlowInformationRequiredEvent: '#/components/schemas/TaskFlowInformationRequiredEvent'
+    TaskFlowInformationRequiredEventPayload:
+      type: object
+      description: TaskFlowInformationRequiredEventPayload generic structure
+      properties:
+        informationRequired:
+          $ref: '#/components/schemas/InformationRequiredEvent'
+    TaskFlowRef:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+        - $ref: '#/components/schemas/Entity'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          TaskFlowRef: '#/components/schemas/TaskFlowRef'
+    TaskFlowRef_FVO:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+        - $ref: '#/components/schemas/Entity_FVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          TaskFlowRef: '#/components/schemas/TaskFlowRef_FVO'
+    TaskFlowRef_MVO:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+        - $ref: '#/components/schemas/Entity_MVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          TaskFlowRef: '#/components/schemas/TaskFlowRef_MVO'
+    TaskFlowRelationship:
+      type: object
+      description: Describes relationship between taskFlow
+      properties:
+        relationshipType:
+          type: string
+          description: 'The type of taskFlow relationship (requires, triggers, etc.)'
+        taskFlow:
+          $ref: '#/components/schemas/TaskFlowRef'
+    TaskFlowRelationship_FVO:
+      type: object
+      description: Describes relationship between taskFlow
+      properties:
+        relationshipType:
+          type: string
+          description: 'The type of taskFlow relationship (requires, triggers, etc.)'
+        taskFlow:
+          $ref: '#/components/schemas/TaskFlowRef_FVO'
+      required:
+        - relationshipType
+        - taskFlow
+    TaskFlowRelationship_MVO:
+      type: object
+      description: Describes relationship between taskFlow
+      properties:
+        relationshipType:
+          type: string
+          description: 'The type of taskFlow relationship (requires, triggers, etc.)'
+        taskFlow:
+          $ref: '#/components/schemas/TaskFlowRef_MVO'
+    TaskFlowSpecificationRef:
+      type: object
+      description: A reference to a TaskFlowSpecification defined design-time
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+    TaskFlowSpecificationRef_FVO:
+      type: object
+      description: A reference to a TaskFlowSpecification defined design-time
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+    TaskFlowSpecificationRef_MVO:
+      type: object
+      description: A reference to a TaskFlowSpecification defined design-time
+      allOf:
+        - $ref: '#/components/schemas/EntityRef'
+    TaskFlowStateChangeEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          description: TaskFlowStateChangeEvent generic structure
+          properties:
+            event:
+              $ref: '#/components/schemas/TaskFlowStateChangeEventPayload'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          TaskFlowStateChangeEvent: '#/components/schemas/TaskFlowStateChangeEvent'
+    TaskFlowStateChangeEventPayload:
+      type: object
+      description: TaskFlowStateChangeEventPayload generic structure
+      properties:
+        taskFlow:
+          $ref: '#/components/schemas/TaskFlow'
+    TaskFlowStateType:
+      enum:
+        - new
+        - active
+        - hold
+        - cancelled
+        - completed
+      type: string
+      description: Valid values for the lifecycle state of the taskFlow
+    TaskFlow_FVO:
+      allOf:
+        - $ref: '#/components/schemas/Entity_FVO'
+        - type: object
+          properties:
+            channel:
+              type: array
+              items:
+                $ref: '#/components/schemas/ChannelRef_FVO'
+              description: A list of channel(s) where this taskFlow is executed
+            characteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic_FVO'
+              description: A list of characteristic(s) associated to this taskFlow
+            relatedEntity:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedEntity_FVO'
+              description: A list of related entity(ies) to this taskFlow
+            relatedParty:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedParty_FVO'
+              description: A list of related party(ies) to this task
+            requestedCompletionDate:
+              type: string
+              format: date-time
+              description: Requested completion date for this task
+            completionDate:
+              type: string
+              format: date-time
+              description: Effective completion date for this task
+            requestedStartDate:
+              type: string
+              format: date-time
+              description: Requested start date for this task
+            startDate:
+              type: string
+              format: date-time
+              description: Effective start date for this task
+            taskFlowRelationship:
+              type: array
+              items:
+                $ref: '#/components/schemas/TaskFlowRelationship_FVO'
+              description: A list of taskFlows related to this taskFlow
+            taskFlowSpecification:
+              type: string
+              description: Reference of the TaskFlowSpecification
+            taskFlowSpecificationRef:
+              $ref: '#/components/schemas/TaskFlowSpecificationRef_FVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          TaskFlow: '#/components/schemas/TaskFlow_FVO'
+    TaskFlow_MVO:
+      allOf:
+        - $ref: '#/components/schemas/Entity_MVO'
+        - type: object
+          properties:
+            channel:
+              type: array
+              items:
+                $ref: '#/components/schemas/ChannelRef_MVO'
+              description: A list of channel(s) where this taskFlow is executed
+            characteristic:
+              type: array
+              items:
+                $ref: '#/components/schemas/Characteristic_MVO'
+              description: A list of characteristic(s) associated to this taskFlow
+            completionMethod:
+              type: string
+              description: TaskFlow completion method.
+            isMandatory:
+              type: boolean
+              description: Indicate mandatory TaskFlow.
+            priority:
+              type: integer
+              description: TaskFlow priority.
+            relatedEntity:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedEntity_MVO'
+              description: A list of related entity(ies) to this taskFlow
+            relatedParty:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedParty_MVO'
+              description: A list of related party(ies) to this task
+            state:
+              $ref: '#/components/schemas/TaskFlowStateType'
+            requestedCompletionDate:
+              type: string
+              format: date-time
+              description: Requested completion date for this task
+            requestedStartDate:
+              type: string
+              format: date-time
+              description: Requested start date for this task
+            taskFlowRelationship:
+              type: array
+              items:
+                $ref: '#/components/schemas/TaskFlowRelationship_MVO'
+              description: A list of taskFlows related to this taskFlow
+            taskFlowSpecificationRef:
+              $ref: '#/components/schemas/TaskFlowSpecificationRef_MVO'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          TaskFlow: '#/components/schemas/TaskFlow_MVO'
+    Error:
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          Error: '#/components/schemas/Error'
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - type: object
+          required:
+            - code
+            - reason
+          properties:
+            code:
+              type: string
+              description: 'Application relevant detail, defined in the API or a common list.'
+            reason:
+              type: string
+              description: Explanation of the reason for the error which can be shown to a client user.
+            message:
+              type: string
+              description: >-
+                More details and corrective actions related to the error which can be shown to a
+                client user.
+            status:
+              type: string
+              description: HTTP Error code extension
+            referenceError:
+              type: string
+              description: URI of documentation describing the error.
+      description: 'Used when an API throws an Error, typically with a HTTP error response-code (3xx, 4xx, 5xx)'
+    Hub_FVO:
+      type: object
+      description: >-
+        Sets the communication endpoint address the service instance must use to deliver
+        notification information
+      required:
+        - callback
+      allOf:
+        - $ref: '#/components/schemas/Extensible'
+        - properties:
+            callback:
+              type: string
+              description: The callback being registered.
+            query:
+              type: string
+              description: additional data to be passed
+    Hub:
+      type: object
+      description: >-
+        Sets the communication endpoint address the service instance must use to deliver
+        notification information
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - properties:
+            id:
+              type: string
+              description: Id of the listener
+            callback:
+              type: string
+              description: The callback being registered.
+            query:
+              type: string
+              description: additional data to be passed
+          required:
+            - callback
+    JsonPatchOperations:
+      description: JSONPatch Operations document as defined by RFC 6902
+      type: array
+      items:
+        $ref: '#/components/schemas/JsonPatch'
+  parameters:
+    Id:
+      name: id
+      required: true
+      schema:
+        type: string
+      in: path
+      description: Identifier of the Service
+    Fields:
+      name: fields
+      in: query
+      description: Comma-separated properties to be provided in response
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: Requested index for start of resources to be provided in response
+      schema:
+        type: integer
+    Limit:
+      name: limit
+      in: query
+      description: Requested number of resources to be provided in response
+      schema:
+        type: integer
+  requestBodies:
+    ProcessFlow_FVO:
+      description: The ProcessFlow to be created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProcessFlow_FVO'
+          examples:
+            createProcessFlow:
+              $ref: '#/components/examples/createProcessFlow_request'
+      required: true
+    ProcessFlowCreateEvent:
+      description: ProcessFlow create Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProcessFlowCreateEvent'
+          examples:
+            ProcessFlowCreateEvent:
+              $ref: '#/components/examples/ProcessFlowCreateEvent_request'
+      required: true
+    ProcessFlowStateChangeEvent:
+      description: ProcessFlow stateChange Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProcessFlowStateChangeEvent'
+          examples:
+            ProcessFlowStateChangeEvent:
+              $ref: '#/components/examples/ProcessFlowStateChangeEvent_request'
+      required: true
+    ProcessFlowDeleteEvent:
+      description: ProcessFlow delete Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProcessFlowDeleteEvent'
+          examples:
+            ProcessFlowDeleteEvent:
+              $ref: '#/components/examples/ProcessFlowDeleteEvent_request'
+      required: true
+    ProcessFlowAttributeValueChangeEvent:
+      description: ProcessFlow attributeValueChange Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProcessFlowAttributeValueChangeEvent'
+          examples:
+            ProcessFlowAttributeValueChangeEvent:
+              $ref: '#/components/examples/ProcessFlowAttributeValueChangeEvent_request'
+      required: true
+    TaskFlow_FVO:
+      description: The TaskFlow to be created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaskFlow_FVO'
+      required: true
+    TaskFlow_MVO:
+      description: The TaskFlow to be patched
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaskFlow_MVO'
+        application/merge-patch+json:
+          schema:
+            $ref: '#/components/schemas/TaskFlow_MVO'
+        application/json-patch+json:
+          schema:
+            $ref: '#/components/schemas/JsonPatchOperations'
+        application/json-patch-query+json:
+          schema:
+            $ref: '#/components/schemas/JsonPatchOperations'
+      required: true
+    TaskFlowCreateEvent:
+      description: TaskFlow create Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TasklowCreateEvent'
+          examples:
+            TaskFlowCreateEvent:
+              $ref: '#/components/examples/TaskFlowCreateEvent_request'
+      required: true
+    TaskFlowStateChangeEvent:
+      description: TaskFlow stateChange Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaskFlowStateChangeEvent'
+          examples:
+            TaskFlowStateChangeEvent:
+              $ref: '#/components/examples/TaskFlowStateChangeEvent_request'
+      required: true
+    TaskFlowDeleteEvent:
+      description: TaskFlow delete Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaskFlowDeleteEvent'
+          examples:
+            TaskFlowDeleteEvent:
+              $ref: '#/components/examples/TaskFlowDeleteEvent_request'
+      required: true
+    TaskFlowAttributeValueChangeEvent:
+      description: TaskFlow attributeValueChange Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaskFlowAttributeValueChangeEvent'
+          examples:
+            TaskFlowAttributeValueChangeEvent:
+              $ref: '#/components/examples/TaskFlowAttributeValueChangeEvent_request'
+      required: true
+    TaskFlowInformationRequiredEvent:
+      description: TaskFlow informationRequired Event payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaskFlowInformationRequiredEvent'
+          examples:
+            TaskFlowInformationRequiredEvent:
+              $ref: '#/components/examples/TaskFlowInformationRequiredEvent_request'
+      required: true
+    Hub_FVO:
+      description: Data containing the callback endpoint to deliver the information
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Hub_FVO'
+      required: true
+  responses:
+    '200':
+      description: OK
+    '202':
+      description: Accepted
+    '204':
+      description: Deleted
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '403':
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '404':
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '405':
+      description: Method Not allowed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '409':
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '501':
+      description: Not Implemented
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    '503':
+      description: Service Unavailable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    200ProcessFlowArray:
+      description: Success
+      headers:
+        X-Total-Count:
+          $ref: '#/components/headers/X-Total-Count'
+        X-Result-Count:
+          $ref: '#/components/headers/X-Result-Count'
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/ProcessFlow'
+          examples:
+            RetrieveProcessFlowByList:
+              $ref: '#/components/examples/RetrieveProcessFlowByList_response'
+            retrieveProcessFlowByListwithFieldsSelection:
+              $ref: '#/components/examples/retrieveProcessFlowByListwithFieldsSelection_response'
+    200ProcessFlow_Get:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProcessFlow'
+          examples:
+            retrieveProcessFlowById:
+              $ref: '#/components/examples/retrieveProcessFlowById_response'
+    200ProcessFlow_Patch:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProcessFlow'
+        application/merge-patch+json:
+          schema:
+            $ref: '#/components/schemas/ProcessFlow'
+        application/json-patch+json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/ProcessFlow'
+              - type: array
+                items:
+                  $ref: '#/components/schemas/ProcessFlow'
+              - type: string
+                nullable: true
+        application/json-patch-query+json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/ProcessFlow'
+              - type: array
+                items:
+                  $ref: '#/components/schemas/ProcessFlow'
+              - type: string
+                nullable: true
+    200ProcessFlow_Put:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProcessFlow'
+    201ProcessFlow:
+      description: Created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProcessFlow'
+          examples:
+            createProcessFlow:
+              $ref: '#/components/examples/createProcessFlow_response'
+    200TaskFlowArray:
+      description: Success
+      headers:
+        X-Total-Count:
+          $ref: '#/components/headers/X-Total-Count'
+        X-Result-Count:
+          $ref: '#/components/headers/X-Result-Count'
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/TaskFlow'
+    200TaskFlow_Get:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaskFlow'
+    200TaskFlow_Patch:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaskFlow'
+        application/merge-patch+json:
+          schema:
+            $ref: '#/components/schemas/TaskFlow'
+        application/json-patch+json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/TaskFlow'
+              - type: array
+                items:
+                  $ref: '#/components/schemas/TaskFlow'
+              - type: string
+                nullable: true
+        application/json-patch-query+json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/TaskFlow'
+              - type: array
+                items:
+                  $ref: '#/components/schemas/TaskFlow'
+              - type: string
+                nullable: true
+    200TaskFlow_Put:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaskFlow'
+    201TaskFlow:
+      description: Created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaskFlow'
+    Error:
+      description: Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Hub:
+      description: Notified
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Hub'
+  headers:
+    X-Total-Count:
+      description: Total number of items matching criteria
+      schema:
+        type: integer
+    X-Result-Count:
+      description: Actual number of items returned in the response body
+      schema:
+        type: integer
+  securitySchemes: {}
+  examples:
+    retrieveProcessFlowById_response:
+      value:
+        id: 4fd-ty56-gg55
+        href: .../processFlowManagement/v4/processFlow/4fd-ty56-gg55
+        processFlowSpecification: orderCapture
+        processFlowDate: '2019-04-11T14:52:21.823Z'
+        channel:
+          - id: '1'
+            name: TMFWebStore
+        characteristic:
+          - name: productOfferingId
+            valueType: string
+            value: TMF Mobile 20
+        relatedEntity:
+          - id: qq12-gg22
+            href: .../shoppingCartManagement/v4/shoppingCart/qq12-gg22
+            name: web ShoppingCart for Jean Pontus
+            role: shoppingCart
+            '@referredType': ShoppingCart
+        relatedParty:
+          - id: 456-f69
+            href: .../partyManagement/v4/individual/456-f69
+            name: Jean Pontus
+            role: Customer
+            '@type': RelatedParty
+            '@referredType': Individual
+        state: active
+        taskFlow:
+          - id: 4fd-ty56-gg55-1
+            href: .../processFlowManagement/v4/processFlow/4fd-ty56-gg55/taskFlow/4fd-ty56-gg55-1
+          - id: 4fd-ty56-gg55-2
+            href: .../processFlowManagement/v4/processFlow/4fd-ty56-gg55/taskFlow/4fd-ty56-gg55-2
+          - id: 4fd-ty56-gg55-3
+            href: .../processFlowManagement/v4/processFlow/4fd-ty56-gg55/taskFlow/4fd-ty56-gg55-3
+          - id: 4fd-ty56-gg55-4
+            href: .../processFlowManagement/v4/processFlow/4fd-ty56-gg55/taskFlow/4fd-ty56-gg55-4
+      description: >-
+        Retrieve a processFlow from its identifier - only a subset of processFlow attributes (as
+        defined in the API) are used in this example
+    RetrieveProcessFlowByList_response:
+      value:
+        - id: 4fd-ty56-gg55
+          href: .../processFlowManagement/v4/processFlow/4fd-ty56-gg55
+          processFlowDate: '2019-04-11T14:52:21.823Z'
+          state: active
+        - id: d4d5-98d-sd223
+          href: .../processFlowManagement/v4/processFlow/d4d5-98d-sd223
+          processFlowDate: '2019-04-11T14:50:31.325Z'
+          state: active
+        - id: 8gg-9df-ghhf
+          href: .../processFlowManagement/v4/processFlow/8gg-9df-ghhf
+          processFlowDate: '2019-04-11T14:49:31.325Z'
+          state: cancelled
+        - id: sqf-d77-e6dg5
+          href: .../processFlowManagement/v4/processFlow/sqf-d77-e6dg5
+          processFlowDate: '2019-04-11T14:49:28.325Z'
+          state: completed
+      description: Retrieve a list of processFlow(s) - Complete processFlow representation are sent back.
+    retrieveProcessFlowByListwithFieldsSelection_response:
+      value: []
+      description: >-
+        Retrieve a list of processFlow(s) with filter selection - only few attributes are retrieved
+        for each processFlow.
+    createProcessFlow_request:
+      value:
+        processFlowSpecification: orderCapture
+        channel:
+          - id: '1'
+            name: TMFWebStore
+            '@type': Channel
+        relatedParty:
+          - id: 456-f69
+            href: .../partyManagement/v4/individual/456-f69
+            name: Jean Pontus
+            role: Customer
+            '@type': RelatedParty
+            '@referredType': Individual
+        '@type': ProcessFlow
+        '@baseType': ProcessFlow
+      description: >-
+        POST ProcessFlow request example - only a subset of processFlow attributes are used in this
+        example
+    createProcessFlow_response:
+      value:
+        id: 4fd-ty56-gg55
+        href: .../processFlowManagement/v4/processFlow/4fd-ty56-gg55
+        processFlowSpecification: orderCapture
+        processFlowDate: '2019-04-11T14:52:21.823Z'
+        channel:
+          - id: '1'
+            name: TMFWebStore
+        relatedParty:
+          - id: 456-f69
+            href: .../partyManagement/v4/individual/456-f69
+            name: Jean Pontus
+            role: Customer
+            '@type': RelatedParty
+            '@referredType': Individual
+        state: active
+        taskFlow:
+          - id: 4fd-ty56-gg55-1
+            href: .../processFlowManagement/v4/processFlow/4fd-ty56-gg55/taskFlow/4fd-ty56-gg55-1
+      description: POST ProcessFlow response description
+    ProcessFlowCreateEvent_request:
+      value: {}
+      description: Message example for ProcessFlowCreateEvent event
+    ProcessFlowStateChangeEvent_request:
+      value: {}
+      description: Message example for ProcessFlowStateChangeEvent event
+    ProcessFlowDeleteEvent_request:
+      value: {}
+      description: Message example for ProcessFlowDeleteEvent event
+    ProcessFlowAttributeValueChangeEvent_request:
+      value: {}
+      description: Message example for ProcessFlowAttributeValueChangeEvent event
+    TaskFlowCreateEvent_request:
+      value: {}
+      description: Message example for TaskFlowCreateEvent event
+    TaskFlowStateChangeEvent_request:
+      value: {}
+      description: Message example for TaskFlowStateChangeEvent event
+    TaskFlowDeleteEvent_request:
+      value: {}
+      description: Message example for TaskFlowDeleteEvent event
+    TaskFlowAttributeValueChangeEvent_request:
+      value: {}
+      description: Message example for TaskFlowAttributeValueChangeEvent event
+    TaskFlowInformationRequiredEvent_request:
+      value: {}
+      description: Message example for TaskFlowInformationRequiredEvent event
