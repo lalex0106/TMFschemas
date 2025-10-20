@@ -40,12 +40,12 @@
           "description": "Date interval in which the payment method is valid"
         },
         "relatedParty": {
-          "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+          "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
         },
         "account": {
           "type": "array",
           "items": {
-            "$ref": "../EngagedParty/AccountRef.schema.json#AccountRef"
+            "$ref": "../BusinessPartner/AccountRef.schema.json#AccountRef"
           }
         }
       },
