@@ -31,7 +31,7 @@
         "relatedParty": {
           "type": "array",
           "items": {
-            "$ref": "../EngagedParty/RelatedPartyWithContactInfo.schema.json#/definitions/RelatedPartyWithContactInfo"
+            "$ref": "../BusinessPartner/RelatedPartyWithContactInfo.schema.json#/definitions/RelatedPartyWithContactInfo"
           }
         },
         "state": {

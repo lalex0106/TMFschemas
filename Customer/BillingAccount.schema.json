@@ -19,7 +19,7 @@
       },
       "allOf": [
         {
-          "$ref": "../EngagedParty/PartyAccount.schema.json#PartyAccount"
+          "$ref": "../BusinessPartner/PartyAccount.schema.json#PartyAccount"
         }
       ]
     }

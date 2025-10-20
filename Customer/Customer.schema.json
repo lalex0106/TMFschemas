@@ -35,13 +35,13 @@
           "description": "The time period that the Customer is valid for."
         },
         "engagedParty": {
-          "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty",
+          "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty",
           "description": "The party - an organization or an individual - that is engaged as a customer."
         },
         "account": {
           "type": "array",
           "items": {
-            "$ref": "../EngagedParty/AccountRef.schema.json#AccountRef"
+            "$ref": "../BusinessPartner/AccountRef.schema.json#AccountRef"
           }
         },
         "paymentMethod": {
@@ -72,13 +72,13 @@
         "agreement": {
           "type": "array",
           "items": {
-            "$ref": "../EngagedParty/AgreementRef.schema.json#AgreementRef"
+            "$ref": "../BusinessPartner/AgreementRef.schema.json#AgreementRef"
           }
         },
         "relatedParty": {
           "type": "array",
           "items": {
-            "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+            "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
           }
         }
       },
