@@ -852,6 +852,69 @@ def _iter_properties(
                 )
 
 
+def _collect_enum_values(
+    node: Mapping[str, object],
+    repository: "SchemaRepository",
+    _visited_nodes: Optional[Set[int]] = None,
+    _visited_schemas: Optional[Set[str]] = None,
+) -> Iterable[str]:
+    """遍历节点与父类，收集所有枚举取值。"""
+
+    if _visited_nodes is None:
+        _visited_nodes = set()
+    if _visited_schemas is None:
+        _visited_schemas = set()
+
+    node_id = id(node)
+    if node_id in _visited_nodes:
+        return
+    _visited_nodes.add(node_id)
+
+    enum_values = node.get("enum")
+    if isinstance(enum_values, Sequence):
+        for value in enum_values:
+            if isinstance(value, (str, int, float)):
+                yield str(value)
+
+    const_value = node.get("const")
+    if isinstance(const_value, (str, int, float)):
+        yield str(const_value)
+
+    for keyword in ("allOf", "anyOf", "oneOf"):
+        compositions = node.get(keyword)
+        if not isinstance(compositions, Sequence):
+            continue
+
+        for item in compositions:
+            if not isinstance(item, Mapping):
+                continue
+
+            ref_name = _extract_ref_from_mapping(item)
+            if ref_name and ref_name not in _visited_schemas:
+                _visited_schemas.add(ref_name)
+                parent_record = repository.get(ref_name)
+                if parent_record:
+                    parent_def = parent_record.definition()
+                    if parent_def:
+                        yield from _collect_enum_values(
+                            parent_def,
+                            repository,
+                            _visited_nodes,
+                            _visited_schemas,
+                        )
+
+            nested = {
+                k: v for k, v in item.items() if not (k == "$ref" and isinstance(v, str))
+            }
+            if nested:
+                yield from _collect_enum_values(
+                    nested,
+                    repository,
+                    _visited_nodes,
+                    _visited_schemas,
+                )
+
+
 def _is_relationship(prop: Mapping[str, object]) -> bool:
     if "$ref" in prop:
         return True
@@ -930,6 +993,12 @@ def render_entity_block(
             bilingual,
         )
         lines.append(f"  + {prop_label}: {display_type}")
+
+    enum_values = list(dict.fromkeys(_collect_enum_values(definition, repository)))
+    if enum_values:
+        lines.append("  .. 枚举 ..")
+        for value in enum_values:
+            lines.append(f"  # {value}")
     lines.append("}")
     return "\n".join(lines) + "\n"
 
@@ -1047,13 +1116,13 @@ def generate_diagram(
             source_record = repository.get(source)
             target_record = repository.get(target)
 
-            source_label = (
-                source_record.localized_title(primary_language, fallback_language, bilingual)
+            source_alias = (
+                f"{source_record.domain}_{source_record.name}"
                 if source_record
                 else source
             )
-            target_label = (
-                target_record.localized_title(primary_language, fallback_language, bilingual)
+            target_alias = (
+                f"{target_record.domain}_{target_record.name}"
                 if target_record
                 else target
             )
@@ -1070,7 +1139,7 @@ def generate_diagram(
             connector = "--{" if is_many else "--"
 
             relationship_lines.add(
-                f'"{source_label}" {left_card} {connector} {right_card} "{target_label}" : {prop_label}'
+                f"{source_alias} {left_card} {connector} {right_card} {target_alias} : {prop_label}"
             )
 
         inheritance_parents: Set[str] = set()
@@ -1096,8 +1165,13 @@ def generate_diagram(
                     if parent_record
                     else parent
                 )
+                parent_alias = (
+                    f"{parent_record.domain}_{parent_record.name}"
+                    if parent_record
+                    else parent
+                )
                 relationship_lines.add(
-                    f'"{parent_label}" <|-- "{display_name}"'
+                    f"{parent_alias} <|-- {record.domain}_{record.name}"
                 )
             discovered.update(inheritance_parents)
 
