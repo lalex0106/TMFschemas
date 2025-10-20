@@ -55,7 +55,7 @@
           "description": "Category of the bill produced : normal, duplicate, interim, last, trial customer or credit note for example"
         },
         "financialAccount": {
-          "$ref": "../EngagedParty/FinancialAccountRef.schema.json#FinancialAccountRef"
+          "$ref": "../BusinessPartner/FinancialAccountRef.schema.json#FinancialAccountRef"
         },
         "lastUpdate": {
           "type": "string",
@@ -79,7 +79,7 @@
         "relatedParty": {
           "type": "array",
           "items": {
-            "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+            "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
           }
         },
         "remainingAmount": {

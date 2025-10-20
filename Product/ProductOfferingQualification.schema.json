@@ -85,7 +85,7 @@
           "type": "array",
           "description": "Party playing a role for this qualification (as requester for example)",
           "items": {
-            "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+            "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
           }
         },
         "place": {
