@@ -962,6 +962,62 @@ def _extract_ref_from_mapping(prop: Mapping[str, object]) -> Optional[str]:
     return schema_name or None
 
 
+def _describe_property_type(
+    prop: Mapping[str, object],
+    repository: SchemaRepository,
+    primary_language: Optional[str],
+    fallback_language: Optional[str],
+    bilingual: bool,
+) -> str:
+    """生成属性类型的可读描述，支持引用与数组。"""
+
+    if prop.get("type") == "array":
+        items = prop.get("items")
+        if isinstance(items, Mapping):
+            ref_name = _extract_ref_from_mapping(items)
+            if ref_name:
+                target = repository.get(ref_name)
+                if target:
+                    label = target.localized_title(
+                        primary_language,
+                        fallback_language,
+                        bilingual,
+                    )
+                else:
+                    label = ref_name
+                return f"→ {label}[]"
+
+            item_type = items.get("type")
+            if isinstance(item_type, str):
+                return f"[{item_type}]"
+            if isinstance(item_type, list) and item_type:
+                joined = "/".join(str(value) for value in item_type)
+                return f"[{joined}]"
+
+        return "array"
+
+    ref_name = _extract_ref_from_mapping(prop)
+    if ref_name:
+        target = repository.get(ref_name)
+        if target:
+            label = target.localized_title(
+                primary_language,
+                fallback_language,
+                bilingual,
+            )
+        else:
+            label = ref_name
+        return f"→ {label}"
+
+    prop_type = prop.get("type", "any")
+    if isinstance(prop_type, str):
+        return prop_type
+    if isinstance(prop_type, list) and prop_type:
+        return "/".join(str(item) for item in prop_type)
+
+    return "any"
+
+
 def render_entity_block(
     record: SchemaRecord,
     repository: SchemaRepository,
@@ -986,15 +1042,13 @@ def render_entity_block(
         if prop_name in seen:
             continue
         seen.add(prop_name)
-        if _is_relationship(prop_value):
-            continue
-        prop_type = prop_value.get("type", "any")
-        if isinstance(prop_type, str):
-            display_type = prop_type
-        elif isinstance(prop_type, list):
-            display_type = "/".join(str(item) for item in prop_type)
-        else:
-            display_type = "any"
+        display_type = _describe_property_type(
+            prop_value,
+            repository,
+            primary_language,
+            fallback_language,
+            bilingual,
+        )
         prop_label = record.property_display_name(
             repository,
             prop_name,
