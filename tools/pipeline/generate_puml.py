@@ -783,17 +783,21 @@ def discover_api_documents(
 
 def _iter_properties(
     node: Mapping[str, object],
-    _visited: Optional[Set[int]] = None,
+    repository: "SchemaRepository",
+    _visited_nodes: Optional[Set[int]] = None,
+    _visited_schemas: Optional[Set[str]] = None,
 ) -> Iterable[Tuple[str, Mapping[str, object]]]:
-    """遍历节点内的属性声明，自动展开 allOf/anyOf/oneOf。"""
+    """遍历节点内的属性声明，自动展开 allOf/anyOf/oneOf 以及父类引用。"""
 
-    if _visited is None:
-        _visited = set()
+    if _visited_nodes is None:
+        _visited_nodes = set()
+    if _visited_schemas is None:
+        _visited_schemas = set()
 
     node_id = id(node)
-    if node_id in _visited:
+    if node_id in _visited_nodes:
         return
-    _visited.add(node_id)
+    _visited_nodes.add(node_id)
 
     properties = node.get("properties")
     if isinstance(properties, Mapping):
@@ -803,10 +807,49 @@ def _iter_properties(
 
     for keyword in ("allOf", "anyOf", "oneOf"):
         compositions = node.get(keyword)
-        if isinstance(compositions, Sequence):
-            for item in compositions:
-                if isinstance(item, Mapping):
-                    yield from _iter_properties(item, _visited)
+        if not isinstance(compositions, Sequence):
+            continue
+
+        for item in compositions:
+            if not isinstance(item, Mapping):
+                continue
+
+            ref_name = _extract_ref_from_mapping(item)
+            if ref_name:
+                if ref_name not in _visited_schemas:
+                    _visited_schemas.add(ref_name)
+                    parent_record = repository.get(ref_name)
+                    if parent_record:
+                        parent_def = parent_record.definition()
+                        if parent_def:
+                            yield from _iter_properties(
+                                parent_def,
+                                repository,
+                                _visited_nodes,
+                                _visited_schemas,
+                            )
+
+                # 若组合节点同时带有结构字段，也继续遍历其余部分
+                if any(
+                    key in item for key in ("properties", "allOf", "anyOf", "oneOf")
+                ):
+                    nested = {
+                        k: v for k, v in item.items() if not (k == "$ref" and isinstance(v, str))
+                    }
+                    if nested:
+                        yield from _iter_properties(
+                            nested,
+                            repository,
+                            _visited_nodes,
+                            _visited_schemas,
+                        )
+            else:
+                yield from _iter_properties(
+                    item,
+                    repository,
+                    _visited_nodes,
+                    _visited_schemas,
+                )
 
 
 def _is_relationship(prop: Mapping[str, object]) -> bool:
@@ -866,7 +909,7 @@ def render_entity_block(
 
     lines = [f'entity "{display_name}" as {record.domain}_{record.name} {{']
     seen: Set[str] = set()
-    for prop_name, prop_value in _iter_properties(definition):
+    for prop_name, prop_value in _iter_properties(definition, repository):
         if prop_name in seen:
             continue
         seen.add(prop_name)
@@ -902,7 +945,7 @@ def discover_relationships(
     discovered: Set[str] = set()
 
     seen: Set[str] = set()
-    for prop_name, prop_value in _iter_properties(definition):
+    for prop_name, prop_value in _iter_properties(definition, repository):
         if prop_name in seen:
             continue
         seen.add(prop_name)
