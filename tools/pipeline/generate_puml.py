@@ -856,6 +856,49 @@ def _iter_properties(
                 )
 
 
+def _ordered_property_entries(
+    definition: Mapping[str, object],
+    repository: "SchemaRepository",
+    include_inheritance: bool,
+) -> Sequence[Tuple[str, Mapping[str, object]]]:
+    """按“自身属性→继承属性”顺序返回属性列表。"""
+
+    direct_entries = list(
+        _iter_properties(
+            definition,
+            repository,
+            include_inheritance=False,
+        )
+    )
+
+    inherited_entries: Sequence[Tuple[str, Mapping[str, object]]] = ()
+    if include_inheritance:
+        inherited_entries = list(
+            _iter_properties(
+                definition,
+                repository,
+                include_inheritance=True,
+            )
+        )
+
+    ordered: list[Tuple[str, Mapping[str, object]]] = []
+    seen: Set[str] = set()
+
+    for prop_name, prop_value in direct_entries:
+        if prop_name in seen:
+            continue
+        seen.add(prop_name)
+        ordered.append((prop_name, prop_value))
+
+    for prop_name, prop_value in inherited_entries:
+        if prop_name in seen:
+            continue
+        seen.add(prop_name)
+        ordered.append((prop_name, prop_value))
+
+    return ordered
+
+
 def _collect_enum_values(
     node: Mapping[str, object],
     repository: "SchemaRepository",
@@ -1035,13 +1078,9 @@ def render_entity_block(
         )
 
     lines = [f'entity "{display_name}" as {record.domain}_{record.name} {{']
-    seen: Set[str] = set()
-    for prop_name, prop_value in _iter_properties(
+    for prop_name, prop_value in _ordered_property_entries(
         definition, repository, include_inheritance
     ):
-        if prop_name in seen:
-            continue
-        seen.add(prop_name)
         display_type = _describe_property_type(
             prop_value,
             repository,
@@ -1087,13 +1126,9 @@ def discover_relationships(
     relationships: Set[Tuple[str, str, bool, str]] = set()
     discovered: Set[str] = set()
 
-    seen: Set[str] = set()
-    for prop_name, prop_value in _iter_properties(
+    for prop_name, prop_value in _ordered_property_entries(
         definition, repository, include_inheritance
     ):
-        if prop_name in seen:
-            continue
-        seen.add(prop_name)
         ref_name = _extract_ref_from_mapping(prop_value)
         if not ref_name:
             continue
