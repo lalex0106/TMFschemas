@@ -15,13 +15,14 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import re
 import shutil
 from collections import Counter
 from copy import deepcopy
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Dict, Iterable, Mapping, MutableMapping, Optional, Tuple
+from pathlib import Path, PurePosixPath
+from typing import Dict, Iterable, Mapping, MutableMapping, Optional, Sequence, Tuple
 
 try:
     import yaml  # type: ignore
@@ -38,6 +39,46 @@ class SpecDocument:
     protocol: str
     file: Path
     schemas: Mapping[str, object]
+
+
+@dataclass(frozen=True)
+class SchemaPlacement:
+    """Schema 在输出目录中的放置策略。"""
+
+    domain: str
+    api_code: Optional[str] = None
+    extra_segments: Tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class ModelLocation:
+    """描述某个模型在输出仓库中的相对路径信息。"""
+
+    domain: str
+    path: PurePosixPath
+    api_code: Optional[str] = None
+    api_name: Optional[str] = None
+    extra_segments: Tuple[str, ...] = ()
+
+    def filesystem_dir(self, root: Path) -> Path:
+        return root / Path(self.path.as_posix())
+
+
+@dataclass
+class SchemaTaxonomy:
+    """封装基于 YAML 的 Schema 分级信息。"""
+
+    by_alias: Dict[str, SchemaPlacement]
+    by_canonical: Dict[str, SchemaPlacement]
+
+    def find(self, schema_name: str) -> Optional[SchemaPlacement]:
+        placement = self.by_alias.get(schema_name)
+        if placement is not None:
+            return placement
+        return self.by_canonical.get(canonical_model_name(schema_name))
+
+    def canonical_items(self) -> Iterable[Tuple[str, SchemaPlacement]]:
+        return self.by_canonical.items()
 
 
 @dataclass(frozen=True)
@@ -59,8 +100,6 @@ class PipelineConfig:
 
     tmf_official: Path
     external: Path
-    name_mapping: Path
-    ground_truth: Path
     common_candidate_threshold: int
     filename_pattern: re.Pattern[str]
     prefer_existing_domains: bool
@@ -70,6 +109,8 @@ class PipelineConfig:
     output_docs: Path
     output_yaml: Path
     domain_mapping_file: Path
+    api_name_mapping_file: Path
+    schema_taxonomy_file: Path
     schema_draft: str
     i18n_locales: Tuple[LocaleConfig, ...] = ()
     i18n_default_locale: str = "en"
@@ -136,8 +177,6 @@ class PipelineConfig:
         return cls(
             tmf_official=Path(sources.get("tmf_official", "sources/tmf-official")),
             external=Path(sources.get("external", "sources/external")),
-            name_mapping=Path(sources.get("name_mapping", "config/name_mapping.json")),
-            ground_truth=Path(sources.get("ground_truth", ".")),
             common_candidate_threshold=int(processing.get("common_candidate_threshold", 12)),
             filename_pattern=re.compile(processing.get("filename_regex", r"^(TMF\\d+)")),
             prefer_existing_domains=bool(processing.get("prefer_existing_domains", True)),
@@ -147,6 +186,12 @@ class PipelineConfig:
             output_docs=Path(output.get("docs", "dist/docs")),
             output_yaml=Path(output.get("yaml", "dist/yaml")),
             domain_mapping_file=Path(metadata.get("domain_mapping_file", "config/domain_mapping.yaml")),
+            api_name_mapping_file=Path(
+                metadata.get("api_name_mapping_file", "config/apiname_mapping.yaml")
+            ),
+            schema_taxonomy_file=Path(
+                metadata.get("schema_taxonomy_file", "config/schema_taxonomy.yaml")
+            ),
             schema_draft=str(metadata.get("schema_draft", "http://json-schema.org/draft-07/schema#")),
             i18n_locales=tuple(locales),
             i18n_default_locale=i18n_default_locale,
@@ -170,13 +215,6 @@ else:  # pragma: no cover - 仅用于缺失 PyYAML 的环境
 JSON_AND_YAML_EXCEPTIONS = (json.JSONDecodeError,) + YAML_EXCEPTIONS
 
 
-def load_json(path: Path) -> MutableMapping[str, str]:
-    if not path.exists():
-        return {}
-    with path.open("r", encoding="utf-8") as fh:
-        return json.load(fh) or {}
-
-
 def load_domain_mapping(path: Path) -> Mapping[str, str]:
     if not path.exists():
         return {}
@@ -186,22 +224,80 @@ def load_domain_mapping(path: Path) -> Mapping[str, str]:
     return {str(k): str(v) for k, v in data.items()}
 
 
-def scan_ground_truth(directory: Path, name_mapping: Mapping[str, str]) -> Mapping[str, str]:
-    """扫描现有 JSON schema，构建模型 -> 域 的映射基线。"""
-    reverse_name_map = {v: k for k, v in name_mapping.items()}
-    ground_truth_map: Dict[str, str] = {}
+def load_api_name_mapping(path: Path) -> Mapping[str, str]:
+    if not path.exists():
+        return {}
+    _require_yaml(f"读取 API 名称映射 {path}")
+    with path.open("r", encoding="utf-8") as fh:
+        data = yaml.safe_load(fh) or {}
+    return {str(k).upper(): str(v) for k, v in data.items() if str(k)}
 
-    if not directory.exists():
-        return ground_truth_map
 
-    for domain_path in directory.iterdir():
-        if not domain_path.is_dir():
-            continue
-        for schema_file in domain_path.glob("*.schema.json"):
-            schema_name = schema_file.stem
-            normalized = reverse_name_map.get(schema_name, schema_name)
-            ground_truth_map[normalized] = domain_path.name
-    return ground_truth_map
+def _parse_schema_taxonomy_value(value: object) -> Optional[SchemaPlacement]:
+    if value is None:
+        return None
+    if isinstance(value, Mapping):
+        domain_value = value.get("domain")
+        api_code_value = value.get("api") or value.get("api_code")
+        extra_value = value.get("subfolders") or value.get("extra")
+        domain = str(domain_value).strip() if domain_value else ""
+        api_code = str(api_code_value).strip().upper() if api_code_value else None
+        extra: Tuple[str, ...] = ()
+        if isinstance(extra_value, (list, tuple)):
+            extra = tuple(str(item).strip() for item in extra_value if str(item).strip())
+        return SchemaPlacement(domain=domain, api_code=api_code or None, extra_segments=extra)
+
+    text = str(value).strip()
+    if not text:
+        return None
+    segments = [segment.strip() for segment in text.split("/") if segment.strip()]
+    if not segments:
+        return None
+    api_code: Optional[str] = None
+    domain: str = ""
+    extra_segments: list[str] = []
+
+    tmf_pattern = re.compile(r"^TMF\d+", re.IGNORECASE)
+    if len(segments) >= 2 and tmf_pattern.match(segments[0]):
+        api_code = segments[0].upper()
+        domain = segments[1]
+        if len(segments) > 2:
+            extra_segments = segments[2:]
+    else:
+        domain = segments[0]
+        if len(segments) > 1:
+            extra_segments = segments[1:]
+
+    if not domain:
+        return None
+    return SchemaPlacement(domain=domain, api_code=api_code, extra_segments=tuple(extra_segments))
+
+
+def load_schema_taxonomy(path: Path) -> SchemaTaxonomy:
+    alias_map: Dict[str, SchemaPlacement] = {}
+    canonical_map: Dict[str, SchemaPlacement] = {}
+
+    if not path.exists():
+        return SchemaTaxonomy(by_alias=alias_map, by_canonical=canonical_map)
+
+    _require_yaml(f"读取 Schema 分级文件 {path}")
+    with path.open("r", encoding="utf-8") as fh:
+        data = yaml.safe_load(fh) or {}
+
+    if isinstance(data, Mapping):
+        for raw_key, raw_value in data.items():
+            key = str(raw_key).strip()
+            if not key:
+                continue
+            placement = _parse_schema_taxonomy_value(raw_value)
+            if placement is None:
+                continue
+            canonical_key = canonical_model_name(key)
+            canonical_map[canonical_key] = placement
+            for alias in iter_model_aliases(key):
+                alias_map[alias] = placement
+
+    return SchemaTaxonomy(by_alias=alias_map, by_canonical=canonical_map)
 
 
 def collect_spec_sources(paths: Iterable[Path]) -> Iterable[Path]:
@@ -264,6 +360,119 @@ PROTOCOL_PRIORITY: Mapping[str, int] = {
     "asyncapi": 1,
     "unknown": 5,
 }
+
+
+def _sanitize_path_segment(value: str) -> str:
+    sanitized = re.sub(r"[\\/:*?\"<>|]+", "_", value.strip())
+    sanitized = re.sub(r"\s+", "_", sanitized)
+    sanitized = sanitized.strip("_.")
+    return sanitized or "segment"
+
+
+def _normalize_api_code(api_code: Optional[str]) -> Optional[str]:
+    if not api_code:
+        return None
+    text = str(api_code).strip().upper()
+    return text or None
+
+
+def build_model_location(
+    domain: str,
+    api_code: Optional[str],
+    api_name_map: Mapping[str, str],
+    extra_segments: Sequence[str],
+    default_domain: str,
+) -> ModelLocation:
+    domain_label = domain.strip() if domain else ""
+    if not domain_label:
+        domain_label = default_domain
+
+    path = PurePosixPath(_sanitize_path_segment(domain_label))
+    sanitized_extra: list[str] = []
+    for segment in extra_segments:
+        clean_segment = _sanitize_path_segment(segment)
+        if not clean_segment:
+            continue
+        path /= clean_segment
+        sanitized_extra.append(clean_segment)
+
+    normalized_code = _normalize_api_code(api_code)
+    api_name: Optional[str] = None
+    if normalized_code:
+        api_name = api_name_map.get(normalized_code)
+        folder_label = normalized_code if not api_name else f"{normalized_code}_{api_name}"
+        path /= _sanitize_path_segment(folder_label)
+
+    return ModelLocation(
+        domain=domain_label,
+        path=path,
+        api_code=normalized_code,
+        api_name=api_name,
+        extra_segments=tuple(sanitized_extra),
+    )
+
+
+def determine_model_location(
+    schema_name: str,
+    canonical_name: str,
+    document: SpecDocument,
+    taxonomy: SchemaTaxonomy,
+    domain_mapping: Mapping[str, str],
+    schema_counts: Mapping[str, int],
+    config: PipelineConfig,
+    api_name_map: Mapping[str, str],
+    cache: MutableMapping[str, ModelLocation],
+) -> ModelLocation:
+    existing = cache.get(canonical_name)
+    if existing is not None:
+        return existing
+
+    placement = taxonomy.find(schema_name)
+    if placement is None and canonical_name != schema_name:
+        placement = taxonomy.find(canonical_name)
+
+    if placement is not None:
+        domain = placement.domain or config.default_domain
+        api_code = placement.api_code if placement.api_code else document.api_code
+        location = build_model_location(
+            domain,
+            api_code,
+            api_name_map,
+            placement.extra_segments,
+            config.default_domain,
+        )
+    else:
+        domain = infer_domain(
+            canonical_name,
+            schema_counts,
+            domain_mapping,
+            document.api_code,
+            config,
+        )
+        location = build_model_location(
+            domain,
+            document.api_code,
+            api_name_map,
+            (),
+            config.default_domain,
+        )
+
+    cache[canonical_name] = location
+    return location
+
+
+def _relative_ref_prefix(current: ModelLocation, target: ModelLocation) -> str:
+    if current.path == target.path:
+        return ""
+    current_str = current.path.as_posix()
+    target_str = target.path.as_posix()
+    relative = os.path.relpath(target_str, current_str)
+    if relative in {".", "./"}:
+        return ""
+    normalized = relative.replace("\\", "/")
+    if not normalized.endswith("/"):
+        normalized += "/"
+    return normalized
 
 
 def canonical_model_name(schema_name: str) -> str:
@@ -998,7 +1207,7 @@ def analyze_spec_files(
             continue
 
         document = SpecDocument(
-            api_code=match.group(1),
+            api_code=match.group(1).upper(),
             version=version,
             protocol=detect_protocol(spec_file),
             file=spec_file,
@@ -1015,14 +1224,11 @@ def analyze_spec_files(
 
 def infer_domain(
     model_name: str,
-    ground_truth_map: Mapping[str, str],
     schema_counts: Mapping[str, int],
     domain_mapping: Mapping[str, str],
     api_code: Optional[str],
     config: PipelineConfig,
 ) -> str:
-    if config.prefer_existing_domains and model_name in ground_truth_map:
-        return ground_truth_map[model_name]
     if schema_counts.get(model_name, 0) >= config.common_candidate_threshold:
         return "Common"
     if api_code and api_code in domain_mapping:
@@ -1030,24 +1236,26 @@ def infer_domain(
     return config.default_domain
 
 
-def resolve_refs(obj: object, current_domain: str, model_domain_map: Mapping[str, str]) -> object:
+def resolve_refs(
+    obj: object, current_location: ModelLocation, model_locations: Mapping[str, ModelLocation]
+) -> object:
     if isinstance(obj, dict):
-        new_obj = {}
+        new_obj: Dict[str, object] = {}
         for key, value in obj.items():
             if key == "$ref" and isinstance(value, str) and value.startswith("#/components/schemas/"):
                 ref_name = value.split("/")[-1]
-                ref_domain = model_domain_map.get(ref_name)
-                if ref_domain is None:
-                    ref_domain = model_domain_map.get(
-                        canonical_model_name(ref_name), current_domain
-                    )
-                prefix = "" if ref_domain == current_domain else f"../{ref_domain}/"
+                target_location = model_locations.get(ref_name)
+                if target_location is None:
+                    target_location = model_locations.get(canonical_model_name(ref_name))
+                if target_location is None:
+                    target_location = current_location
+                prefix = _relative_ref_prefix(current_location, target_location)
                 new_obj[key] = f"{prefix}{ref_name}.schema.json#{ref_name}"
             else:
-                new_obj[key] = resolve_refs(value, current_domain, model_domain_map)
+                new_obj[key] = resolve_refs(value, current_location, model_locations)
         return new_obj
     if isinstance(obj, list):
-        return [resolve_refs(item, current_domain, model_domain_map) for item in obj]
+        return [resolve_refs(item, current_location, model_locations) for item in obj]
     return obj
 
 
@@ -1102,7 +1310,7 @@ def normalize_schema_structure(schema: MutableMapping[str, object]) -> None:
 
 def build_schema_document(
     model_name: str,
-    domain: str,
+    location: ModelLocation,
     schema: Mapping[str, object],
     config: PipelineConfig,
     source: SpecDocument,
@@ -1116,7 +1324,7 @@ def build_schema_document(
         relative_path = source.file.resolve()
 
     metadata: Dict[str, object] = {
-        "domain": domain,
+        "domain": location.domain,
         "usage": {"occurrences": usage_count},
         "source": {
             "apiCode": source.api_code,
@@ -1126,6 +1334,18 @@ def build_schema_document(
             "path": str(relative_path),
         },
     }
+
+    container_info: Dict[str, object] = {
+        "path": location.path.as_posix(),
+        "domain": location.domain,
+    }
+    if location.api_code:
+        container_info["apiCode"] = location.api_code
+        if location.api_name:
+            container_info["apiName"] = location.api_name
+    if location.extra_segments:
+        container_info["subfolders"] = list(location.extra_segments)
+    metadata["container"] = container_info
 
     if locales:
         unique_locales = sorted({code for code in locales if code})
@@ -1150,8 +1370,10 @@ def build_schema_document(
     }
 
 
-def write_schema_file(output_root: Path, domain: str, model_name: str, document: Mapping[str, object]) -> None:
-    target_dir = output_root / domain
+def write_schema_file(
+    output_root: Path, location: ModelLocation, model_name: str, document: Mapping[str, object]
+) -> None:
+    target_dir = location.filesystem_dir(output_root)
     target_dir.mkdir(parents=True, exist_ok=True)
     target_path = target_dir / f"{model_name}.schema.json"
     with target_path.open("w", encoding="utf-8") as fh:
@@ -1159,9 +1381,9 @@ def write_schema_file(output_root: Path, domain: str, model_name: str, document:
 
 
 def run_pipeline(config: PipelineConfig, clean: bool = False) -> None:
-    name_mapping = load_json(config.name_mapping)
-    ground_truth_map = scan_ground_truth(config.ground_truth, name_mapping)
     domain_mapping = load_domain_mapping(config.domain_mapping_file)
+    api_name_mapping = load_api_name_mapping(config.api_name_mapping_file)
+    schema_taxonomy = load_schema_taxonomy(config.schema_taxonomy_file)
 
     spec_sources = list(collect_spec_sources([config.tmf_official, config.external]))
     documents, schema_counts = analyze_spec_files(
@@ -1176,9 +1398,22 @@ def run_pipeline(config: PipelineConfig, clean: bool = False) -> None:
     if clean and config.validation_root and config.validation_root.exists():
         shutil.rmtree(config.validation_root)
 
-    model_domain_map: Dict[str, str] = dict(ground_truth_map)
     repo_root = Path.cwd()
     written_models: Dict[str, SpecDocument] = {}
+    location_cache: Dict[str, ModelLocation] = {}
+    model_location_map: Dict[str, ModelLocation] = {}
+
+    for canonical_name, placement in schema_taxonomy.canonical_items():
+        location = build_model_location(
+            placement.domain or config.default_domain,
+            placement.api_code,
+            api_name_mapping,
+            placement.extra_segments,
+            config.default_domain,
+        )
+        location_cache[canonical_name] = location
+        for alias in iter_model_aliases(canonical_name):
+            model_location_map.setdefault(alias, location)
 
     def document_sort_key(doc: SpecDocument) -> tuple[int, str, str, str]:
         priority = PROTOCOL_PRIORITY.get(doc.protocol, 9)
@@ -1188,14 +1423,6 @@ def run_pipeline(config: PipelineConfig, clean: bool = False) -> None:
     for document in sorted(documents, key=document_sort_key):
         for schema_name, schema_def in document.schemas.items():
             canonical_name = canonical_model_name(schema_name)
-            domain = infer_domain(
-                canonical_name,
-                ground_truth_map,
-                schema_counts,
-                domain_mapping,
-                document.api_code,
-                config,
-            )
             previous = written_models.get(schema_name)
             if previous is not None:
                 current_priority = PROTOCOL_PRIORITY.get(document.protocol, 9)
@@ -1203,11 +1430,22 @@ def run_pipeline(config: PipelineConfig, clean: bool = False) -> None:
                 if current_priority > previous_priority:
                     continue
 
-            model_domain_map[schema_name] = domain
-            if canonical_name not in model_domain_map:
-                model_domain_map[canonical_name] = domain
+            location = determine_model_location(
+                schema_name,
+                canonical_name,
+                document,
+                schema_taxonomy,
+                domain_mapping,
+                schema_counts,
+                config,
+                api_name_mapping,
+                location_cache,
+            )
 
-            resolved = resolve_refs(deepcopy(schema_def), domain, model_domain_map)
+            for alias in iter_model_aliases(schema_name):
+                model_location_map[alias] = location
+
+            resolved = resolve_refs(deepcopy(schema_def), location, model_location_map)
             prepared_schema = resolved
             applied_locales: Tuple[str, ...] = ()
 
@@ -1225,7 +1463,7 @@ def run_pipeline(config: PipelineConfig, clean: bool = False) -> None:
 
             document_payload = build_schema_document(
                 schema_name,
-                domain,
+                location,
                 prepared_schema,
                 config,
                 document,
@@ -1233,13 +1471,13 @@ def run_pipeline(config: PipelineConfig, clean: bool = False) -> None:
                 repo_root,
                 applied_locales,
             )
-            write_schema_file(config.output_root, domain, schema_name, document_payload)
+            write_schema_file(config.output_root, location, schema_name, document_payload)
             if config.validation_root:
                 sanitized_payload = sanitize_for_validation(
                     document_payload, config.validation_strip_keys
                 )
                 write_schema_file(
-                    config.validation_root, domain, schema_name, sanitized_payload
+                    config.validation_root, location, schema_name, sanitized_payload
                 )
             written_models[schema_name] = document
 

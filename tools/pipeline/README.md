@@ -21,7 +21,7 @@
    - `openapi/` 子目录放置 `*.oas.yaml` 等 REST 定义。
    - `asyncapi/` 子目录放置 `*.asyncapi.json`/`*.asyncapi.yaml` 等事件接口。
 2. 如有额外参考源，可放入 `sources/external/`。
-3. 根据需要编辑 `config/domain_mapping.yaml` 与 `config/name_mapping.json`，统一域映射与命名规范。
+3. 根据需要编辑 `config/domain_mapping.yaml`、`config/apiname_mapping.yaml` 与 `config/schema_taxonomy.yaml`，统一域映射、API 子域命名与模型归档规则。
 4. 可选：在 `overrides/i18n/<locale>/` 目录补充翻译文件（详见 `overrides/i18n/README.md`）。
    - 若 `Schemas_ZH.csv` 提供模型标题与描述的中文翻译，脚本会在输出中自动写入 `x-i18n`。
    - `Properties_ZH.csv` 支持仅使用 `Property,Descriptions,中文名称,新描述` 四列表头，流水线会把同名属性翻译同步到所有出现该属性的节点；
@@ -169,8 +169,7 @@
   等命令提升句柄上限。
 - **`no description value`**：官方模型未提供描述。流水线会自动写入占位文本，若仍提示，
   可在 `overrides` 或翻译 CSV 中补齐具体描述。
-- **`should be renamed as ...Ref`**：TMF 规范偏好 `*Ref` 命名，如需完全遵循，可在
-  `config/name_mapping.json` 中配置别名以生成合规文件名。
+- **`should be renamed as ...Ref`**：TMF 规范偏好 `*Ref` 命名。流水线默认沿用官方组件原名，如需额外的 `*Ref` 变体，可在 `config/schema_taxonomy.yaml` 中为该模型单独归档，或在 `overrides` 层追加重命名逻辑。
 
 ## 后续扩展建议
 

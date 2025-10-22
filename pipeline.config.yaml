@@ -2,8 +2,6 @@
 sources:
   tmf_official: sources/tmf-official
   external: sources/external
-  name_mapping: config/name_mapping.json
-  ground_truth: .
 processing:
   common_candidate_threshold: 12
   filename_regex: '^(TMF\d+).*?(v\d+\.\d+\.\d+)'
@@ -24,6 +22,8 @@ output:
       - x-*
 metadata:
   domain_mapping_file: config/domain_mapping.yaml
+  api_name_mapping_file: config/apiname_mapping.yaml
+  schema_taxonomy_file: config/schema_taxonomy.yaml
   schema_draft: 'http://json-schema.org/draft-07/schema#'
 i18n:
   default_locale: en

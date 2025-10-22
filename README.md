@@ -35,7 +35,7 @@
 ## 快速开始
 
 1. 按照 `sources/tmf-official/README.md` 指引同步官方 API 规范文件（默认聚焦 v4/v5 主版本，若需包含 v1~v3，请调整 `pipeline.config.yaml`）。
-2. 根据需要更新 `config/domain_mapping.yaml` 与 `config/name_mapping.json`，统一域归属与命名映射。
+2. 根据需要更新 `config/domain_mapping.yaml`、`config/apiname_mapping.yaml` 与 `config/schema_taxonomy.yaml`，统一域归属、API 子域命名与模型归档规则。
 3. （可选）在 `overrides/i18n/<locale>/` 下补充翻译文件。推荐使用 Excel 维护并导出 `Schemas_ZH.csv`、`Properties_ZH.csv` 等 CSV。   其中 `Properties_ZH.csv` 可仅保留 `Property,Descriptions,中文名称,新描述` 四列，流水线会自动把中文名称/描述应用到所有同名属性；若发现不同模型下同名属性含义不一，可新增一行写入 `Schema` 列（或直接在 `Property` 中写成 `模型.属性`），为指定模型设置专属翻译，避免被全局配置覆盖。   如需集中维护并生成 YAML，可配合 `python tools/pipeline/i18n_workbook.py extract`/`render` 命令，在 `overrides/i18n/workbooks/` 与 `overrides/i18n/zh-CN/yaml/` 之间同步翻译内容。
 4. 执行流水线原型：
 

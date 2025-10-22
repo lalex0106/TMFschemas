@@ -13,7 +13,8 @@ YAML 并扩展为企业 schema 的具体步骤。所有章节均以中文撰写�
 2. **配置基线**：
    - `pipeline.config.yaml` 定义数据源、阈值和输出目录，可根据环境进行覆盖。
    - `config/domain_mapping.yaml` 记录 API -> 数据域映射，继承本地脚本的分类经验。
-   - `config/name_mapping.json` 用于维护历史名称与新名称的映射，默认提供空对象。
+   - `config/apiname_mapping.yaml` 维护 `TMFxxx -> 官方名称`，用于生成 `TMFxxx_API Name` 子目录。
+   - `config/schema_taxonomy.yaml` 以 `SchemaName: TMFxxx/Domain` 或 `SchemaName: Domain/Subfolder` 的格式声明模型归档位置。
 
 ## 2. 分析与映射（对应脚本 Phase 1）
 
@@ -21,8 +22,8 @@ YAML 并扩展为企业 schema 的具体步骤。所有章节均以中文撰写�
    - 统计 YAML 中 `components.schemas` 的使用频次；
    - 应用阈值（默认 12 次）判定通用模型；
    - 结合 `domain_mapping.yaml`、历史 JSON Schema 目录推断模型所属域。
-2. 如需要人工校正，可在 `config/domain_mapping.yaml` 中调整，或在 `config/name_mapping.json`
-   增补命名映射以消除历史差异。
+2. 如需要人工校正，可在 `config/domain_mapping.yaml` 中调整域归属，或在 `config/schema_taxonomy.yaml`
+   为特定模型指定精确的 `Domain/TMFxxx` 路径；若需对 API 名称做友好化展示，可同步更新 `config/apiname_mapping.yaml`。
 3. 输出日志中若出现 `⚠️ 解析失败`，需定位对应 YAML 并修复语法问题。
 
 ## 3. 生成与重写（对应脚本 Phase 2）
