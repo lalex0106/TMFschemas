@@ -1,0 +1,4 @@
+Property,Descriptions,中文名称,新描述
+name,,名称,在界面或报表中展示的标准名称。
+creditLimit,,信用额度,账户可以被透支或消费的最高额度。
+Account.description,,账户描述,仅对 Account 模型生效的补充说明。
