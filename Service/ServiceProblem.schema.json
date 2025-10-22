@@ -118,17 +118,17 @@
         },
         "originatorParty": {
           "description": "Individual or organization that created the problem",
-          "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+          "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
         },
         "responsibleParty": {
           "description": "Individual or organization responsible for handling this problem",
-          "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+          "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
         },
         "relatedParty": {
           "type": "array",
           "description": "List of parties or party roles playing a role within the service problem",
           "items": {
-            "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+            "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
           }
         },
         "rootCauseResource": {
@@ -191,7 +191,7 @@
           "type": "array",
           "description": "A List of SLA violations associated with this problem.",
           "items": {
-            "$ref": "../EngagedParty/SLAViolationRef.schema.json#SLAViolationRef"
+            "$ref": "../BusinessPartner/SLAViolationRef.schema.json#SLAViolationRef"
           }
         },
         "associatedTroubleTicket": {

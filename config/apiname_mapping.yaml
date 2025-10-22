@@ -1,0 +1,6 @@
+# TMF API 编号到官方名称的映射，用于生成 "TMFxxx_API Name" 子目录。
+TMF620: Product Catalog Management
+TMF622: Product Ordering
+TMF760: Party Management
+TMF632: Party Role Management
+TMF637: Product Inventory

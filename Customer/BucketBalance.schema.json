@@ -30,7 +30,7 @@
         },
         "partyAccount": {
           "description": "A reference to the account that owns the bucket",
-          "$ref": "../EngagedParty/PartyAccountRef.schema.json#PartyAccountRef",
+          "$ref": "../BusinessPartner/PartyAccountRef.schema.json#PartyAccountRef",
           "minItems": 1,
           "maxItems": 1
         },
@@ -51,7 +51,7 @@
         "relatedParty": {
           "type": "array",
           "items": {
-            "$ref": "../EngagedParty/RelatedParty.schema.json#RelatedParty"
+            "$ref": "../BusinessPartner/RelatedParty.schema.json#RelatedParty"
           },
           "description": "Used to provide information about any other entity with relation to the balance, for instance to define customer hierarchy for the balance (e.g.: customerId, userId, )"
         },
