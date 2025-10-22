@@ -1,0 +1,10 @@
+# Schema 归属的分层定义。支持以下写法：
+#   SchemaName: TMFxxx/Domain        -> 输出目录为 Domain/TMFxxx_API Name
+#   SchemaName: Domain/Subfolder     -> 输出目录为 Domain/Subfolder
+#   SchemaName: Domain               -> 输出目录为 Domain
+# 未显式配置的 Schema 将回退到 domain_mapping.yaml 与频次推断结果。
+Individual: TMF760/BusinessPartner
+Party: TMF760/BusinessPartner
+ProductSpecification: TMF620/Product
+ProductOffering: TMF620/Product
+Account: TMF666/BusinessPartner
