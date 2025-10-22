@@ -20,7 +20,7 @@ import re
 import shutil
 from collections import Counter
 from copy import deepcopy
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Dict, Iterable, Mapping, MutableMapping, Optional, Sequence, Tuple
 
@@ -40,6 +40,17 @@ class SpecDocument:
     protocol: str
     file: Path
     schemas: Mapping[str, object]
+
+
+@dataclass
+class WrittenModel:
+    """记录已写入的 Schema 版本信息，便于版本优先级比较。"""
+
+    document: SpecDocument
+    schema_name: str
+    location: ModelLocation
+    output_path: Path
+    validation_path: Optional[Path]
 
 
 @dataclass(frozen=True)
@@ -96,34 +107,6 @@ class LocaleConfig:
 
 
 @dataclass
-class OrganizedSchemaRecord:
-    """记录用于目录重组的 Schema 元数据。"""
-
-    model_name: str
-    source_path: Path
-    container: PurePosixPath
-    domain: str
-    api_code: Optional[str]
-    api_name: Optional[str]
-    version: Optional[str]
-    major_version: Optional[str]
-    protocol: str
-
-
-@dataclass
-class ModuleAccumulator:
-    """聚合单个 API 模块的分类统计。"""
-
-    domain: str
-    api_code: Optional[str]
-    api_name: Optional[str]
-    module_parts: Tuple[str, ...]
-    versions: Dict[str, Counter] = field(default_factory=lambda: defaultdict(Counter))
-    source_versions: Dict[str, set] = field(default_factory=lambda: defaultdict(set))
-    category_totals: Counter = field(default_factory=Counter)
-
-
-@dataclass
 class PipelineConfig:
     """结构化后的配置对象。"""
 
@@ -137,7 +120,6 @@ class PipelineConfig:
     output_root: Path
     output_docs: Path
     output_yaml: Path
-    organized_root: Path
     domain_mapping_file: Path
     api_name_mapping_file: Path
     schema_taxonomy_file: Path
@@ -212,10 +194,9 @@ class PipelineConfig:
             prefer_existing_domains=bool(processing.get("prefer_existing_domains", True)),
             default_domain=str(processing.get("default_domain", "Unclassified")),
             allowed_major_versions=allowed_versions,
-    output_root=Path(output.get("root", "dist/json")),
-    output_docs=Path(output.get("docs", "dist/docs")),
-    output_yaml=Path(output.get("yaml", "dist/yaml")),
-    organized_root=Path(output.get("organized", "dist/organized")),
+            output_root=Path(output.get("root", "dist/json")),
+            output_docs=Path(output.get("docs", "dist/docs")),
+            output_yaml=Path(output.get("yaml", "dist/yaml")),
             domain_mapping_file=Path(metadata.get("domain_mapping_file", "config/domain_mapping.yaml")),
             api_name_mapping_file=Path(
                 metadata.get("api_name_mapping_file", "config/apiname_mapping.yaml")
@@ -1207,6 +1188,56 @@ def _extract_major_version(version: Optional[str], path: Path) -> Optional[str]:
     return None
 
 
+_VERSION_NUMBER_PATTERN = re.compile(r"(\d+)")
+
+
+def _version_tuple(version: Optional[str]) -> Tuple[int, int, int]:
+    if not version:
+        return (-1, -1, -1)
+    numbers = [int(match) for match in _VERSION_NUMBER_PATTERN.findall(version)]
+    while len(numbers) < 3:
+        numbers.append(0)
+    return tuple(numbers[:3])  # type: ignore[return-value]
+
+
+def _major_rank(major: Optional[str], priority_map: Mapping[str, int]) -> int:
+    if major is None:
+        return -1
+    return priority_map.get(major, -1)
+
+
+def should_replace_model(
+    existing: WrittenModel,
+    new_document: SpecDocument,
+    major_priority_map: Mapping[str, int],
+) -> bool:
+    previous_doc = existing.document
+    previous_protocol_priority = PROTOCOL_PRIORITY.get(previous_doc.protocol, 9)
+    current_protocol_priority = PROTOCOL_PRIORITY.get(new_document.protocol, 9)
+
+    if current_protocol_priority > previous_protocol_priority:
+        return False
+    if current_protocol_priority < previous_protocol_priority:
+        return True
+
+    previous_major_rank = _major_rank(previous_doc.major_version, major_priority_map)
+    current_major_rank = _major_rank(new_document.major_version, major_priority_map)
+
+    if current_major_rank < previous_major_rank:
+        return False
+    if current_major_rank > previous_major_rank:
+        return True
+
+    previous_version = _version_tuple(previous_doc.version)
+    current_version = _version_tuple(new_document.version)
+    if current_version < previous_version:
+        return False
+    if current_version > previous_version:
+        return True
+
+    return new_document.file.name < previous_doc.file.name
+
+
 def analyze_spec_files(
     spec_files: Iterable[Path],
     pattern: re.Pattern[str],
@@ -1224,18 +1255,8 @@ def analyze_spec_files(
         if payload is None:
             continue
 
-        components = payload.get("components") if isinstance(payload, Mapping) else None
-        schemas: Mapping[str, object] = {}
-        if isinstance(components, Mapping):
-            raw_schemas = components.get("schemas") or {}
-            if isinstance(raw_schemas, Mapping):
-                schemas = raw_schemas
-
-        if not schemas:
-            definitions = payload.get("definitions") if isinstance(payload, Mapping) else None
-            if isinstance(definitions, Mapping):
-                schemas = definitions
-
+        components = (payload.get("components") if isinstance(payload, Mapping) else None) or {}
+        schemas = components.get("schemas") or {}
         if not isinstance(schemas, Mapping) or not schemas:
             continue
 
@@ -1278,30 +1299,14 @@ def infer_domain(
     return config.default_domain
 
 
-def _extract_schema_ref_name(ref: str) -> Optional[str]:
-    if not ref.startswith("#/"):
-        return None
-    parts = ref.split("/")
-    if len(parts) < 3:
-        return None
-    if parts[1].lower() == "components" and len(parts) >= 4 and parts[2].lower() == "schemas":
-        return parts[-1]
-    if parts[1].lower() == "definitions":
-        return parts[-1]
-    return None
-
-
 def resolve_refs(
     obj: object, current_location: ModelLocation, model_locations: Mapping[str, ModelLocation]
 ) -> object:
     if isinstance(obj, dict):
         new_obj: Dict[str, object] = {}
         for key, value in obj.items():
-            if key == "$ref" and isinstance(value, str):
-                ref_name = _extract_schema_ref_name(value)
-                if ref_name is None:
-                    new_obj[key] = value
-                    continue
+            if key == "$ref" and isinstance(value, str) and value.startswith("#/components/schemas/"):
+                ref_name = value.split("/")[-1]
                 target_location = model_locations.get(ref_name)
                 if target_location is None:
                     target_location = model_locations.get(canonical_model_name(ref_name))
@@ -1429,7 +1434,10 @@ def build_schema_document(
 
 
 def write_schema_file(
-    output_root: Path, location: ModelLocation, model_name: str, document: Mapping[str, object]
+    output_root: Path,
+    location: ModelLocation,
+    model_name: str,
+    document: Mapping[str, object],
 ) -> Path:
     target_dir = location.filesystem_dir(output_root)
     target_dir.mkdir(parents=True, exist_ok=True)
@@ -1452,18 +1460,30 @@ def run_pipeline(config: PipelineConfig, clean: bool = False) -> None:
     )
     locale_translations = load_all_translations(config.i18n_locales)
 
+    major_priority_map: Dict[str, int] = {
+        version: idx for idx, version in enumerate(config.allowed_major_versions)
+    }
+
+    if documents:
+        version_counter: Counter[str] = Counter(
+            document.major_version or "unknown" for document in documents
+        )
+        summary = ", ".join(
+            f"{key}={value}" for key, value in sorted(version_counter.items())
+        )
+        print(
+            f"ℹ️  已加载 {len(documents)} 份规范（主版本统计：{summary}）"
+        )
+
     if clean and config.output_root.exists():
         shutil.rmtree(config.output_root)
-    if clean and config.organized_root.exists():
-        shutil.rmtree(config.organized_root)
     if clean and config.validation_root and config.validation_root.exists():
         shutil.rmtree(config.validation_root)
 
     repo_root = Path.cwd()
-    written_models: Dict[str, SpecDocument] = {}
+    written_models: Dict[str, WrittenModel] = {}
     location_cache: Dict[str, ModelLocation] = {}
     model_location_map: Dict[str, ModelLocation] = {}
-    organized_records: list[OrganizedSchemaRecord] = []
 
     for canonical_name, placement in schema_taxonomy.canonical_items():
         location = build_model_location(
@@ -1477,20 +1497,29 @@ def run_pipeline(config: PipelineConfig, clean: bool = False) -> None:
         for alias in iter_model_aliases(canonical_name):
             model_location_map.setdefault(alias, location)
 
-    def document_sort_key(doc: SpecDocument) -> tuple[int, str, str, str]:
+    def document_sort_key(doc: SpecDocument) -> tuple:
         priority = PROTOCOL_PRIORITY.get(doc.protocol, 9)
-        version = doc.version or ""
-        return (priority, doc.api_code, version, doc.file.name)
+        major_rank = _major_rank(doc.major_version, major_priority_map)
+        version_key = _version_tuple(doc.version)
+        return (
+            priority,
+            major_rank,
+            doc.api_code,
+            version_key,
+            doc.version or "",
+            doc.file.name,
+        )
 
     for document in sorted(documents, key=document_sort_key):
         for schema_name, schema_def in document.schemas.items():
             canonical_name = canonical_model_name(schema_name)
-            previous = written_models.get(schema_name)
-            if previous is not None:
-                current_priority = PROTOCOL_PRIORITY.get(document.protocol, 9)
-                previous_priority = PROTOCOL_PRIORITY.get(previous.protocol, 9)
-                if current_priority > previous_priority:
-                    continue
+            previous_entry = written_models.get(schema_name)
+            if previous_entry and not should_replace_model(
+                previous_entry, document, major_priority_map
+            ):
+                for alias in iter_model_aliases(schema_name):
+                    model_location_map.setdefault(alias, previous_entry.location)
+                continue
 
             location = determine_model_location(
                 schema_name,
@@ -1533,31 +1562,41 @@ def run_pipeline(config: PipelineConfig, clean: bool = False) -> None:
                 repo_root,
                 applied_locales,
             )
-            output_path = write_schema_file(config.output_root, location, schema_name, document_payload)
+            output_path = write_schema_file(
+                config.output_root, location, schema_name, document_payload
+            )
             if config.validation_root:
                 sanitized_payload = sanitize_for_validation(
                     document_payload, config.validation_strip_keys
                 )
-                write_schema_file(
-                    config.validation_root, location, schema_name, sanitized_payload
+                validation_path = write_schema_file(
+                    config.validation_root,
+                    location,
+                    schema_name,
+                    sanitized_payload,
                 )
-            organized_records.append(
-                OrganizedSchemaRecord(
-                    model_name=schema_name,
-                    source_path=output_path,
-                    container=location.path,
-                    domain=location.domain,
-                    api_code=location.api_code or document.api_code,
-                    api_name=location.api_name,
-                    version=document.version,
-                    major_version=document.major_version,
-                    protocol=document.protocol,
-                )
-            )
-            written_models[schema_name] = document
+            else:
+                validation_path = None
 
-    if organized_records:
-        organize_schema_outputs(config, organized_records)
+            if previous_entry:
+                previous_output = previous_entry.output_path
+                if previous_output != output_path and previous_output.exists():
+                    previous_output.unlink()
+                previous_validation = previous_entry.validation_path
+                if (
+                    previous_validation
+                    and previous_validation != validation_path
+                    and previous_validation.exists()
+                ):
+                    previous_validation.unlink()
+
+            written_models[schema_name] = WrittenModel(
+                document=document,
+                schema_name=schema_name,
+                location=location,
+                output_path=output_path,
+                validation_path=validation_path,
+            )
 
     print(f"✅ 已输出 {len(written_models)} 个模型定义到 {config.output_root}")
 

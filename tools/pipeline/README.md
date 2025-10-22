@@ -12,7 +12,7 @@
 - **多语言融合**：读取 `overrides/i18n/` 中的翻译文件，自动生成中英文对照的 `x-i18n` 字段，兼顾国际化与本地化需求；并提供 Excel 工具脚本，
   支持一键汇总/回写翻译内容。
 - **保留模型原名**：输出文件沿用官方组件完整名称（如 `PermissionSet_Update`），同时对域推断与翻译支持“原名/规范名”双重匹配，避免 `_Update` 等后缀覆盖主模型。
-- **版本筛选**：通过 `processing.allowed_major_versions` 控制参与构建的主版本，默认聚焦 v4/v5 以降低旧版本差异导致的噪声，需扩展时可在配置中增减。
+- **版本筛选**：通过 `processing.allowed_major_versions` 控制参与构建的主版本，默认聚焦 v4/v5 以降低旧版本差异导致的噪声；当同一模型在多个主版本中同时存在时，会按照配置顺序自动保留版本更新的定义（默认 v5 覆盖 v4），其余版本作为回退来源。
 - **TMF 校验友好**：构建过程中会把 `discriminator` 统一转为字符串、补齐缺失的 `type`，并在校验副本里去除 `nullable`、`oneOf` 等 Meta-Schema 不允许的键，便于快速通过官方校验；同时在缺失描述时自动写入占位文本，避免因官方模型未给出描述而触发校验错误。
 
 ## 使用步骤
@@ -123,10 +123,10 @@
 
    ```bash
    # 指定实体列表
-   python tools/pipeline/generate_puml.py -r organization --depth 2 --inheritance-scope all -o dist/docs/organization.puml
+   python tools/pipeline/generate_puml.py -r Product Catalog Quote --depth 1 -o dist/docs/product_view.puml
 
    # 基于某份官方 API 自动选取资源入口
-   python tools/pipeline/generate_puml.py --api TMF632-Party_Management-v5.0.0.oas --depth 2 -o dist/docs/tmf632_view.puml
+   python tools/pipeline/generate_puml.py --api TMF622-ProductOrdering --depth 2 -o dist/docs/tmf622_view.puml
 
    # 按版本批量输出默认图谱
    python tools/pipeline/generate_puml.py --emit-version-diagrams dist/puml --depth 2
