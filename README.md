@@ -43,6 +43,8 @@
    python tools/pipeline/build_schemas.py --clean
    ```
 
+   若需临时覆盖 `processing.allowed_major_versions`，可追加 `--major` 参数，例如仅处理 v5：`python tools/pipeline/build_schemas.py --clean --major v5`，或混合处理 v4/v5：`python tools/pipeline/build_schemas.py --clean --major v4 v5`。命令行指定的顺序也将作为冲突时的优先级基准。
+
 5. 在 `dist/json/` 目录查看带有企业扩展和多语言信息的 Schema，并结合文档持续优化；同步会在 `dist/validation/` 中生成去除 `x-*` 扩展字段的严格版本。
 6. （推荐）执行 `python tools/pipeline/run_validation.py` 触发 TMF 官方校验脚本，结果会保存在 `dist/validation/validation_results.txt`。日志里如仅出现 `x-i18n`、`x-metadata` 等字段被禁止，可判定为我们主动的企业增强；若提示缺少 `type`、`discriminator` 等关键字段，则属于需要修复的结构性问题。
 

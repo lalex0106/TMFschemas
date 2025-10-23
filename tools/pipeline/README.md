@@ -38,6 +38,16 @@
    python tools/pipeline/build_schemas.py --clean
    ```
 
+   - 若希望临时覆盖配置文件中的主版本过滤，可附加 `--major` 参数，例如：
+
+     ```bash
+     # 仅处理 v5
+     python tools/pipeline/build_schemas.py --clean --major v5
+
+     # 同时处理 v4 与 v5（混合模式，冲突时仍优先采用 v5 定义）
+     python tools/pipeline/build_schemas.py --clean --major v4 v5
+     ```
+
 7. 生成的企业级 schema 将按照域分类输出到 `dist/json/`，若提供了翻译文件，会在 `x-i18n` 中展示可用语种列表；同时会在 `dist/validation/` 目录生成自动剥离 `x-*` 扩展字段（含 `x-metadata`、`x-i18n` 等）且去掉 `nullable`、`oneOf` 等受限关键字的严格版本，便于通过 TMF 官方校验。
 
 ## 翻译配置常见问答

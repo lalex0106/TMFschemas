@@ -106,6 +106,35 @@ class LocaleConfig:
         return self.code
 
 
+_MAJOR_TOKEN_PATTERN = re.compile(r"^(v?\d+)")
+
+
+def _normalize_major_token(value: object) -> Optional[str]:
+    text = str(value).strip()
+    if not text:
+        return None
+    lowered = text.lower()
+    match = _MAJOR_TOKEN_PATTERN.match(lowered)
+    if match:
+        token = match.group(1)
+        if not token.startswith("v"):
+            token = f"v{token}"
+        return token
+    return lowered
+
+
+def _normalize_major_list(values: Iterable[object]) -> Tuple[str, ...]:
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for value in values:
+        token = _normalize_major_token(value)
+        if not token or token in seen:
+            continue
+        seen.add(token)
+        ordered.append(token)
+    return tuple(ordered)
+
+
 @dataclass
 class PipelineConfig:
     """结构化后的配置对象。"""
@@ -180,10 +209,8 @@ class PipelineConfig:
             else None
         )
 
-        allowed_versions = tuple(
-            str(item).strip().lower()
-            for item in processing.get("allowed_major_versions", [])
-            if str(item).strip()
+        allowed_versions = _normalize_major_list(
+            processing.get("allowed_major_versions", [])
         )
 
         return cls(
@@ -1178,9 +1205,9 @@ def apply_locale_translations(
 
 def _extract_major_version(version: Optional[str], path: Path) -> Optional[str]:
     if version:
-        major = version.split(".")[0].strip()
-        if major:
-            return major.lower()
+        token = _normalize_major_token(version)
+        if token:
+            return token
     for part in path.parts:
         lower = part.lower()
         if lower.startswith("api-v"):
@@ -1245,6 +1272,7 @@ def analyze_spec_files(
 ) -> tuple[list[SpecDocument], Counter]:
     documents: list[SpecDocument] = []
     schema_counts: Counter = Counter()
+    skipped_by_major: Counter[str] = Counter()
 
     for spec_file in sorted(spec_files):
         match = pattern.match(spec_file.stem)
@@ -1261,11 +1289,18 @@ def analyze_spec_files(
             continue
 
         version = match.group(2) if match.lastindex and match.lastindex >= 2 else None
+        if not version and isinstance(payload, Mapping):
+            info = payload.get("info")
+            if isinstance(info, Mapping):
+                raw_version = info.get("version")
+                if raw_version:
+                    version = str(raw_version).strip()
         major_version = _extract_major_version(version, spec_file)
 
         if allowed_major_versions and (
             major_version is None or major_version not in allowed_major_versions
         ):
+            skipped_by_major[major_version or "unknown"] += 1
             continue
 
         document = SpecDocument(
@@ -1281,6 +1316,14 @@ def analyze_spec_files(
 
         unique_names = {canonical_model_name(name) for name in schemas.keys()}
         schema_counts.update(unique_names)
+
+    if skipped_by_major:
+        summary = ", ".join(
+            f"{label}={count}" for label, count in sorted(skipped_by_major.items())
+        )
+        print(
+            f"⚠️  有 {sum(skipped_by_major.values())} 份规范未处理，原因：主版本不在允许列表（{summary}）。"
+        )
 
     return documents, schema_counts
 
@@ -1614,12 +1657,30 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="执行前清空输出目录",
     )
+    parser.add_argument(
+        "--major",
+        dest="majors",
+        nargs="+",
+        action="append",
+        help="覆盖配置中的主版本过滤（例如：--major v4 v5）",
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
     config = PipelineConfig.load(args.config)
+    if args.majors:
+        override: list[str] = []
+        for group in args.majors:
+            override.extend(group)
+        normalized = _normalize_major_list(override)
+        if normalized:
+            config.allowed_major_versions = normalized
+            print(
+                "ℹ️  使用命令行覆盖主版本过滤: "
+                + ", ".join(config.allowed_major_versions)
+            )
     run_pipeline(config, clean=args.clean)
 
 
